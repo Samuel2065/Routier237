@@ -9,7 +9,7 @@ class AgencySeeder extends Seeder
     public function run()
     {
         Agency::create([
-            'name' => 'Garantie Express',
+            'name' => 'Naral Voyage',
             'description' => 'Transport rapide et sécurisé dans tout le Cameroun',
             'phone' => '+237 123 456 789',
             'email' => 'info@garantie-express.com',
@@ -20,7 +20,7 @@ class AgencySeeder extends Seeder
         ]);
 
         Agency::create([
-            'name' => 'Binam Voyage',
+            'name' => 'National Voyage',
             'description' => 'Votre partenaire voyage de confiance depuis 1995',
             'phone' => '+237 987 654 321',
             'email' => 'contact@binam-voyage.com',

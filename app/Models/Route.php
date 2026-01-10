@@ -2,42 +2,35 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Route extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'agency_id', 'departure_destination_id', 'arrival_destination_id',
-        'departure_time', 'arrival_time', 'price', 'available_seats',
-        'total_seats', 'bus_type', 'amenities', 'notes', 'is_active'
+        'agency_id', 'departure_city', 'arrival_city',
+        'departure_date', 'departure_time', 'price',
+        'total_seats', 'available_seats', 'status', 'description'
     ];
 
     protected $casts = [
-        'amenities' => 'array',
-        'departure_time' => 'datetime:H:i',
-        'arrival_time' => 'datetime:H:i',
+        'departure_date' => 'date',
+        'departure_time' => 'datetime',
+        'price' => 'decimal:2',
     ];
 
     public function agency()
     {
-        return $this->belongsTo(Agency::class);
+        return $this->belongsTo(User::class, 'agency_id');
     }
 
-    public function departureDestination()
+    public function bookings()
     {
-        return $this->belongsTo(Destination::class, 'departure_destination_id');
+        return $this->hasMany(Booking::class);
     }
 
-    public function arrivalDestination()
+    // Helper to get booked seats count
+    public function getBookedSeatsAttribute()
     {
-        return $this->belongsTo(Destination::class, 'arrival_destination_id');
-    }
-
-    public function schedules()
-    {
-        return $this->hasMany(Schedule::class);
+        return $this->total_seats - $this->available_seats;
     }
 }

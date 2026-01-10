@@ -1,0 +1,48 @@
+/* .agency-img {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.agency-img::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(27, 42, 74, 0.8), rgba(27, 42, 74, 0.6));
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.agency-card:hover .agency-img::before {
+    background: linear-gradient(45deg, rgba(27, 42, 74, 0.6), rgba(27, 42, 74, 0.4));
+}
+
+.agency-img .content {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+}
+
+.agency-img .content h4 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.agency-img .content p {
+    font-size: 1.1rem;
+    margin: 10px 0 0;
+    opacity: 0.9;
+} */

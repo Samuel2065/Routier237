@@ -20,7 +20,14 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
+        'user_type',
+        'agency_name',
+        'business_license',
+        'address',
+        'tax_id',
+        'contact_person',
     ];
 
     /**
@@ -42,7 +49,23 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
+    }
+
+
+    // Relationships
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function routes()
+    {
+        return $this->hasMany(Route::class, 'agency_id');
+    }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'agency_id');
     }
 }
