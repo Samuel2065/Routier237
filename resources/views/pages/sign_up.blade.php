@@ -49,6 +49,11 @@
         color: #6c757d;
     }
 
+    .form-floating select {
+        padding: 1.1rem 0.75rem;
+        color: #6c757d;
+    }
+
     form {
         padding: 1.5rem;
         margin-bottom: 1rem;
@@ -148,7 +153,7 @@
     <div class="signin-container" style="margin-top: 120px;">
             <div class="signin-card" style="max-width: 450px; margin: auto; margin-bottom: 30px;">
                 <div class="text-center mb-3">
-                <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="YourTrip" style="height: 48px;"> -->
+                <!-- <img src="{{ asset('assets/images/licensed-image2.jpeg') }}" alt="YourTrip" style="height: 48px; border-radius: 100%;"> -->
                 <span style="font-size: 1.3rem; font-weight: 500; color: #2563eb; margin-left: 8px; vertical-align: middle;">Routier+237</span>
             </div>
 
@@ -183,9 +188,39 @@
                 <!-- Passenger Fields -->
                 <div class="passenger-fields field-transition" id="passengerFields">
                     <div class="mb-2">
-                        <label for="name" class="form-label">Full name *</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="Entrez votre nom complet" value="{{ old('name') }}" required>
-                        @error('name')
+                        <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('full_name') is-invalid @enderror" id="full_name" name="full_name" placeholder="Enter your full name" value="{{ old('full_name') }}">
+                        @error('full_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Email address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="your@email.com" value="{{ old('email') }}">
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col">
+                            <label for="password_confirmation" class="form-label">Confirm password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" id="password_confirmation" name="password_confirmation" placeholder="Confirm password">
+                            @error('password_confirmation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Telephone number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" placeholder="6XX XXX XXX" value="{{ old('phone') }}">
+                        @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -194,73 +229,72 @@
                 <!-- Agency Fields -->
                 <div class="agency-fields field-transition" id="agencyFields">
                     <div class="mb-2">
-                        <label for="agency_name" class="form-label">Agency name *</label>
-                        <input type="text" class="form-control @error('agency_name') is-invalid @enderror" id="agency_name" name="agency_name" placeholder="Travel Agency Inc." value="{{ old('agency_name') }}" disabled>
+                        <label for="agency_name" class="form-label">Agency name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('agency_name') is-invalid @enderror" id="agency_name" name="agency_name" placeholder="Travel Agency Inc." value="{{ old('agency_name') }}">
                         @error('agency_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-2">
-                        <label for="business_license" class="form-label">Business license number *</label>
-                        <input type="text" class="form-control @error('business_license') is-invalid @enderror" id="business_license" name="business_license" placeholder="BL-123456789" value="{{ old('business_license') }}" disabled>
+                        <label for="agency_email" class="form-label">Email address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="agency_email" name="email" placeholder="agency@email.com" value="{{ old('email') }}">
+                        @error('email')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <label for="agency_password" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="agency_password" name="password" placeholder="Password">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col">
+                            <label for="agency_password_confirmation" class="form-label">Confirm password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" id="agency_password_confirmation" name="password_confirmation" placeholder="Confirm password">
+                            @error('password_confirmation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="business_license" class="form-label">Business license number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('business_license') is-invalid @enderror" id="business_license" name="business_license" placeholder="BL-123456789" value="{{ old('business_license') }}">
                         @error('business_license')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-2">
-                        <label for="address" class="form-label">Business address *</label>
-                        <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" name="address" placeholder="123 Business St, Yaoundé" value="{{ old('address') }}" disabled>
+                        <label for="address" class="form-label">Business address <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('address') is-invalid @enderror" id="address" name="address" placeholder="123 Business St, Yaoundé" value="{{ old('address') }}">
                         @error('address')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-2">
-                        <label for="tax_id" class="form-label">Tax ID *</label>
-                        <input type="text" class="form-control @error('tax_id') is-invalid @enderror" id="tax_id" name="tax_id" placeholder="XX-XXXXXXX" value="{{ old('tax_id') }}" disabled>
+                        <label for="tax_id" class="form-label">Tax ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('tax_id') is-invalid @enderror" id="tax_id" name="tax_id" placeholder="XX-XXXXXXX" value="{{ old('tax_id') }}">
                         @error('tax_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-2">
-                        <label for="contact_person" class="form-label">Contact person *</label>
-                        <input type="text" class="form-control @error('contact_person') is-invalid @enderror" id="contact_person" name="contact_person" placeholder="Manager Name" value="{{ old('contact_person') }}" disabled>
+                        <label for="contact_person" class="form-label">Contact person <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('contact_person') is-invalid @enderror" id="contact_person" name="contact_person" placeholder="Manager Name" value="{{ old('contact_person') }}">
                         @error('contact_person')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-2">
+                        <label for="agency_phone" class="form-label">Telephone number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('phone') is-invalid @enderror" id="agency_phone" name="phone" placeholder="6XX XXX XXX" value="{{ old('phone') }}">
+                        @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
 
-                <!-- Common Fields -->
-                <div class="mb-2">
-                    <label for="email" class="form-label">Email addresse*</label>
-                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="votre@email.com" required value="{{ old('email') }}">
-                    @error('email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="mb-2">
-                    <label for="phone" class="form-label">Telephone number *</label>
-                    <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" placeholder="6XX XXX XXX" required value="{{ old('phone') }}">
-                    @error('phone')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="row mb-2">
-                    <div class="col">
-                        <label for="password" class="form-label">Password *</label>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" required>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col">
-                        <label for="password_confirmation" class="form-label">Confirm password *</label>
-                        <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror" id="password_confirmation" name="password_confirmation" placeholder="Confirme password" required>
-                        @error('password_confirmation')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
                 <button class="btn btn-primary w-100" type="submit" style="height: 48px; font-weight: 600; font-size: 1.05rem; border-radius: 8px; justify-content: center; background: #2563eb;">Create an account</button>
             </form>
             <div class="text-center" style="font-size: 0.98rem; margin-bottom: 15px;">
@@ -278,13 +312,23 @@
         const passengerFields = document.getElementById('passengerFields');
         const agencyFields = document.getElementById('agencyFields');
 
-        // Get all inputs
-        const nameInput = document.getElementById('name');
+        // Get all passenger inputs
+        const nameInput = document.getElementById('full_name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const passwordConfirmationInput = document.getElementById('password_confirmation');
+        const phoneInput = document.getElementById('phone');
+
+        // Get all agency inputs
         const agencyNameInput = document.getElementById('agency_name');
+        const agencyEmailInput = document.getElementById('agency_email');
+        const agencyPasswordInput = document.getElementById('agency_password');
+        const agencyPasswordConfirmationInput = document.getElementById('agency_password_confirmation');
         const businessLicenseInput = document.getElementById('business_license');
         const addressInput = document.getElementById('address');
         const taxIdInput = document.getElementById('tax_id');
         const contactPersonInput = document.getElementById('contact_person');
+        const agencyPhoneInput = document.getElementById('agency_phone');
 
         // Function to switch to passenger mode
         function switchToPassenger() {
@@ -296,21 +340,46 @@
             passengerFields.classList.remove('hide');
             agencyFields.classList.remove('show');
             
-            // Enable/disable and set required attributes for passenger
+            // Enable passenger fields and set required
             nameInput.disabled = false;
             nameInput.required = true;
+            emailInput.disabled = false;
+            emailInput.required = true;
+            passwordInput.disabled = false;
+            passwordInput.required = true;
+            passwordConfirmationInput.disabled = false;
+            passwordConfirmationInput.required = true;
+            phoneInput.disabled = false;
+            phoneInput.required = true;
             
-            // Disable and remove required for agency fields
+            // Disable agency fields, remove required and clear values
             agencyNameInput.disabled = true;
             agencyNameInput.required = false;
+            agencyNameInput.removeAttribute('name');
+            agencyEmailInput.disabled = true;
+            agencyEmailInput.required = false;
+            agencyEmailInput.removeAttribute('name');
+            agencyPasswordInput.disabled = true;
+            agencyPasswordInput.required = false;
+            agencyPasswordInput.removeAttribute('name');
+            agencyPasswordConfirmationInput.disabled = true;
+            agencyPasswordConfirmationInput.required = false;
+            agencyPasswordConfirmationInput.removeAttribute('name');
             businessLicenseInput.disabled = true;
             businessLicenseInput.required = false;
+            businessLicenseInput.removeAttribute('name');
             addressInput.disabled = true;
             addressInput.required = false;
+            addressInput.removeAttribute('name');
             taxIdInput.disabled = true;
             taxIdInput.required = false;
+            taxIdInput.removeAttribute('name');
             contactPersonInput.disabled = true;
             contactPersonInput.required = false;
+            contactPersonInput.removeAttribute('name');
+            agencyPhoneInput.disabled = true;
+            agencyPhoneInput.required = false;
+            agencyPhoneInput.removeAttribute('name');
         }
 
         // Function to switch to agency mode
@@ -323,21 +392,51 @@
             passengerFields.classList.add('hide');
             agencyFields.classList.add('show');
             
-            // Disable and remove required for passenger field
+            // Disable passenger fields, remove required and remove name attribute
             nameInput.disabled = true;
             nameInput.required = false;
+            nameInput.removeAttribute('name');
+            emailInput.disabled = true;
+            emailInput.required = false;
+            emailInput.removeAttribute('name');
+            passwordInput.disabled = true;
+            passwordInput.required = false;
+            passwordInput.removeAttribute('name');
+            passwordConfirmationInput.disabled = true;
+            passwordConfirmationInput.required = false;
+            passwordConfirmationInput.removeAttribute('name');
+            phoneInput.disabled = true;
+            phoneInput.required = false;
+            phoneInput.removeAttribute('name');
             
-            // Enable and set required for agency fields
+            // Enable agency fields and set required
             agencyNameInput.disabled = false;
             agencyNameInput.required = true;
+            agencyNameInput.setAttribute('name', 'agency_name');
+            agencyEmailInput.disabled = false;
+            agencyEmailInput.required = true;
+            agencyEmailInput.setAttribute('name', 'email');
+            agencyPasswordInput.disabled = false;
+            agencyPasswordInput.required = true;
+            agencyPasswordInput.setAttribute('name', 'password');
+            agencyPasswordConfirmationInput.disabled = false;
+            agencyPasswordConfirmationInput.required = true;
+            agencyPasswordConfirmationInput.setAttribute('name', 'password_confirmation');
             businessLicenseInput.disabled = false;
             businessLicenseInput.required = true;
+            businessLicenseInput.setAttribute('name', 'business_license');
             addressInput.disabled = false;
             addressInput.required = true;
+            addressInput.setAttribute('name', 'address');
             taxIdInput.disabled = false;
             taxIdInput.required = true;
+            taxIdInput.setAttribute('name', 'tax_id');
             contactPersonInput.disabled = false;
             contactPersonInput.required = true;
+            contactPersonInput.setAttribute('name', 'contact_person');
+            agencyPhoneInput.disabled = false;
+            agencyPhoneInput.required = true;
+            agencyPhoneInput.setAttribute('name', 'phone');
         }
 
         // Event listeners

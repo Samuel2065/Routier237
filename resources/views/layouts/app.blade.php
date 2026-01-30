@@ -3,16 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Routier+237 - Your Travel Platform in Cameroon</title>
+    <title>Routier+237 - Your Road Travel Platform in Cameroon</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/typography.css') }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"><link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Miniver&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,600&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Miniver&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,600&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
 </head>
+
 <style>
+
+    /* ===== MEGA DROPDOWN ===== */
+
+    .mega-dropdown {
+        position: static;
+    }
+
+    .mega-dropdown:hover .mega-menu {
+        display: block;
+    }
+
+    /* Menu box */
+    .mega-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 250px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: none;
+        z-index: 1000;
+    }
+
+    /* Title */
+    .mega-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    /* Items */
+    .mega-item {
+        display: block;
+        padding: 8px 2px;
+        font-size: 14px;
+        color: #212529;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.2s ease;
+    }
+
+    .mega-item:hover {
+        background-color: #f1f4f8;
+        color: #0d6efd;
+    }
+
     .button {
         padding: 16px 32px;
         border-radius: 15px;
@@ -64,37 +115,31 @@
             visibility: visible;
         }
 
+        /* Align navbar icons with text */
+        .navbar .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         /* Fix navbar button alignment */
         .navbar .d-flex.align-items-center {
             gap: 10px;
             flex-wrap: nowrap;
         }
 
-        /* .navbar .btn {
-            margin-left: 0 !important;
-            white-space: nowrap;
-            vertical-align: middle;
-            line-height: 1.5;
-            height: auto;
-            min-height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        } */
+        @media (max-width: 720px;) {
+            .navbar-expand .navbar-brand .navbar-nav .nav-link .nav-item{
+                justify-content: left;
+                margin-left: 0;
+                text-align: left;
+                align-items: left;
+            }
+        }
 
-        /* .navbar .btn:focus,
-        .navbar .btn:active,
-        .navbar .btn:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 0.25rem rgba(0, 102, 255, 0.25);
-            transform: none;
-        } */
-
-        /* .navbar .btn:active {
-            transform: none;
-            position: relative;
-        } */
+        
 </style>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
@@ -138,13 +183,25 @@
                             <i class="fas fa-map"></i>
                             Cities
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('destinations') }}">Yaoundé</a></li>
-                            <li><a class="dropdown-item" href="{{ route('destinations') }}">Douala</a></li>
-                            <li><a class="dropdown-item" href="{{ route('destinations') }}">Bafoussam</a></li>
-                            <li><a class="dropdown-item" href="{{ route('destinations') }}">Bamenda</a></li>
-                            <li><a class="dropdown-item" href="{{ route('destinations') }}">Garoua</a></li>
-                        </ul>
+                        <div class="dropdown-menu mega-menu p-4">
+                            <h6 class="mega-title mb-3">Major Cities</h6>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a href="{{ route('destinations') }}" class="mega-item">Douala</a>
+                                    <a href="{{ route('destinations') }}" class="mega-item">Yaoundé</a>
+                                    <a href="{{ route('destinations') }}" class="mega-item">Bafoussam</a>
+                                    <a href="{{ route('destinations') }}" class="mega-item">Garoua</a>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <a href="{{ route('destinations') }}" class="mega-item">Bamenda</a>
+                                    <a href="{{ route('destinations') }}" class="mega-item">Maroua</a>
+                                    <a href="{{ route('destinations') }}" class="mega-item">Ngaoundéré</a>
+                                    <a href="{{ route('destinations') }}" class="mega-item">Buea</a>
+                                </div>
+                            </div>
+                        </div>
                     </li>
                 </ul>
 
@@ -161,48 +218,89 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer" id="contact">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Routier+237</h3>
-                <p>Your trusted platform to book your travels across Cameroon. Discover our partner agencies and travel with complete peace of mind.</p>
+    <footer style="background:#0b2a55;" class="text-light pt-5 pb-3">
+        <div class="container">
+            <div class="row gy-4">
+
+                <!-- Logo + description -->
+                <div class="col-md-3">
+                    <h4 class="fw-bold text-white">Routier+</h4>
+                    <p class="small">
+                        La plateforme de transport routier du Cameroun. 
+                        Voyagez en toute sécurité avec des agences validées.
+                    </p>
+
+                    <!-- Social icons -->
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fas fa-facebook"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fas fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fas fa-telegram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="col-md-3">
+                    <h6 class="fw-bold text-uppercase mb-3">Services</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Horaires de bus</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Agences partenaires</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Destinations</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Réservations</a></li>
+                    </ul>
+                </div>
+
+                <!-- Villes populaires -->
+                <div class="col-md-3">
+                    <h6 class="fw-bold text-uppercase mb-3">Villes populaires</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">Douala</li>
+                        <li class="mb-2">Yaoundé</li>
+                        <li class="mb-2">Bafoussam</li>
+                        <li>Bamenda</li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div class="col-md-3">
+                    <h6 class="fw-bold text-uppercase mb-3">Contact</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="bi bi-telephone me-2"></i> +237 699 999 999
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-telephone me-2"></i> +237 675 555 555
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-envelope me-2"></i> contact@routier.cm
+                        </li>
+                        <li>
+                            <i class="bi bi-whatsapp me-2"></i> WhatsApp Support
+                        </li>
+                    </ul>
+                </div>
+
             </div>
-            
-            <div class="footer-section">
-                <h3>Useful Links</h3>
-                <ul>
-                    <li><a href="{{ route('/') }}">Home</a></li>
-                    <li><a href="{{ route('agency') }}">Agencies</a></li>
-                    <li><a href="#destinations">Contact Us</a></li>
-                    <li><a href="#pricing">Destinations</a></li>
-                </ul>
+
+            <!-- Bottom bar -->
+            <hr class="border-secondary my-4">
+
+            <div class="d-flex flex-column flex-md-row justify-content-between small">
+                <span style="color: white;">© 2026 Routier+ — Tous droits réservés.</span>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-light text-decoration-none">Confidentialité</a>
+                    <a href="#" class="text-light text-decoration-none">Conditions d'utilisation</a>
+                    <a href="#" class="text-light text-decoration-none">Assistance</a>
+                </div>
             </div>
-            
-            <div class="footer-section">
-                <h3>Our Services</h3>
-                <ul>
-                    <li><a href="#booking">Travel booking</a></li>
-                    <li><a href="#transport">Urban transport</a></li>
-                    <li><a href="#inter-urban">Inter-city travel</a></li>
-                    <li><a href="#support">24/7 customer service</a></li>
-                    <li><a href="#insurance">Travel insurance</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Contact Us</h3>
-                <p><strong>Address:</strong>  Bertoua<br>Koume, East<br>Cameroon</p>
-                <p><strong>Phone:</strong> +237 691 43 27 64</p>
-                <p><strong>Email:</strong> contact@yourtrip.cm</p>
-                <p><strong>Hours:</strong> 24/7</p>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>© 2025 Routier+237. All rights reserved.</p>
-            <p>Developed with ❤️ in Cameroon</p>
         </div>
     </footer>
+
 
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>

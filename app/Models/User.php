@@ -2,70 +2,152 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
+        'full_name',
         'email',
         'phone',
         'password',
         'user_type',
-        'agency_name',
-        'business_license',
-        'address',
-        'tax_id',
-        'contact_person',
+        'role_id',
+        'status',
+        'photo',
+        'email_verified_at',
+        'phone_verified_at',
+        'last_login_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Relation avec Role
      */
-    protected function casts(): array
+    public function role()
     {
-        return [
-            'email_verified_at' => 'datetime',
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Relation avec Client (pour les customers)
+     */
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+
+    /**
+     * Relation avec Employee (pour les staff)
+     */
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    /**
+     * Relation avec Company (pour les directeurs)
+     */
+    public function managedCompany()
+    {
+        return $this->hasOne(Company::class, 'director_id');
+    }
+
+    /**
+     * Relation avec Agency (pour les managers d'agence)
+     */
+    public function managedAgency()
+    {
+        return $this->hasOne(Agency::class, 'manager_id');
+    }
+
+    /**
+     * Reservations créées par l'utilisateur
+     */
+    public function createdReservations()
+    {
+        return $this->hasMany(Reservation::class, 'reserved_by');
+    }
+
+    /**
+     * Transactions effectuées par l'utilisateur
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'performed_by');
+    }
+
+    /**
+     * Vérifier si l'utilisateur a une permission
+     */
+    public function hasPermission($permission)
+    {
+        return $this->role->permissions()->where('name', $permission)->exists();
+    }
+
+    /**
+     * Vérifier si l'utilisateur a un rôle
+     */
+    public function hasRole($roleSlug)
+    {
+        return $this->role->slug === $roleSlug;
+    }
+
+    /**
+     * Obtenir la route du dashboard selon le rôle
+     */
+    public function getDashboardRoute()
+    {
+        $roleRoutes = [
+            'super_admin' => '/super-admin/dashboard',
+            'director' => '/director/dashboard',
+            'agency_manager' => '/agency/dashboard',
+            'counter_clerk' => '/clerk/dashboard',
+            'accountant' => '/accountant/dashboard',
+            'driver' => '/driver/dashboard',
+            'customer' => '/customer/dashboard',
         ];
+
+        return $roleRoutes[$this->role->slug] ?? '/';
     }
 
-
-    // Relationships
-    public function bookings()
+    /**
+     * Vérifier si l'utilisateur est actif
+     */
+    public function isActive()
     {
-        return $this->hasMany(Booking::class);
+        return $this->status === 'active';
     }
 
-    public function routes()
+    /**
+     * Vérifier si l'utilisateur est un staff
+     */
+    public function isStaff()
     {
-        return $this->hasMany(Route::class, 'agency_id');
+        return $this->user_type === 'staff';
     }
 
-    public function vehicles()
+    /**
+     * Vérifier si l'utilisateur est un customer
+     */
+    public function isCustomer()
     {
-        return $this->hasMany(Vehicle::class, 'agency_id');
+        return $this->user_type === 'customer';
     }
 }

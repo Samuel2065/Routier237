@@ -1,396 +1,234 @@
 @extends('layouts.app')
 
-@section('title', 'Marketplace')
-
 @section('content')
 
+<style>
+.marketplace-hero {
+    height: 100vh;
+    background-color: #1f6eff;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding-top: 90px;
+    margin-bottom: 40px;
+}
 
-    <section style="background: #2563eb; padding: 100px 0; color: white;">
-        <div class="container">
-            <h1 class="text-center mb-2" style="font-size: 2.5rem; font-weight: bold;">Trouvez votre trajet idéal</h1>
-            <p class="text-center mb-5">Recherchez parmi toutes les agences et destinations du Cameroun</p>
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card shadow" style="border-radius: 20px; background: white; padding: 32px;">
-                        <form>
-                            <div class="row g-3 mb-2">
-                                <div class="col-lg-3 col-md-6">
-                                    <label class="mb-1" style="font-weight: 500; color: #222;">Ville de départ</label>
-                                    <select class="form-select" style="border-radius: 8px;">
-                                        <option>Yaoundé</option>
-                                        <option>Bertoua</option>
-                                        <option>Douala</option>
-                                        <option value="">Bamenda</option>
-                                        <option value="">Beau</option>
-                                        <option value="">Maroua</option>
-                                        <option value="">Garoua</option>
-                                        <option value="">Ngaoundere</option>
-                                        <option value="">Ebolowa</option>
-                                        <option value="">Bafoussam</option>
+.popular-box {
+    border: 1px solid #dee2e6;
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 15px;
+    background: #f8f9fa;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= CITY CARDS ================= */
+
+.city-hover {
+    transition: all .35s ease;
+}
+
+.city-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(0,0,0,.15);
+}
+
+.city-image-wrapper {
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.city-image {
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform .45s ease;
+}
+
+/* zoom image */
+.city-hover:hover .city-image {
+    transform: scale(1.08);
+}
+
+/* voile animation */
+.city-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(0,0,0,.65) 0%,
+        rgba(0,0,0,.35) 40%,
+        transparent 100%
+    );
+    transform: translateY(0);
+    transition: transform .45s ease;
+}
+
+.city-hover:hover .city-overlay {
+    transform: translateY(-25px);
+}
+
+h6{
+    font-size: 20px;
+}
+</style>
+
+{{-- ================= HERO / FORMULAIRE ================= --}}
+<section class="marketplace-hero">
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="col-12 col-lg-10">
+
+                <div class="text-center text-white mb-5">
+                    <h1 class="fw-bold display-5 mb-3">
+                        Trouvez votre trajet idéal
+                    </h1>
+                    <p class="lead mb-0">
+                        Rechercher parmi toutes les agences et destinations du Cameroun
+                    </p>
+                </div>
+
+                <div class="card shadow-lg border-0" style="border-radius:24px;">
+                    <div class="card-body p-3 p-md-5">
+
+                    <form method="GET" action="{{ route('marketplace.city', strtolower($request->from ?? 'yaounde')) }}">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Ville de départ</label>
+                                    <select name="from" class="form-select" required>
+                                        <option value="">Choisir</option>
+                                        @foreach($cities as $city)
+                                            <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="col-lg-3 col-md-6">
-                                <label class="mb-1" style="font-weight: 500; color: #222;">Destinations</label>
-                                    <select class="form-select" style="border-radius: 8px;">
-                                        <option value="Bertoua">Bertoua</option>
-                                        <option value="Yaoundé">Yaoundé</option>
-                                        <option value="Douala">Douala</option>
-                                        <option value="Bamenda">Bamenda</option>
-                                        <option value="Beau">Beau</option>
-                                        <option value="Maroua">Maroua</option>
-                                        <option value="Garoua">Garoua</option>
-                                        <option value="Ngaoundere">Ngaoundere</option>
-                                        <option value="Ebolowa">Ebolowa</option>
-                                        <option value="Bafoussam">Bafoussam</option>
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Destination</label>
+                                    <select name="to" class="form-select" required>
+                                        <option value="">Choisir</option>
+                                        @foreach($cities as $city)
+                                            <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <label class="mb-1" style="font-weight: 500; color: #222;">Date de voyage</label>
-                                    <div class="input-group position-relative">
-                                        <input type="date" class="form-control" placeholder="mm/dd/yyyy" style="border-radius: 8px;">
-                                        <span class="position-absolute" style="right: 65px; top: 50%; transform: translateY(-50%);">
-                                            <i class="fas fa-calendar text-muted"></i>
-                                        </span>
-                                    </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Date</label>
+                                    <input type="date" name="date" class="form-control">
                                 </div>
-                                <div class="col-lg-3 col-md-6">
-                                    <label class="mb-1" style="font-weight: 500; color: #222;">Classe de transport</label>
-                                    <div class="input-group position-relative">
-                                        <select class="form-select" style="border-radius: 8px;">
-                                            <option>Toutes les classes</option>
-                                            <option>VIP</option>
-                                            <option>Classique</option>
-                                        </select>
-                                        <span class="position-absolute" style="right: 30px; top: 50%; transform: translateY(-50%);">
-                                            <i class="fas fa-search text-muted"></i>
-                                        </span>
-                                    </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Classe</label>
+                                    <select name="service_type" class="form-select">
+                                        <option value="">Toutes</option>
+                                        <option value="Normal">Classique</option>
+                                        <option value="Express">Express</option>
+                                        <option value="VIP">VIP</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <button class="btn btn-primary w-100 py-2 fw-semibold d-flex justify-content-center align-items-center gap-2">
+                                        <i class="fas fa-search"></i> Rechercher
+                                    </button>
                                 </div>
                             </div>
-                            <div class="mb-2">
-                                <a href="#" class="text-primary small" style="font-weight: 500;"><i class="fas fa-plus-circle"></i> Recherche avancée</a>
-                            </div>
-                            <div class="mb-4">
-                                <button type="submit" formaction="{{ route('agency') }}" class="btn w-100" style="background: #2563eb; color: white; font-weight: 500; height: 48px; border-radius: 10px; font-size: 1.1rem;">
-                                    <i class="fas fa-search me-2"></i> Rechercher des trajets
-                                </button>
-                            </div>
-                            <hr>
-                            <div class="mt-4">
-                                <h6 class="mb-3" style="font-weight: 600; color: #222;">Trajets populaires</h6>
+
+                            <div class="mt-4 pt-3 border-top">
+                                <h6 class="fw-semibold mb-3 text-start" style="color:#0d6efd;">
+                                    Trajets populaires
+                                </h6>
+
                                 <div class="row g-3">
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card" style="border-radius: 12px;">
-                                            <div class="card-body text-center">
-                                                <h6 style="font-weight: 600;">Yaoundé → Douala</h6>
-                                                <small class="text-muted">Route populaire</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card" style="border-radius: 12px;">
-                                            <div class="card-body text-center">
-                                                <h6 style="font-weight: 600;">Douala → Bafoussam</h6>
-                                                <small class="text-muted">Route populaire</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card" style="border-radius: 12px;">
-                                            <div class="card-body text-center">
-                                                <h6 style="font-weight: 600;">Bertoua → Yaoundé</h6>
-                                                <small class="text-muted">Route populaire</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card" style="border-radius: 12px;">
-                                            <div class="card-body text-center">
-                                                <h6 style="font-weight: 600;">Garoua → Maroua</h6>
-                                                <small class="text-muted">Route populaire</small>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <div class="col-6 col-md-3"><div class="popular-box">Yaoundé → Douala</div></div>
+                                    <div class="col-6 col-md-3"><div class="popular-box">Douala → Bafoussam</div></div>
+                                    <div class="col-6 col-md-3"><div class="popular-box">Yaoundé → Garoua</div></div>
+                                    <div class="col-6 col-md-3"><div class="popular-box">Buea → Douala</div></div>
                                 </div>
                             </div>
+
                         </form>
+
                     </div>
                 </div>
+
             </div>
         </div>
-    </section>
-    
-    <div class="container"style="margin-top: 100px;">
-        <h1>Choisissez votre ville</h1>
-        <p>Découvrez les agences et destinations du Cameroun</p>
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-
-                    <!-- Top section (map / image placeholder) -->
-                    <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                        <!-- Overlay for better text visibility -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                        <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                            Garoua<br>
-                            <small class="text-white-50">Nord</small>
-                        </h6>
-                    </div>
-
-                    <!-- Bottom section -->
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-hotel"></i>
-                                <span><strong>30</strong> agences</span>
-                            </div>
-
-                            <div>
-                            <i class="fas fa-route"></i>
-                                <strong>12</strong> targets
-                            </div>
-                        </div>
-                        <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                            <span>Voir les agences</span>
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-                    <!-- Top section (map / image placeholder) -->
-                    <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                        <!-- Overlay for better text visibility -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                        <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                            Beau<br>
-                            <small class="text-white-50">South-West</small>
-                        </h6>
-                    </div>
-
-                    <!-- Bottom section -->
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-hotel"></i>
-                                <span><strong>30</strong> agences</span>
-                            </div>
-
-                            <div>
-                            <i class="fas fa-route"></i>
-                                <strong>45</strong> targets
-                            </div>
-                        </div>
-                        <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                            <span>Voir les agences</span>
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-                        <!-- Top section (map / image placeholder) -->
-                        <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                            <!-- Overlay for better text visibility -->
-                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                            <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                                Ngaoundere<br>
-                                <small class="text-white-50">Adamawa</small>
-                            </h6>
-                        </div>
-    
-                        <!-- Bottom section -->
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                <i class="fas fa-hotel"></i>
-                                    <span><strong>10</strong> agences</span>
-                                </div>
-    
-                                <div>
-                                <i class="fas fa-route"></i>
-                                    <strong>12</strong> targets
-                                </div>
-                            </div>
-                            <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                                <span>Voir les agences</span>
-                                <i class="fa fa-arrow-right"></i>
-                            </a>
-                        </div>
-
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-                    <!-- Top section (map / image placeholder) -->
-                <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                    <!-- Overlay for better text visibility -->
-                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                    <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                        Maroua<br>
-                        <small class="text-white-50">Estreme-Nord</small>
-                    </h6>
-                </div>
-
-                    <!-- Bottom section -->
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-hotel"></i>
-                                <span><strong>35</strong> agences</span>
-                            </div>
-
-                            <div>
-                            <i class="fas fa-route"></i>
-                                <strong>52</strong> targets
-                            </div>
-                        </div>
-                        <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                            <span>Voir les agences</span>
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-
-                    <!-- Top section (map / image placeholder) -->
-                    <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                        <!-- Overlay for better text visibility -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                        <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                            Bamenda<br>
-                            <small class="text-white-50">Nord-West</small>
-                        </h6>
-                    </div>
-
-                    <!-- Bottom section -->
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-hotel"></i>
-                                <span><strong>20</strong> agences</span>
-                            </div>
-
-                            <div>
-                            <i class="fas fa-route"></i>
-                                <strong>20</strong> targets
-                            </div>
-                        </div>
-                        <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                            <span>Voir les agences</span>
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-                    <!-- Top section (map / image placeholder) -->
-                    <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                        <!-- Overlay for better text visibility -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                        <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                            Bafoussam<br>
-                            <small class="text-white-50">West</small>
-                        </h6>
-                    </div>
-
-                    <!-- Bottom section -->
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-hotel"></i>
-                                <span><strong>10</strong> agences</span>
-                            </div>
-
-                            <div>
-                            <i class="fas fa-route"></i>
-                                <strong>15</strong> targets
-                            </div>
-                        </div>
-                        <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                            <span>Voir les agences</span>
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-                        <!-- Top section (map / image placeholder) -->
-                        <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                            <!-- Overlay for better text visibility -->
-                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                            <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                                Douala<br>
-                                <small class="text-white-50">Littoral</small>
-                            </h6>
-                        </div>
-    
-                        <!-- Bottom section -->
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                <i class="fas fa-hotel"></i>
-                                    <span><strong>38</strong> agences</span>
-                                </div>
-    
-                                <div>
-                                <i class="fas fa-route"></i>
-                                    <strong>50</strong> targets
-                                </div>
-                            </div>
-                            <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                                <span>Voir les agences</span>
-                                <i class="fa fa-arrow-right"></i>
-                            </a>
-                        </div>
-
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="card shadow-sm rounded-4 overflow-hidden">
-                    <!-- Top section (map / image placeholder) -->
-                <div class="position-relative d-flex align-items-end p-3" style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                    <!-- Overlay for better text visibility -->
-                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
-                    <h6 class="fw-bold mb-0 position-relative text-white" style="z-index: 1;">
-                        Bertoua<br>
-                        <small class="text-white-50">East</small>
-                    </h6>
-                </div>
-
-                    <!-- Bottom section -->
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-hotel"></i>
-                                <span><strong>15</strong> agences</span>
-                            </div>
-
-                            <div>
-                            <i class="fas fa-route"></i>
-                                <strong>30</strong> targets
-                            </div>
-                        </div>
-                        <a href="#" class="d-flex justify-content-between align-items-center text-decoration-none fw-semibold">
-                            <span>Voir les agences</span>
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
     </div>
+</section>
 
+{{-- ================= CHOISIR VOTRE VILLE ================= --}}
+<section class="py-5">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Choisissez votre ville</h2>
+            <p class="text-muted">
+                Sélectionnez une ville pour voir toutes les agences de transport disponibles
+            </p>
+        </div>
+
+        <div class="row g-4">
+
+            @php
+                $cities = [
+                    ['name'=>'Bertoua','region'=>'Est','agencies'=>15,'routes'=>120, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Yaoundé','region'=>'Centre','agencies'=>42,'routes'=>310, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Douala','region'=>'Littoral','agencies'=>55,'routes'=>420, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Bafoussam','region'=>'Ouest','agencies'=>21,'routes'=>180, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Garoua','region'=>'Nord','agencies'=>14,'routes'=>95, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Maroua','region'=>'Extrême-Nord','agencies'=>11,'routes'=>70, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Bamenda','region'=>'Nord-Ouest','agencies'=>18,'routes'=>130, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                    ['name'=>'Buea','region'=>'Sud-Ouest','agencies'=>16,'routes'=>110, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
+                ];
+            @endphp
+
+            @foreach($cities as $city)
+                <div class="col-lg-3 col-md-4 col-sm-6">
+
+                    <div class="card border-0 rounded-4 overflow-hidden h-100 city-hover">
+
+                        <div class="city-image-wrapper">
+                            <div class="city-image"
+                                 style="background-image:url('{{ asset($city['images']) }}');">
+                            </div>
+
+                            <div class="city-overlay p-3 d-flex text-start" style="margin-top: 110px;">
+                                <div class="w-100">
+                                    <h6 class="fw-bold text-white mb-0">{{ $city['name'] }}</h6>
+                                    <small class="text-white-50">{{ $city['region'] }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2 text-dark">
+                                <span class="text-dark"><i class="fas fa-building"></i> {{ $city['agencies'] }} agences</span>
+                                <span class="text-dark"><i class="fas fa-route"></i> {{ $city['routes'] }} trajets</span>
+                                
+                            </div>
+
+                            <a href="#"
+                               class="fw-semibold text-primary text-decoration-none d-flex justify-content-between align-items-center">
+                                <span style="color: #0d6efd;">Voir les agences <i class="fas fa-arrow-right" style="margin-left: 80px;"></i></span>
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+            @endforeach
+
+        </div>
+    </div>
+</section>
 
 @endsection

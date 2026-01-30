@@ -285,7 +285,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom" style="background: #0b2a55;">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold fs-3" href="#" style="font-style: Poppins;">
                 Routier+237

@@ -2,35 +2,59 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Route extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'agency_id', 'departure_city', 'arrival_city',
-        'departure_date', 'departure_time', 'price',
-        'total_seats', 'available_seats', 'status', 'description'
+        'from_city_id',
+        'to_city_id',
+        'distance_km',
+        'estimated_duration',
+        'route_description',
+        'status',
     ];
 
     protected $casts = [
-        'departure_date' => 'date',
-        'departure_time' => 'datetime',
-        'price' => 'decimal:2',
+        'distance_km' => 'decimal:2',
+        'estimated_duration' => 'integer',
     ];
 
-    public function agency()
+    public function departureCity()
     {
-        return $this->belongsTo(User::class, 'agency_id');
+        return $this->belongsTo(City::class, 'departure_city_id');
     }
 
-    public function bookings()
+    public function arrivalCity()
     {
-        return $this->hasMany(Booking::class);
+        return $this->belongsTo(City::class, 'arrival_city_id');
     }
 
-    // Helper to get booked seats count
-    public function getBookedSeatsAttribute()
+    public function schedules()
     {
-        return $this->total_seats - $this->available_seats;
+        return $this->hasMany(Schedule::class);
+    }
+
+    public function fares()
+    {
+        return $this->hasMany(Fare::class);
+    }
+
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    public function fromCity()
+    {
+        return $this->belongsTo(City::class, 'from_city_id');
+    }
+
+    public function toCity()
+    {
+        return $this->belongsTo(City::class, 'to_city_id');
     }
 }

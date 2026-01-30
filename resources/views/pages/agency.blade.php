@@ -1,328 +1,187 @@
 @extends('layouts.app')
-<link rel="stylesheet" href="{{ asset('css/agency.css') }}">
+
+@section('title', 'Agency')
+
+@section('content')
 <style>
-    .agency-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        overflow: hidden;
-        transition: transform 0.3s, box-shadow 0.3s;
+    .travel-card {
         background: white;
-        height: auto;
-        min-height: 300px;
-        display: flex;
-        flex-direction: column;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: transform 0.3s;
     }
-
-    .agency-card:hover {
+    
+    .travel-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 
-    .agency-logo {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        margin-bottom: 1rem;
+    .logo-box {
+        width: 80px;
+        height: 80px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .logo-box img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
     }
 
-    .agency-header {
-        padding: .4rem;
-        text-align: center;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .agency-name {
-        font-size: 1.5rem;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-
-    .agency-rating {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .rating-stars {
-        color: #ffd700;
-    }
-
-    .rating-number {
+    .company-name {
+        font-size: 1.1rem;
         color: #666;
-    }
-
-    .agency-established {
-        color: #666;
-        font-size: 0.9rem;
-        margin-bottom: .5rem;
-    }
-
-    .agency-description {
-        color: #444;
-        margin-bottom: 1rem;
-        line-height: 1.4;
-        font-size: 0.98rem;
-        max-height: 40px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .agency-details {
-        padding: .5rem;
-        flex-grow: 1;
-    }
-
-    .detail-section {
-        margin-bottom: .5rem;
-    }
-
-    .detail-title {
         font-weight: 600;
-        color: #333;
-        margin-bottom: 1rem;
-    }
-
-    .routes-list, .services-list {
-        justify-content: center;
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: .5rem;
-    }
-
-    .route-tag, .service-tag {
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-    }
-
-    .route-tag {
-        background: #e8f0fe;
-        align-items: center;
-        justify-content: center;
-        color: #1a73e8;
-    }
-
-    .service-tag.classic {
-        background: #e8f5e9;
-        align-items: center;
-        justify-content: center;
-        color: #2e7d32;
-    }
-
-    .service-tag.vip {
-        background: #fef8e6;
-        align-items: center;
-        justify-content: center;
-        color: #f9a825;
-    }
-
-    .service-tag.express {
-        background: #fbe9e7;
-        align-items: center;
-        justify-content: center;
-        color: #d84315;
-    }
-
-    .price-range {
-        color: #333;
-        font-weight: 500;
-    }
-
-    .agency-footer {
-        padding: 1rem;
-        border-top: 1px solid #e0e0e0;
-        text-align: center;
-    }
-
-    .btn-view-details {
-        background: #4A90E2;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        text-decoration: none;
-        display: inline-block;
-        transition: background 0.3s;
-        font-size: 0.98rem;
-    }
-
-    .btn-view-details:hover {
-        background: #357ABD;
     }
 
     .hero-section {
         position: relative;
-        min-height: 350px;
-        background: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}') center center/cover no-repeat;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+            url('{{ asset("assets/images/agency-image.png") }}') center/cover no-repeat;
+        min-height: 400px;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: white;
     }
 
-    .hero-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.4);
-        z-index: 1;
-    }
-
-    .hero-title, .hero-subtitle {
-        position: relative;
-        z-index: 2;
-        color: #fff;
-    }
-
-    .hero-title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-    }
-
-    .hero-subtitle {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-    }
-
-    .hero-buttons {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        margin-top: 2rem;
+    .pill {
+        background-color: #f4faff;
+        border-radius: 20px;
+        padding: 5px 15px;
+        font-size: 0.85rem;
+        color: #666;
+        display: inline-block;
+        margin: 2px;
     }
 </style>
-@section('title', 'Agency')
 
-    <!-- resources/views/agencies/index.blade.php -->
-
-@section('content')
-
-<body>
-    <!-- Hero Section -->
-    <section class="hero-section">
-
-     
-        <div class="hero-overlay"></div>
-        <div class="container text-center">
-            <h1 class="hero-title">Discover the Best Road Travel Agencies for Your Next Adventure</h1>
-            <p class="hero-subtitle">Find your perfect journey with our trusted travel partners</p>
-            <!-- <div class="hero-buttons">
-                <a type="button" class="button button-primary">
-                    Choose my city
-                </a>
-                <a type="button" class="button button-secondary" href="{{ route('marketplace') }}">
-                    View agencies
-                </a>
-            </div> -->
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="mb-3" style="font-size: 2.5rem; font-weight: bold;">Our Partner Agencies</h1>
+        <p class="mb-4" style="font-size: 1.2rem;">Discover all verified transport agencies of Cameroon</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ route('sign_up') }}" class="btn btn-primary btn-lg">Become a Partner</a>
+            <a href="{{ route('marketplace') }}" class="btn btn-outline-light btn-lg">Search a Trip</a>
         </div>
-    </section>
+    </div>
+</section>
 
-        <div class="search-section">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-3">
-                    <select name="" id="" class="form-select">
-                        <option value="">Search for an agency</option>
-                        <option value="touristique">Touristique Voyage</option>
-                        <option value="overline">Overline Voyage</option>
-                        <option value="danai">Danai Voyage</option>
-                        <option value="planet">Planet Voyage</option>
-                        <option value="naral">Naral Voyage</option>
-                    </select>
-                    <!-- <input type="text" class="form-control" id="searchInput" placeholder="Search for an agency..."> -->
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <select class="form-select">
-                        <option value="">All regions</option>
-                        <option value="littoral">Coastal</option>
-                        <option value="centre">Central</option>
-                        <option value="ouest">West</option>
-                        <option value="nord">North</option>
-                        <option value="sud">South</option>
-                        <option value="est">East</option>
-                        <option value="sud-ouest">South-West</option>
-                        <option value="nord-ouest">North-West</option>
-                        <option value="adamaoua">Adamawa</option>
-                        <option value="extreme-nord">Far North</option>
-                    </select>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <select class="form-select">
-                        <option value="">Travel Type</option>
-                        <option value="urbain">Urban Transport</option>
-                        <option value="inter-urbain">Inter-urban Transport</option>
-                        <option value="tourisme">Tourism</option>
-                        <option value="location">Rental</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-6 mb-3">
-                    <button class="btn btn-primary w-100" style="text-align: center; justify-content: center;">
-                        Search
-                    </button>
-                </div>
-            </div>
+<!-- Agencies Section -->
+<main class="main-content py-5">
+    <div class="container">
+        <h5 class="mb-3">Filter by Service Type</h5>
+        
+        <!-- Filters -->
+        <div class="d-flex gap-2 mb-4 flex-wrap">
+            <button class="btn btn-sm btn-outline-primary active">All Services</button>
+            <button class="btn btn-sm btn-outline-primary">VIP</button>
+            <button class="btn btn-sm btn-outline-primary">Classic</button>
+            <button class="btn btn-sm btn-outline-primary">Express</button>
+            <button class="btn btn-sm btn-outline-primary">Luxury</button>
         </div>
-    </div>  
-    <!-- Agencies Section -->
-    <section class="agencies-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Our Trusted Agencies</h2>      
-            <div class="row">
-                @for ($i = 0; $i < 6; $i++)
-                <div class="col-lg-4 col-md-6 mb-3 fade-in agency-item">
-                    <div class="agency-card">
-                        <div class="agency-header">
-                            <div class="agency-rating">
-                                <span class="rating-stars">★★★★★</span>
-                                <span class="rating-number">4.5 (234 reviews)</span>
-                            </div>
-                            <div class="agency-established">Est. 2015</div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            @forelse($agencies as $agency)
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="travel-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="logo-box me-3">
+                            @if($agency->company->logo)
+                                <img src="{{ asset('storage/' . $agency->company->logo) }}" alt="{{ $agency->company->name }}">
+                            @else
+                                <i class="fas fa-building fa-2x text-muted"></i>
+                            @endif
                         </div>
-                        <div class="agency-details">
-                            <p class="agency-description">
-                                Safe and comfortable transport throughout Cameroon
-                            </p>
-                            <div class="detail-section">
-                                <h4 class="detail-title">Routes</h4>
-                                <div class="routes-list">
-                                    <span class="route-tag">Yaoundé</span>
-                                    <span class="route-tag">Douala</span>
-                                    <span class="route-tag">Bafoussam</span>
-                                </div>
+                        <div>
+                            <div class="company-name">{{ $agency->name }}</div>
+                            <div class="text-warning mb-1">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                4.7
                             </div>
-                            <div class="detail-section">
-                                <h4 class="detail-title">Services</h4>
-                                <div class="services-list">
-                                    <span class="service-tag classic">Classic</span>
-                                    <span class="service-tag vip">VIP</span>
-                                </div>
+                            <div class="text-muted" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt"></i> {{ $agency->city }}, {{ $agency->district }}
                             </div>
-                            <div class="detail-section">
-                                <h4 class="detail-title">Price Range</h4>
-                                <div class="price-range">3,500 - 8,000 FCFA</div>
-                            </div>
-                        </div>
-                        <div class="agency-footer">
-                            <p class="text-muted mb-2">Login to view contact details and book directly</p>
-                            <a href="{{ route('sign_in') }}" class="btn-view-details">Login to View Details</a>
                         </div>
                     </div>
+                    
+                    <div class="mb-3" style="font-style: italic; color: #666;">
+                        {{ $agency->company->description ?? 'Votre confort, notre priorité' }}
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong style="font-size: 0.9rem;">Contact</strong>
+                        <div class="text-muted">
+                            <i class="fas fa-phone"></i> {{ $agency->phone }}
+                        </div>
+                        @if($agency->email)
+                        <div class="text-muted">
+                            <i class="fas fa-envelope"></i> {{ $agency->email }}
+                        </div>
+                        @endif
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Address</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            {{ $agency->full_address }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Services</strong>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span class="pill">Classic</span>
+                            <span class="pill">VIP</span>
+                            <span class="pill">Express</span>
+                        </div>
+                    </div>
+                    
+                    @auth
+                    <div class="d-grid">
+                        <a href="{{ route('agency_details') }}" class="btn btn-primary">
+                            View Full Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    @else
+                    <div class="text-center p-3" style="background: #f4faff; border-radius: 8px;">
+                        <div class="mb-2">
+                            <i class="fas fa-lock fa-2x text-muted"></i>
+                        </div>
+                        <p class="mb-2" style="font-size: 0.9rem;">Login to view full details and book</p>
+                        <a href="{{ route('sign_in') }}" class="btn btn-primary btn-sm">Login to View</a>
+                    </div>
+                    @endauth
                 </div>
-                @endfor
             </div>
-    </section>
+            @empty
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> No agencies available at the moment.
+                </div>
+            </div>
+            @endforelse
+        </div>
 
-    
-
-</body>
+        @if($agencies->hasPages())
+        <div class="d-flex justify-content-center mt-4">
+            {{ $agencies->links() }}
+        </div>
+        @endif
+    </div>
+</main>
 @endsection

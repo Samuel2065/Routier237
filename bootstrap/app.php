@@ -10,9 +10,20 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
+        ]);
+
+        // Redirect authenticated users away from guest routes
+        $middleware->redirectUsersTo(function () {
+            return auth()->check()
+                ? auth()->user()->getDashboardRoute()
+                : '/';
+        });
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+    ->create();

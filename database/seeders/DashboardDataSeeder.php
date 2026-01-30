@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Route;
+use App\Models\Agency;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,15 +14,13 @@ class DashboardDataSeeder extends Seeder
     public function run(): void
     {
         // Create a test agency
-        $agency = User::create([
-            'user_type' => 'agency',
-            'name' => 'John Manager',
-            'email' => 'agency@test.com',
+        $agency = Agency::create([
+            'name' => 'Express Voyages',
+            'address' => 'Yaoundé, Cameroon',
             'phone' => '677123456',
             'password' => Hash::make('password'),
             'agency_name' => 'Express Voyages',
             'business_license' => 'BL-2024-001',
-            'address' => 'Yaoundé, Cameroon',
             'tax_id' => 'TX-123456',
             'contact_person' => 'John Manager',
         ]);
@@ -29,7 +28,7 @@ class DashboardDataSeeder extends Seeder
         // Create a test passenger
         $passenger = User::create([
             'user_type' => 'passenger',
-            'name' => 'Marie Kamga',
+            'full_name' => 'Marie Kamga',
             'email' => 'passenger@test.com',
             'phone' => '677654321',
             'password' => Hash::make('password'),

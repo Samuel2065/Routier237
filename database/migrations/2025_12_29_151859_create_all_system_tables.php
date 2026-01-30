@@ -17,11 +17,12 @@ return new class extends Migration
         
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('description')->nullable();
+            $table->string('name');          // Super Admin
+            $table->string('slug')->unique(); // super_admin
+            $table->text('description')->nullable();
             $table->timestamps();
         });
-
+        
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
@@ -37,13 +38,14 @@ return new class extends Migration
             $table->primary(['role_id', 'permission_id']);
         });
 
+        // Central authentication table for all system users
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('full_name');
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('password');
+            $table->enum('user_type', ['staff', 'customer']); // Distinguish between staff and customers
             $table->foreignId('role_id')->constrained()->onDelete('restrict');
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->string('photo')->nullable();
@@ -53,31 +55,23 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
+            $table->index(['user_type', 'status']);
         });
 
+        // Customer/Passenger information (can have optional user account)
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('email')->unique()->nullable();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('full_name');
+            $table->string('email')->nullable();
             $table->string('phone')->unique();
-            $table->string('password')->nullable();
-            $table->enum('id_type', ['ID Card', 'Passport']);
-            $table->string('id_number');
-            $table->date('date_of_birth');
-            $table->enum('gender', ['male', 'female', 'other']);
-            $table->string('city')->nullable();
-            $table->string('address', 500)->nullable();
             $table->enum('status', ['active', 'blocked'])->default('active');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->timestamp('phone_verified_at')->nullable();
-            $table->timestamp('last_login_at')->nullable();
-            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
             $table->index(['phone', 'email']);
+            $table->index(['user_id', 'status']);
         });
-
+        
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
@@ -99,6 +93,8 @@ return new class extends Migration
 
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('director_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('name');
             $table->string('acronym')->nullable();
             $table->string('logo')->nullable();
@@ -108,6 +104,10 @@ return new class extends Migration
             $table->string('taxpayer_number')->unique();
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->timestamp('approved_at')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -115,6 +115,7 @@ return new class extends Migration
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique();
             $table->string('region');
             $table->string('postal_code')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
@@ -124,22 +125,29 @@ return new class extends Migration
 
         Schema::create('agencies', function (Blueprint $table) {
             $table->id();
+        
             $table->foreignId('company_id')->constrained()->onDelete('restrict');
+            $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
+        
+            $table->foreignId('city_id')->constrained()->cascadeOnDelete(); // ✅ ONLY THIS
+        
             $table->string('name');
-            $table->string('city');
             $table->string('district')->nullable();
             $table->text('full_address');
             $table->string('phone');
             $table->string('email')->nullable();
             $table->string('agency_code')->unique();
+        
             $table->enum('type', ['main', 'secondary'])->default('secondary');
             $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
+            $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
+        
             $table->timestamps();
             $table->softDeletes();
-            $table->index(['company_id', 'city']);
+        
+            $table->index(['company_id', 'city_id']); // ✅ fixed
         });
+        
 
         // ============================================
         // 3. TRANSPORT & ROUTES
@@ -147,14 +155,19 @@ return new class extends Migration
 
         Schema::create('routes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('departure_city_id')->constrained('cities')->onDelete('restrict');
-            $table->foreignId('arrival_city_id')->constrained('cities')->onDelete('restrict');
-            $table->decimal('distance_km', 8, 2);
-            $table->integer('estimated_duration'); // in minutes
-            $table->text('route_description')->nullable();
+        
+            $table->foreignId('from_city_id')->constrained('cities');
+            $table->foreignId('to_city_id')->constrained('cities');
+        
+            $table->integer('distance_km')->nullable();
+            $table->integer('estimated_duration_min')->nullable();
+            $table->decimal('price', 10, 2)->default(0);
+        
             $table->enum('status', ['active', 'inactive'])->default('active');
+        
             $table->timestamps();
-            $table->index(['departure_city_id', 'arrival_city_id']);
+        
+            $table->unique(['from_city_id', 'to_city_id']);
         });
 
         Schema::create('schedules', function (Blueprint $table) {
@@ -198,23 +211,19 @@ return new class extends Migration
 
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vehicle_type_id')->constrained()->onDelete('restrict');
-            $table->string('registration')->unique();
-            $table->string('brand');
-            $table->string('model');
-            $table->year('year_manufacture');
-            $table->string('chassis_number')->unique();
-            $table->string('color')->nullable();
-            $table->integer('actual_capacity');
-            $table->enum('condition', ['excellent', 'good', 'average', 'poor'])->default('good');
-            $table->enum('status', ['active', 'maintenance', 'out_of_service'])->default('active');
-            $table->integer('mileage')->default(0);
-            $table->date('acquisition_date');
-            $table->string('photo')->nullable();
+        
+            $table->foreignId('company_id')->constrained();
+            $table->string('plate_number')->unique();
+            $table->string('model')->nullable();
+        
+            $table->integer('seat_count');
+            $table->enum('type', ['bus', 'minibus', 'coaster'])->default('bus');
+        
+            $table->enum('status', ['active', 'maintenance', 'inactive'])->default('active');
+        
             $table->timestamps();
-            $table->softDeletes();
-            $table->index(['vehicle_type_id', 'status']);
         });
+        
 
         Schema::create('maintenances', function (Blueprint $table) {
             $table->id();
@@ -236,10 +245,13 @@ return new class extends Migration
         // 5. PERSONNEL
         // ============================================
 
+        // Employee HR information (always linked to a user account)
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('agency_id')->constrained()->onDelete('restrict');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('position');
             $table->string('employee_number')->unique();
             $table->date('hire_date');
@@ -252,6 +264,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index(['agency_id', 'position']);
+            $table->index(['user_id']);
         });
 
         Schema::create('drivers', function (Blueprint $table) {
@@ -274,47 +287,104 @@ return new class extends Migration
 
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('route_id')->constrained()->onDelete('restrict');
-            $table->foreignId('vehicle_id')->constrained()->onDelete('restrict');
-            $table->foreignId('driver_id')->constrained()->onDelete('restrict');
-            $table->foreignId('departure_agency_id')->constrained('agencies')->onDelete('restrict');
-            $table->date('departure_date');
+        
+            $table->foreignId('company_id')->constrained();
+            $table->foreignId('agency_id')->constrained();
+            $table->foreignId('route_id')->constrained();
+            $table->foreignId('vehicle_id')->nullable()->constrained();
+        
+            $table->date('travel_date');
             $table->time('departure_time');
-            $table->date('expected_arrival_date');
-            $table->time('expected_arrival_time');
+            $table->time('arrival_time')->nullable();
+        
+            $table->enum('service_type', ['Normal', 'Express', 'VIP'])->default('Normal');
+        
+            $table->integer('base_price');
+        
             $table->integer('available_seats');
-            $table->decimal('unit_price', 10, 2);
-            $table->enum('status', ['scheduled', 'in_progress', 'arrived', 'cancelled'])->default('scheduled');
+        
+            $table->enum('status', ['scheduled', 'boarding', 'departed', 'cancelled', 'completed'])
+                  ->default('scheduled');
+        
             $table->timestamps();
-            $table->index(['departure_date', 'route_id', 'status']);
+        
+            $table->index(['travel_date', 'route_id', 'service_type']);
         });
 
         // ============================================
-        // 7. RESERVATIONS
+        // TRIP PRICES / CLASSES
         // ============================================
 
-        Schema::create('reservations', function (Blueprint $table) {
+        Schema::create('trip_prices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trip_id')->constrained()->onDelete('restrict');
-            $table->foreignId('client_id')->constrained()->onDelete('restrict');
-            $table->string('ticket_number')->unique();
-            $table->string('seat_number');
-            $table->enum('passenger_type', ['adult', 'child'])->default('adult');
-            $table->decimal('price', 10, 2);
-            $table->decimal('baggage_fees', 10, 2)->default(0);
-            $table->decimal('total_amount', 10, 2);
-            $table->enum('payment_method', ['cash', 'mobile_money', 'card'])->default('cash');
-            $table->enum('payment_status', ['pending', 'paid', 'refunded'])->default('pending');
-            $table->timestamp('reservation_date');
-            $table->foreignId('reserved_by')->constrained('users')->onDelete('restrict');
-            $table->foreignId('sales_agency_id')->constrained('agencies')->onDelete('restrict');
-            $table->string('confirmation_code')->unique();
-            $table->enum('status', ['confirmed', 'cancelled', 'used'])->default('confirmed');
+        
+            $table->foreignId('trip_id')->constrained();
+            $table->enum('class', ['Normal', 'VIP']);
+            $table->integer('price');
+        
             $table->timestamps();
-            $table->softDeletes();
-            $table->index(['trip_id', 'client_id', 'status']);
-            $table->index(['ticket_number', 'confirmation_code']);
+        
+            $table->unique(['trip_id', 'class']);
         });
+        
+
+
+
+        // ============================================
+        // SEAT NUMBERS
+        // ============================================
+
+        Schema::create('seats', function (Blueprint $table) {
+            $table->id();
+        
+            $table->foreignId('vehicle_id')->constrained();
+            $table->string('seat_number'); // A1, A2, B1...
+        
+            $table->enum('class', ['Normal', 'VIP'])->default('Normal');
+        
+            $table->timestamps();
+        
+            $table->unique(['vehicle_id', 'seat_number']);
+        });
+        
+        
+
+        // ============================================
+        // 7. BOOKINGS
+        // ============================================
+
+        Schema::create('bookings', function (Blueprint $table) {
+            $table->id();
+        
+            $table->foreignId('trip_id')->constrained();
+            $table->foreignId('client_id')->constrained();
+        
+            $table->integer('seat_count')->default(1);
+            $table->integer('total_price');
+        
+            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending');
+        
+            $table->timestamps();
+        });
+
+        // ============================================
+        // TICKETS
+        // ============================================
+
+        Schema::create('tickets', function (Blueprint $table) {
+            $table->id();
+        
+            $table->foreignId('booking_id')->constrained();
+        
+            $table->string('ticket_number')->unique();
+            $table->enum('status', ['valid', 'used', 'cancelled'])->default('valid');
+        
+            $table->timestamp('checked_in_at')->nullable();
+        
+            $table->timestamps();
+        });
+        
+        
 
         // ============================================
         // 8. FINANCIAL
@@ -323,7 +393,7 @@ return new class extends Migration
         Schema::create('cash_registers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agency_id')->constrained()->onDelete('restrict');
-            $table->foreignId('user_id')->constrained()->onDelete('restrict');
+            $table->foreignId('user_id')->constrained()->onDelete('restrict'); // Staff user managing the register
             $table->timestamp('opening_date');
             $table->decimal('initial_amount', 10, 2);
             $table->decimal('current_amount', 10, 2);
@@ -343,7 +413,7 @@ return new class extends Migration
             $table->string('reference')->unique();
             $table->text('description')->nullable();
             $table->timestamp('transaction_date');
-            $table->foreignId('performed_by')->constrained('users')->onDelete('restrict');
+            $table->foreignId('performed_by')->constrained('users')->onDelete('restrict'); // Staff user who performed the transaction
             $table->timestamps();
             $table->index(['cash_register_id', 'transaction_date', 'type']);
         });
@@ -355,7 +425,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->text('description');
             $table->date('expense_date');
-            $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('restrict');
+            $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('restrict'); // Staff user who validated
             $table->string('receipt')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
@@ -368,16 +438,19 @@ return new class extends Migration
 
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['sms', 'email', 'push']);
-            $table->string('recipient');
-            $table->text('content');
-            $table->enum('status', ['pending', 'sent', 'failed'])->default('pending');
-            $table->timestamp('send_date')->nullable();
-            $table->string('context')->nullable();
-            $table->foreignId('reservation_id')->nullable()->constrained()->onDelete('set null');
+        
+            $table->foreignId('booking_id')
+                  ->nullable()
+                  ->constrained('bookings')
+                  ->nullOnDelete();
+        
+            $table->string('title');
+            $table->text('message');
+            $table->boolean('is_read')->default(false);
+        
             $table->timestamps();
-            $table->index(['recipient', 'status', 'send_date']);
         });
+        
     }
 
     /**
