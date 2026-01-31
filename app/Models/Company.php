@@ -12,6 +12,7 @@ class Company extends Model
 
     protected $fillable = [
         'director_id',
+        'manager_id',
         'name',
         'acronym',
         'logo',
@@ -21,45 +22,33 @@ class Company extends Model
         'taxpayer_number',
         'description',
         'status',
+        'approval_status',
+        'approved_by',
+        'approved_at',
+        'rejection_reason',
     ];
 
-    /**
-     * Relation avec Director (User)
-     */
+    protected $casts = [
+        'approved_at' => 'datetime',
+    ];
+
     public function director()
     {
         return $this->belongsTo(User::class, 'director_id');
     }
 
-    /**
-     * Relation avec Agencies
-     */
     public function agencies()
     {
         return $this->hasMany(Agency::class);
     }
 
-    /**
-     * Obtenir l'agence principale
-     */
-    public function mainAgency()
+    public function vehicles()
     {
-        return $this->hasOne(Agency::class)->where('type', 'main');
+        return $this->hasMany(Vehicle::class);
     }
 
-    /**
-     * Obtenir les agences secondaires
-     */
-    public function secondaryAgencies()
+    public function trips()
     {
-        return $this->hasMany(Agency::class)->where('type', 'secondary');
-    }
-
-    /**
-     * Vérifier si la compagnie est active
-     */
-    public function isActive()
-    {
-        return $this->status === 'active';
+        return $this->hasMany(Trip::class);
     }
 }

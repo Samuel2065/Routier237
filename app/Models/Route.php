@@ -13,48 +13,48 @@ class Route extends Model
         'from_city_id',
         'to_city_id',
         'distance_km',
-        'estimated_duration',
-        'route_description',
+        'estimated_duration_min',
+        'price',
         'status',
     ];
 
-    protected $casts = [
-        'distance_km' => 'decimal:2',
-        'estimated_duration' => 'integer',
-    ];
-
-    public function departureCity()
-    {
-        return $this->belongsTo(City::class, 'departure_city_id');
-    }
-
-    public function arrivalCity()
-    {
-        return $this->belongsTo(City::class, 'arrival_city_id');
-    }
-
-    public function schedules()
-    {
-        return $this->hasMany(Schedule::class);
-    }
-
-    public function fares()
-    {
-        return $this->hasMany(Fare::class);
-    }
-
-    public function trips()
-    {
-        return $this->hasMany(Trip::class);
-    }
-
+    /**
+     * City where route starts
+     */
     public function fromCity()
     {
         return $this->belongsTo(City::class, 'from_city_id');
     }
 
+    /**
+     * City where route ends
+     */
     public function toCity()
     {
         return $this->belongsTo(City::class, 'to_city_id');
+    }
+
+    /**
+     * Trips on this route
+     */
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    /**
+     * Schedules for this route
+     */
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
+    /**
+     * Fares for this route
+     */
+    public function fares()
+    {
+        return $this->hasMany(Fare::class);
     }
 }

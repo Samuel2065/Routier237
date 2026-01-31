@@ -14,7 +14,7 @@ class Booking extends Model
         'route_id',
         'client_id', // Changed from user_id to client_id
         'booking_date',
-        'number_of_seats',
+        'seat_count',
         'total_amount',
         'amount_paid',
         'payment_status',
@@ -58,5 +58,10 @@ class Booking extends Model
     public function scopeCompleted($query)
     {
         return $query->where('status', 'completed');
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
     }
 }

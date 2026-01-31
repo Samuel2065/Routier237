@@ -12,9 +12,9 @@ class Agency extends Model
 
     protected $fillable = [
         'company_id',
+        'city_id',
         'manager_id',
         'name',
-        'city',
         'district',
         'full_address',
         'phone',
@@ -22,17 +22,11 @@ class Agency extends Model
         'agency_code',
         'type',
         'status',
-        'latitude',
-        'longitude',
-    ];
-
-    protected $casts = [
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
+        'approval_status',
     ];
 
     /**
-     * Relation avec Company
+     * Company that owns this agency
      */
     public function company()
     {
@@ -40,7 +34,15 @@ class Agency extends Model
     }
 
     /**
-     * Relation avec Manager (User)
+     * City where this agency is located
+     */
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    /**
+     * Manager of this agency
      */
     public function manager()
     {
@@ -48,7 +50,15 @@ class Agency extends Model
     }
 
     /**
-     * Relation avec Employees
+     * Trips operated by this agency
+     */
+    public function trips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    /**
+     * Employees working at this agency
      */
     public function employees()
     {
@@ -56,15 +66,7 @@ class Agency extends Model
     }
 
     /**
-     * Relation avec Reservations
-     */
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class, 'sales_agency_id');
-    }
-
-    /**
-     * Relation avec Cash Registers
+     * Cash registers for this agency
      */
     public function cashRegisters()
     {
@@ -72,19 +74,11 @@ class Agency extends Model
     }
 
     /**
-     * Relation avec Expenses
+     * Expenses for this agency
      */
     public function expenses()
     {
         return $this->hasMany(Expense::class);
-    }
-
-    /**
-     * Relation avec Trips (départ)
-     */
-    public function departureTrips()
-    {
-        return $this->hasMany(Trip::class, 'departure_agency_id');
     }
 
     /**
@@ -94,7 +88,7 @@ class Agency extends Model
     {
         return $this->status === 'active';
     }
-
+    
     /**
      * Vérifier si c'est l'agence principale
      */
@@ -102,15 +96,4 @@ class Agency extends Model
     {
         return $this->type === 'main';
     }
-
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
-
-    public function trips()
-    {
-        return $this->hasMany(Trip::class);
-    }
-
 }

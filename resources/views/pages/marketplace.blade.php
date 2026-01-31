@@ -24,12 +24,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.popular-box:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-2px);
 }
 
 /* ================= CITY CARDS ================= */
 
 .city-hover {
     transition: all .35s ease;
+    cursor: pointer;
 }
 
 .city-hover:hover {
@@ -96,16 +105,17 @@ h6{
                 <div class="card shadow-lg border-0" style="border-radius:24px;">
                     <div class="card-body p-3 p-md-5">
 
-                    <form method="GET" action="{{ route('marketplace.city', strtolower($request->from ?? 'yaounde')) }}">
-
+                        <form method="GET" id="searchForm">
                             <div class="row g-3">
 
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Ville de départ</label>
-                                    <select name="from" class="form-select" required>
+                                    <select name="from" id="fromCity" class="form-select" required>
                                         <option value="">Choisir</option>
                                         @foreach($cities as $city)
-                                            <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                            <option value="{{ $city->name }}" {{ old('from', $request->from) == $city->name ? 'selected' : '' }}>
+                                                {{ $city->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -115,43 +125,61 @@ h6{
                                     <select name="to" class="form-select" required>
                                         <option value="">Choisir</option>
                                         @foreach($cities as $city)
-                                            <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                            <option value="{{ $city->name }}" {{ old('to', $request->to) == $city->name ? 'selected' : '' }}>
+                                                {{ $city->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Date</label>
-                                    <input type="date" name="date" class="form-control">
+                                    <input type="date" name="date" class="form-control" value="{{ old('date', $request->date) }}" min="{{ date('Y-m-d') }}">
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Classe</label>
                                     <select name="service_type" class="form-select">
                                         <option value="">Toutes</option>
-                                        <option value="Normal">Classique</option>
-                                        <option value="Express">Express</option>
-                                        <option value="VIP">VIP</option>
+                                        <option value="Normal" {{ old('service_type', $request->service_type) == 'Normal' ? 'selected' : '' }}>Classique</option>
+                                        <option value="Express" {{ old('service_type', $request->service_type) == 'Express' ? 'selected' : '' }}>Express</option>
+                                        <option value="VIP" {{ old('service_type', $request->service_type) == 'VIP' ? 'selected' : '' }}>VIP</option>
                                     </select>
                                 </div>
 
                                 <div class="col-12 mt-4">
-                                    <button class="btn btn-primary w-100 py-2 fw-semibold d-flex justify-content-center align-items-center gap-2">
-                                        <i class="fas fa-search"></i> Rechercher
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex justify-content-center align-items-center gap-2">
+                                        <i class="fas fa-search"></i> Rechercher des trajets
                                     </button>
                                 </div>
                             </div>
 
                             <div class="mt-4 pt-3 border-top">
-                                <h6 class="fw-semibold mb-3 text-start" style="color:#0d6efd;">
+                                <h6 class="mb-3 text-start text-dark" style="font-size: medium;">
                                     Trajets populaires
                                 </h6>
 
                                 <div class="row g-3">
-                                    <div class="col-6 col-md-3"><div class="popular-box">Yaoundé → Douala</div></div>
-                                    <div class="col-6 col-md-3"><div class="popular-box">Douala → Bafoussam</div></div>
-                                    <div class="col-6 col-md-3"><div class="popular-box">Yaoundé → Garoua</div></div>
-                                    <div class="col-6 col-md-3"><div class="popular-box">Buea → Douala</div></div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="popular-box" onclick="setRoute('Yaoundé', 'Douala')">
+                                            Yaoundé → Douala
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="popular-box" onclick="setRoute('Douala', 'Bafoussam')">
+                                            Douala → Bafoussam
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="popular-box" onclick="setRoute('Yaoundé', 'Garoua')">
+                                            Yaoundé → Garoua
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="popular-box" onclick="setRoute('Buea', 'Douala')">
+                                            Buea → Douala
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -177,58 +205,87 @@ h6{
         </div>
 
         <div class="row g-4">
-
-            @php
-                $cities = [
-                    ['name'=>'Bertoua','region'=>'Est','agencies'=>15,'routes'=>120, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Yaoundé','region'=>'Centre','agencies'=>42,'routes'=>310, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Douala','region'=>'Littoral','agencies'=>55,'routes'=>420, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Bafoussam','region'=>'Ouest','agencies'=>21,'routes'=>180, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Garoua','region'=>'Nord','agencies'=>14,'routes'=>95, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Maroua','region'=>'Extrême-Nord','agencies'=>11,'routes'=>70, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Bamenda','region'=>'Nord-Ouest','agencies'=>18,'routes'=>130, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                    ['name'=>'Buea','region'=>'Sud-Ouest','agencies'=>16,'routes'=>110, 'images'=> 'assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png'],
-                ];
-            @endphp
-
-            @foreach($cities as $city)
+            @forelse($citiesWithStats as $cityItem)
                 <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a href="{{ route('marketplace.city', ['city' => $cityItem->slug]) }}" class="text-decoration-none">
+                        <div class="card border-0 rounded-4 overflow-hidden h-100 city-hover">
 
-                    <div class="card border-0 rounded-4 overflow-hidden h-100 city-hover">
+                            <div class="city-image-wrapper">
+                                <div class="city-image"
+                                     style="background-image:url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}');">
+                                </div>
 
-                        <div class="city-image-wrapper">
-                            <div class="city-image"
-                                 style="background-image:url('{{ asset($city['images']) }}');">
-                            </div>
-
-                            <div class="city-overlay p-3 d-flex text-start" style="margin-top: 110px;">
-                                <div class="w-100">
-                                    <h6 class="fw-bold text-white mb-0">{{ $city['name'] }}</h6>
-                                    <small class="text-white-50">{{ $city['region'] }}</small>
+                                <div class="city-overlay p-3 d-flex text-start" style="margin-top: 110px;">
+                                    <div class="w-100">
+                                        <h6 class="fw-bold text-white mb-0">{{ $cityItem->name }}</h6>
+                                        <small class="text-white-50">{{ $cityItem->region }}</small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-2 text-dark">
-                                <span class="text-dark"><i class="fas fa-building"></i> {{ $city['agencies'] }} agences</span>
-                                <span class="text-dark"><i class="fas fa-route"></i> {{ $city['routes'] }} trajets</span>
-                                
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2 text-dark">
+                                    <span class="text-dark">
+                                        <i class="fas fa-building"></i> {{ $cityItem->agencies_count }} agences
+                                    </span>
+                                    <span class="text-dark">
+                                        <i class="fas fa-route"></i> {{ $cityItem->routes_count }} trajets
+                                    </span>
+                                </div>
+
+                                <div class="fw-semibold text-primary text-decoration-none d-flex justify-content-between align-items-center">
+                                    <span style="color: #0d6efd;">
+                                        Voir les agences 
+                                        <i class="fas fa-arrow-right" style="margin-left: 80px;"></i>
+                                    </span>
+                                </div>
                             </div>
 
-                            <a href="#"
-                               class="fw-semibold text-primary text-decoration-none d-flex justify-content-between align-items-center">
-                                <span style="color: #0d6efd;">Voir les agences <i class="fas fa-arrow-right" style="margin-left: 80px;"></i></span>
-                            </a>
                         </div>
-
-                    </div>
-
+                    </a>
                 </div>
-            @endforeach
-
+            @empty
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> Aucune ville disponible pour le moment.
+                    </div>
+                </div>
+            @endforelse
         </div>
+
     </div>
 </section>
+
+<script>
+    // Function to set popular routes
+    function setRoute(from, to) {
+        const fromSelect = document.querySelector('select[name="from"]');
+        const toSelect = document.querySelector('select[name="to"]');
+        
+        if (fromSelect && toSelect) {
+            fromSelect.value = from;
+            toSelect.value = to;
+            
+            // Scroll to form
+            document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Update form action based on selected departure city
+    document.getElementById('fromCity').addEventListener('change', function() {
+        const form = document.getElementById('searchForm');
+        const selectedCity = this.value;
+        
+        if (selectedCity) {
+            // Convert city name to slug format
+            const citySlug = selectedCity.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Remove accents
+                .replace(/\s+/g, '-');
+            
+            form.action = '{{ url("marketplace") }}/' + citySlug;
+        }
+    });
+</script>
 
 @endsection

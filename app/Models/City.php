@@ -18,24 +18,35 @@ class City extends Model
     ];
 
     /**
-     * Routes partant de cette ville
+     * Get the route key name for Laravel route model binding.
      */
-    public function departureRoutes()
+    public function getRouteKeyName()
     {
-        return $this->hasMany(Route::class, 'departure_city_id');
+        return 'slug';
     }
 
     /**
-     * Routes arrivant dans cette ville
+     * Agencies in this city
      */
-    public function arrivalRoutes()
-    {
-        return $this->hasMany(Route::class, 'arrival_city_id');
-    }
-
     public function agencies()
     {
         return $this->hasMany(Agency::class);
+    }
+
+    /**
+     * Routes starting from this city
+     */
+    public function routesFrom()
+    {
+        return $this->hasMany(Route::class, 'from_city_id');
+    }
+
+    /**
+     * Routes ending in this city
+     */
+    public function routesTo()
+    {
+        return $this->hasMany(Route::class, 'to_city_id');
     }
 
     /**
@@ -44,11 +55,6 @@ class City extends Model
     public function isActive()
     {
         return $this->status === 'active';
-    }
-
-    public function getRouteKeyName()
-    {
-        return 'slug';
     }
 
 }

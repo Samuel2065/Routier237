@@ -12,7 +12,7 @@
         margin-bottom: 20px;
         transition: transform 0.3s;
     }
-    
+
     .travel-card:hover {
         transform: translateY(-5px);
     }
@@ -44,8 +44,8 @@
     .hero-section {
         position: relative;
         background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-            url('{{ asset("assets/images/agency-image.png") }}') center/cover no-repeat;
-        min-height: 400px;
+            url('/assets/images/agency-image.png') center/cover no-repeat;
+        min-height: 455px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -66,10 +66,14 @@
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container text-center">
-        <h1 class="mb-3" style="font-size: 2.5rem; font-weight: bold;">Our Partner Agencies</h1>
-        <p class="mb-4" style="font-size: 1.2rem;">Discover all verified transport agencies of Cameroon</p>
+        <h1 class="mb-3" style="font-size: 2.5rem; font-weight: bold;">
+            Our Partner Agencies
+        </h1>
+        <p class="mb-4" style="font-size: 1.2rem;">
+            Discover all verified transport agencies of Cameroon
+        </p>
         <div class="d-flex justify-content-center gap-3">
-            <a href="{{ route('sign_up') }}" class="btn btn-primary btn-lg">Become a Partner</a>
+            <a href="#" class="btn btn-primary btn-lg">Become a Partner</a>
             <a href="{{ route('marketplace') }}" class="btn btn-outline-light btn-lg">Search a Trip</a>
         </div>
     </div>
@@ -79,8 +83,7 @@
 <main class="main-content py-5">
     <div class="container">
         <h5 class="mb-3">Filter by Service Type</h5>
-        
-        <!-- Filters -->
+
         <div class="d-flex gap-2 mb-4 flex-wrap">
             <button class="btn btn-sm btn-outline-primary active">All Services</button>
             <button class="btn btn-sm btn-outline-primary">VIP</button>
@@ -88,60 +91,48 @@
             <button class="btn btn-sm btn-outline-primary">Express</button>
             <button class="btn btn-sm btn-outline-primary">Luxury</button>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="row">
-            @forelse($agencies as $agency)
+        <div class="row g-3">
+
+            <!-- Agency Card -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="travel-card">
                     <div class="d-flex align-items-start mb-3">
                         <div class="logo-box me-3">
-                            @if($agency->company->logo)
-                                <img src="{{ asset('storage/' . $agency->company->logo) }}" alt="{{ $agency->company->name }}">
-                            @else
-                                <i class="fas fa-building fa-2x text-muted"></i>
-                            @endif
+                            <img src="/assets/images/logo.png" alt="Touristique Express">
                         </div>
                         <div>
-                            <div class="company-name">{{ $agency->name }}</div>
+                            <div class="company-name">Touristique Express</div>
                             <div class="text-warning mb-1">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                4.7
+                                ★ ★ ★ ★ ☆ 4.7
                             </div>
                             <div class="text-muted" style="font-size: 0.85rem;">
-                                <i class="bi bi-geo-alt"></i> {{ $agency->city }}, {{ $agency->district }}
+                                <i class="bi bi-geo-alt"></i> Douala, Akwa
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3" style="font-style: italic; color: #666;">
-                        {{ $agency->company->description ?? 'Votre confort, notre priorité' }}
+                        Votre confort, notre priorité
                     </div>
-                    
+
                     <div class="mb-2">
                         <strong style="font-size: 0.9rem;">Contact</strong>
                         <div class="text-muted">
-                            <i class="fas fa-phone"></i> {{ $agency->phone }}
+                            <i class="fas fa-phone"></i> +237 6 99 99 99 99
                         </div>
-                        @if($agency->email)
                         <div class="text-muted">
-                            <i class="fas fa-envelope"></i> {{ $agency->email }}
+                            <i class="fas fa-envelope"></i> contact@touristique.cm
                         </div>
-                        @endif
                     </div>
-                    
+
                     <div class="mb-3">
                         <strong style="font-size: 0.9rem;">Address</strong>
                         <div class="text-muted" style="font-size: 0.85rem;">
-                            {{ $agency->full_address }}
+                            Carrefour Équinoxe, Douala
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <strong style="font-size: 0.9rem;">Services</strong>
                         <div class="d-flex flex-wrap gap-1 mt-1">
@@ -150,38 +141,293 @@
                             <span class="pill">Express</span>
                         </div>
                     </div>
-                    
-                    @auth
+
                     <div class="d-grid">
-                        <a href="{{ route('agency_details') }}" class="btn btn-primary">
+                        <a href="#" class="btn btn-primary">
                             View Full Profile <i class="fas fa-arrow-right ms-2"></i>
                         </a>
                     </div>
-                    @else
-                    <div class="text-center p-3" style="background: #f4faff; border-radius: 8px;">
-                        <div class="mb-2">
-                            <i class="fas fa-lock fa-2x text-muted"></i>
-                        </div>
-                        <p class="mb-2" style="font-size: 0.9rem;">Login to view full details and book</p>
-                        <a href="{{ route('sign_in') }}" class="btn btn-primary btn-sm">Login to View</a>
-                    </div>
-                    @endauth
                 </div>
             </div>
-            @empty
-            <div class="col-12">
-                <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle"></i> No agencies available at the moment.
-                </div>
-            </div>
-            @endforelse
-        </div>
 
-        @if($agencies->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            {{ $agencies->links() }}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="travel-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="logo-box me-3">
+                            <img src="/assets/images/logo.png" alt="Touristique Express">
+                        </div>
+                        <div>
+                            <div class="company-name">Touristique Express</div>
+                            <div class="text-warning mb-1">
+                                ★ ★ ★ ★ ☆ 4.7
+                            </div>
+                            <div class="text-muted" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt"></i> Douala, Akwa
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" style="font-style: italic; color: #666;">
+                        Votre confort, notre priorité
+                    </div>
+
+                    <div class="mb-2">
+                        <strong style="font-size: 0.9rem;">Contact</strong>
+                        <div class="text-muted">
+                            <i class="fas fa-phone"></i> +237 6 99 99 99 99
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-envelope"></i> contact@touristique.cm
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Address</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            Carrefour Équinoxe, Douala
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Services</strong>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span class="pill">Classic</span>
+                            <span class="pill">VIP</span>
+                            <span class="pill">Express</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="#" class="btn btn-primary">
+                            View Full Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="travel-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="logo-box me-3">
+                            <img src="/assets/images/logo.png" alt="Touristique Express">
+                        </div>
+                        <div>
+                            <div class="company-name">Touristique Express</div>
+                            <div class="text-warning mb-1">
+                                ★ ★ ★ ★ ☆ 4.7
+                            </div>
+                            <div class="text-muted" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt"></i> Douala, Akwa
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" style="font-style: italic; color: #666;">
+                        Votre confort, notre priorité
+                    </div>
+
+                    <div class="mb-2">
+                        <strong style="font-size: 0.9rem;">Contact</strong>
+                        <div class="text-muted">
+                            <i class="fas fa-phone"></i> +237 6 99 99 99 99
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-envelope"></i> contact@touristique.cm
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Address</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            Carrefour Équinoxe, Douala
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Services</strong>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span class="pill">Classic</span>
+                            <span class="pill">VIP</span>
+                            <span class="pill">Express</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="#" class="btn btn-primary">
+                            View Full Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="travel-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="logo-box me-3">
+                            <img src="/assets/images/logo.png" alt="Touristique Express">
+                        </div>
+                        <div>
+                            <div class="company-name">Touristique Express</div>
+                            <div class="text-warning mb-1">
+                                ★ ★ ★ ★ ☆ 4.7
+                            </div>
+                            <div class="text-muted" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt"></i> Douala, Akwa
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" style="font-style: italic; color: #666;">
+                        Votre confort, notre priorité
+                    </div>
+
+                    <div class="mb-2">
+                        <strong style="font-size: 0.9rem;">Contact</strong>
+                        <div class="text-muted">
+                            <i class="fas fa-phone"></i> +237 6 99 99 99 99
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-envelope"></i> contact@touristique.cm
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Address</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            Carrefour Équinoxe, Douala
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Services</strong>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span class="pill">Classic</span>
+                            <span class="pill">VIP</span>
+                            <span class="pill">Express</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="#" class="btn btn-primary">
+                            View Full Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="travel-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="logo-box me-3">
+                            <img src="/assets/images/logo.png" alt="Touristique Express">
+                        </div>
+                        <div>
+                            <div class="company-name">Touristique Express</div>
+                            <div class="text-warning mb-1">
+                                ★ ★ ★ ★ ☆ 4.7
+                            </div>
+                            <div class="text-muted" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt"></i> Douala, Akwa
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" style="font-style: italic; color: #666;">
+                        Votre confort, notre priorité
+                    </div>
+
+                    <div class="mb-2">
+                        <strong style="font-size: 0.9rem;">Contact</strong>
+                        <div class="text-muted">
+                            <i class="fas fa-phone"></i> +237 6 99 99 99 99
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-envelope"></i> contact@touristique.cm
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Address</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            Carrefour Équinoxe, Douala
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Services</strong>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span class="pill">Classic</span>
+                            <span class="pill">VIP</span>
+                            <span class="pill">Express</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="#" class="btn btn-primary">
+                            View Full Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="travel-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="logo-box me-3">
+                            <img src="/assets/images/logo.png" alt="Touristique Express">
+                        </div>
+                        <div>
+                            <div class="company-name">Touristique Express</div>
+                            <div class="text-warning mb-1">
+                                ★ ★ ★ ★ ☆ 4.7
+                            </div>
+                            <div class="text-muted" style="font-size: 0.85rem;">
+                                <i class="bi bi-geo-alt"></i> Douala, Akwa
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" style="font-style: italic; color: #666;">
+                        Votre confort, notre priorité
+                    </div>
+
+                    <div class="mb-2">
+                        <strong style="font-size: 0.9rem;">Contact</strong>
+                        <div class="text-muted">
+                            <i class="fas fa-phone"></i> +237 6 99 99 99 99
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-envelope"></i> contact@touristique.cm
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Address</strong>
+                        <div class="text-muted" style="font-size: 0.85rem;">
+                            Carrefour Équinoxe, Douala
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong style="font-size: 0.9rem;">Services</strong>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            <span class="pill">Classic</span>
+                            <span class="pill">VIP</span>
+                            <span class="pill">Express</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="#" class="btn btn-primary">
+                            View Full Profile <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duplicate cards if needed (static copy-paste) -->
+
         </div>
-        @endif
     </div>
 </main>
 @endsection

@@ -10,60 +10,86 @@ class Trip extends Model
     use HasFactory;
 
     protected $fillable = [
+        'company_id',
+        'agency_id',
         'route_id',
         'vehicle_id',
-        'driver_id',
-        'departure_agency_id',
-        'departure_date',
+        'travel_date',
         'departure_time',
-        'expected_arrival_date',
-        'expected_arrival_time',
+        'arrival_time',
+        'service_type',
+        'base_price',
         'available_seats',
-        'unit_price',
         'status',
     ];
 
     protected $casts = [
-        'departure_date' => 'date',
-        'expected_arrival_date' => 'date',
-        'departure_time' => 'datetime',
-        'expected_arrival_time' => 'datetime',
-        'available_seats' => 'integer',
-        'unit_price' => 'decimal:2',
+        'travel_date' => 'date',
     ];
 
+    /**
+     * Company operating this trip
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Agency operating this trip
+     */
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    /**
+     * Route for this trip
+     */
     public function route()
     {
         return $this->belongsTo(Route::class);
     }
 
+    /**
+     * Vehicle used for this trip
+     */
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
     }
 
-    public function driver()
+    /**
+     * Bookings for this trip
+     */
+    public function bookings()
     {
-        return $this->belongsTo(Driver::class);
+        return $this->hasMany(Booking::class);
     }
 
-    public function fromCity()
+    /**
+     * Trip prices (Normal and VIP)
+     */
+    public function tripPrices()
     {
-        return $this->belongsTo(City::class, 'from_city_id');
+        return $this->hasMany(TripPrice::class);
     }
 
-    public function toCity()
+    /**
+     * Get VIP price
+     */
+    public function getVipPriceAttribute()
     {
-        return $this->belongsTo(City::class, 'to_city_id');
+        $vipPrice = $this->tripPrices()->where('class', 'VIP')->first();
+        return $vipPrice ? $vipPrice->price : null;
     }
 
-    public function reservations()
+    /**
+     * Get Normal price
+     */
+    public function getNormalPriceAttribute()
     {
-        return $this->hasMany(Reservation::class);
-    }
-
-    public function agency()
-    {
-        return $this->belongsTo(Agency::class);
+        $normalPrice = $this->tripPrices()->where('class', 'Normal')->first();
+        return $normalPrice ? $normalPrice->price : $this->base_price;
     }
 }
