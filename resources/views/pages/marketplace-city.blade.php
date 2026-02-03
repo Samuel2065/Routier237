@@ -319,7 +319,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="fw-bold mb-2">Agences à {{ $city->name }}</h1>
+                <h1 class="fw-bold mb-2">Agences à {{ $from }}</h1>
                 <p class="mb-0">
                     @if($from && $to)
                         <i class="fas fa-map-marker-alt"></i> {{ $from }} → {{ $to }}
@@ -330,7 +330,7 @@
                             <span class="ms-3"><i class="fas fa-star"></i> {{ $serviceType }}</span>
                         @endif
                     @else
-                        Toutes les agences disponibles à {{ $city->name }}
+                        Toutes les agences disponibles à {{ $from }}
                     @endif
                 </p>
             </div>
@@ -381,7 +381,7 @@
                         <label class="form-label fw-semibold small">Classe</label>
                         <select name="service_type" class="form-select">
                             <option value="">Toutes</option>
-                            <option value="Normal" {{ $serviceType == 'Normal' ? 'selected' : '' }}>Classique</option>
+                            <option value="Normal" {{ $serviceType == 'Classique' ? 'selected' : '' }}>Classique</option>
                             <option value="Express" {{ $serviceType == 'Express' ? 'selected' : '' }}>Express</option>
                             <option value="VIP" {{ $serviceType == 'VIP' ? 'selected' : '' }}>VIP</option>
                         </select>

@@ -42,10 +42,7 @@
             min-height: 70vh;
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
             url('{{ asset("assets/images/destination-image.png") }}') center/cover no-repeat;
-        
         }
-
-       
         
         /* Main Content */
         .main-content {
@@ -86,12 +83,14 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
         }
         
         .filter-btn.active,
         .filter-btn:hover {
             background: #2563eb;
-            color: white;
+            color: white !important;
         }
 
         .city-card {
@@ -144,7 +143,7 @@
         }
 
         .city-image-wrapper:hover > div {
-            transform: scale(0.99);
+            transform: scale(1.08);
         }
 
         .city-image-wrapper .image-bg {
@@ -173,80 +172,6 @@
             text-align: left;
             z-index: 2;
         }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .modal.show {
-            display: flex;
-            opacity: 1;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 3rem;
-            border-radius: 24px;
-            text-align: center;
-            max-width: 400px;
-            transform: scale(0.8);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .modal.show .modal-content {
-            transform: scale(1);
-        }
-        
-        .modal h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: #1e293b;
-        }
-        
-        .modal p {
-            color: #64748b;
-            margin-bottom: 2rem;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-        
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -258,15 +183,6 @@
                 font-size: 1.1rem;
             }
             
-            .search-bar {
-                flex-direction: column;
-                padding: 1.5rem;
-            }
-            
-            .trips-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .nav {
                 padding: 0 1rem;
             }
@@ -276,18 +192,8 @@
                 overflow-x: auto;
                 padding-bottom: 0.5rem;
             }
-            
-            .modal-content {
-                margin: 1rem;
-                padding: 2rem;
-            }
-            
-            .modal-buttons {
-                flex-direction: column;
-            }
         }
 </style>   
-
 
     {{-- Hero Section --}}
     <section class="hero-section d-flex align-items-center text-center text-white" style="height: 100%;">
@@ -298,621 +204,145 @@
 
             <p class="lead mb-4">
                 Découvrez toutes les destinations desservies par nos agences partenaires.
-                Du nord au sud, d’est en ouest, voyagez partout au Cameroun.
+                Du nord au sud, d'est en ouest, voyagez partout au Cameroun.
             </p>
 
             <!-- Stats -->
             <div class="d-flex justify-content-center gap-4 flex-wrap small">
                 <span style="color: white;">
-                    <i class="fas fa-bus me-1"></i>
-                    10 régions
+                    <i class="fas fa-map me-1"></i>
+                    {{ $totalRegions }} régions
                 </span>
                 <span style="color: white;">
-                    <i class="fas fa-map-marker-alt me-1"></i>
-                    150+ destinations
+                    <i class="fas fa-city me-1"></i>
+                    {{ $totalDestinations }} destinations
                 </span>
                 <span style="color: white;">
                     <i class="fas fa-building me-1"></i>
-                    50+ agences
+                    {{ $totalAgencies }} agences
                 </span>
             </div>
         </div>
     </section>
 
-
     {{-- Main Content --}}
     <main class="main-content">
         <div class="container">
-            <h2 class="section-title">Our Destionations</h2>
+            <h2 class="section-title">Our Destinations</h2>
             
             <!-- Filters -->
             <div class="filters">
-                <button class="filter-btn active" onclick="filterTrips('all')">All regions</button>
-                <button class="filter-btn" onclick="filterTrips('budget')">Center</button>
-                <button class="filter-btn" onclick="filterTrips('luxury')">Littoral</button>
-                <button class="filter-btn" onclick="filterTrips('express')">East</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">West</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">Nord</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">Estreme-Nord</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">Nord-West</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">South-West</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">South</button>
-                <button class="filter-btn" onclick="filterTrips('overnight')">Adamawa</button>
+                <a href="{{ route('destinations') }}" 
+                   class="filter-btn {{ !$regionFilter || $regionFilter == 'all' ? 'active' : '' }}">
+                    All regions
+                </a>
+                @foreach($regions as $region)
+                    <a href="{{ route('destinations', ['region' => $region]) }}" 
+                       class="filter-btn {{ $regionFilter == $region ? 'active' : '' }}">
+                        {{ $region }}
+                    </a>
+                @endforeach
             </div>
             
-            <!-- Trips Grid -->
-             <div class="row g-3 py-1">
-                <div class="col-md-6 col-lg-4">
-                    <div class="city-card">
-
-                        <!-- IMAGE -->
-                        <div class="city-image-wrapper">
-                            <div class="position-relative image-bg" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="overlay-veil"></div>
-                                
-                                <!-- Region badge -->
-                                <span class="region-badge">Littoral</span>
-                                
-                                <!-- Text inside image - left aligned -->
-                                <div class="city-image-text text-white">
-                                    <h5 class="fw-bold mb-1">Douala</h5>
-                                    <p class="mb-0 text-white-50 small">Economic Capital of Cameroon</p>
+            <!-- Cities Grid -->
+            <div class="row g-3 py-1">
+                @forelse($cities as $city)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="city-card">
+                            <!-- IMAGE -->
+                            <div class="city-image-wrapper">
+                                <div class="position-relative image-bg" 
+                                     style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                    <div class="overlay-veil"></div>
+                                    
+                                    <!-- Region badge -->
+                                    <span class="region-badge">{{ $city->region }}</span>
+                                    
+                                    <!-- Text inside image - left aligned -->
+                                    <div class="city-image-text text-white">
+                                        <h5 class="fw-bold mb-1">{{ $city->name }}</h5>
+                                        <p class="mb-0 text-white-50 small">{{ $city->description }}</p>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <!-- CONTENT -->
+                            <div class="p-3">
+                                <div class="d-flex justify-content-between text-center">
+                                    <div>
+                                        <strong>{{ $city->population }}</strong><br>
+                                        <small class="text-muted">Population</small>
+                                    </div>
+
+                                    <div>
+                                        <strong>{{ $city->agencies_count }}</strong><br>
+                                        <small class="text-muted">{{ $city->agencies_count > 1 ? 'Agences' : 'Agence' }}</small>
+                                    </div>
+
+                                    <div>
+                                        <strong>{{ $city->routes_count }}</strong><br>
+                                        <small class="text-muted">{{ $city->routes_count > 1 ? 'Trajets' : 'Trajet' }}</small>
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('marketplace.city', $city->slug) }}" 
+                                   class="mt-3 text-decoration-none fw-semibold d-inline-block text-primary">
+                                    Voir les trajets <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
                             </div>
                         </div>
-
-                        <!-- CONTENT -->
-                        <div class="p-3">
-
-                            <div class="d-flex justify-content-between text-center">
-                                <div>
-                                    <strong>4M+</strong><br>
-                                    <small class="text-muted">Population</small>
-                                </div>
-
-                                <div>
-                                    <strong>25</strong><br>
-                                    <small class="text-muted">Agences</small>
-                                </div>
-
-                                <div>
-                                    <strong>52</strong><br>
-                                    <small class="text-muted">Trajets</small>
-                                </div>
-                            </div>
-
-                            <a href="#" class="mt-3 text-decoration-none fw-semibold d-inline-block">
-                                Voir les trajets
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-city" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
+                            <h4 class="fw-bold mb-2">Aucune destination trouvée</h4>
+                            <p class="text-muted">
+                                @if($regionFilter && $regionFilter != 'all')
+                                    Aucune destination disponible dans la région {{ $regionFilter }}.
+                                @else
+                                    Aucune destination n'est actuellement disponible.
+                                @endif
+                            </p>
+                            <a href="{{ route('destinations') }}" class="btn btn-primary mt-3">
+                                <i class="fas fa-refresh"></i> Voir toutes les destinations
                             </a>
                         </div>
-
                     </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="city-card">
-
-                        <!-- IMAGE -->
-                        <div class="city-image-wrapper">
-                                <div class="position-relative image-bg" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="overlay-veil"></div>
-                                
-                                <!-- Region badge -->
-                                <span class="region-badge">Littoral</span>
-                                
-                                <!-- Text inside image - left aligned -->
-                                <div class="city-image-text text-white">
-                                    <h5 class="fw-bold mb-1">Douala</h5>
-                                    <p class="mb-0 text-white-50 small">Economic Capital of Cameroon</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CONTENT -->
-                        <div class="p-3">
-
-                            <div class="d-flex justify-content-between text-center">
-                                <div>
-                                    <strong>4M+</strong><br>
-                                    <small class="text-muted">Population</small>
-                                </div>
-
-                                <div>
-                                    <strong>25</strong><br>
-                                    <small class="text-muted">Agences</small>
-                                </div>
-
-                                <div>
-                                    <strong>52</strong><br>
-                                    <small class="text-muted">Trajets</small>
-                                </div>
-                            </div>
-
-                            <a href="#" class="mt-3 text-decoration-none fw-semibold d-inline-block">
-                                Voir les trajets
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="city-card">
-
-                        <!-- IMAGE -->
-                        <div class="city-image-wrapper">
-                                <div class="position-relative image-bg" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="overlay-veil"></div>
-                                
-                                <!-- Region badge -->
-                                <span class="region-badge">Littoral</span>
-                                
-                                <!-- Text inside image - left aligned -->
-                                <div class="city-image-text text-white">
-                                    <h5 class="fw-bold mb-1">Douala</h5>
-                                    <p class="mb-0 text-white-50 small">Economic Capital of Cameroon</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CONTENT -->
-                        <div class="p-3">
-
-                            <div class="d-flex justify-content-between text-center">
-                                <div>
-                                    <strong>4M+</strong><br>
-                                    <small class="text-muted">Population</small>
-                                </div>
-
-                                <div>
-                                    <strong>25</strong><br>
-                                    <small class="text-muted">Agences</small>
-                                </div>
-
-                                <div>
-                                    <strong>52</strong><br>
-                                    <small class="text-muted">Trajets</small>
-                                </div>
-                            </div>
-
-                            <a href="#" class="mt-3 text-decoration-none fw-semibold d-inline-block">
-                                Voir les trajets
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="city-card">
-
-                        <!-- IMAGE -->
-                        <div class="city-image-wrapper">
-                                <div class="position-relative image-bg" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="overlay-veil"></div>
-                                
-                                <!-- Region badge -->
-                                <span class="region-badge">Littoral</span>
-                                
-                                <!-- Text inside image - left aligned -->
-                                <div class="city-image-text text-white">
-                                    <h5 class="fw-bold mb-1">Douala</h5>
-                                    <p class="mb-0 text-white-50 small">Economic Capital of Cameroon</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CONTENT -->
-                        <div class="p-3">
-
-                            <div class="d-flex justify-content-between text-center">
-                                <div>
-                                    <strong>4M+</strong><br>
-                                    <small class="text-muted">Population</small>
-                                </div>
-
-                                <div>
-                                    <strong>25</strong><br>
-                                    <small class="text-muted">Agences</small>
-                                </div>
-
-                                <div>
-                                    <strong>52</strong><br>
-                                    <small class="text-muted">Trajets</small>
-                                </div>
-                            </div>
-
-                            <a href="#" class="mt-3 text-decoration-none fw-semibold d-inline-block">
-                                Voir les trajets
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="city-card">
-
-                        <!-- IMAGE -->
-                        <div class="city-image-wrapper">
-                                <div class="position-relative image-bg" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="overlay-veil"></div>
-                                
-                                <!-- Region badge -->
-                                <span class="region-badge">Littoral</span>
-                                
-                                <!-- Text inside image - left aligned -->
-                                <div class="city-image-text text-white">
-                                    <h5 class="fw-bold mb-1">Douala</h5>
-                                    <p class="mb-0 text-white-50 small">Economic Capital of Cameroon</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CONTENT -->
-                        <div class="p-3">
-
-                            <div class="d-flex justify-content-between text-center">
-                                <div>
-                                    <strong>4M+</strong><br>
-                                    <small class="text-muted">Population</small>
-                                </div>
-
-                                <div>
-                                    <strong>25</strong><br>
-                                    <small class="text-muted">Agences</small>
-                                </div>
-
-                                <div>
-                                    <strong>52</strong><br>
-                                    <small class="text-muted">Trajets</small>
-                                </div>
-                            </div>
-
-                            <a href="#" class="mt-3 text-decoration-none fw-semibold d-inline-block">
-                                Voir les trajets
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4">
-                    <div class="city-card">
-
-                        <!-- IMAGE -->
-                        <div class="city-image-wrapper">
-                                <div class="position-relative image-bg" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="overlay-veil"></div>
-                                
-                                <!-- Region badge -->
-                                <span class="region-badge">Littoral</span>
-                                
-                                <!-- Text inside image - left aligned -->
-                                <div class="city-image-text text-white">
-                                    <h5 class="fw-bold mb-1">Douala</h5>
-                                    <p class="mb-0 text-white-50 small">Economic Capital of Cameroon</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CONTENT -->
-                        <div class="p-3">
-
-                            <div class="d-flex justify-content-between text-center">
-                                <div>
-                                    <strong>4M+</strong><br>
-                                    <small class="text-muted">Population</small>
-                                </div>
-
-                                <div>
-                                    <strong>25</strong><br>
-                                    <small class="text-muted">Agences</small>
-                                </div>
-
-                                <div>
-                                    <strong>52</strong><br>
-                                    <small class="text-muted">Trajets</small>
-                                </div>
-                            </div>
-
-                            <a href="#" class="mt-3 text-decoration-none fw-semibold d-inline-block">
-                                Voir les trajets
-                            </a>
-                        </div>
-
-                    </div>
-                </div>
+                @endforelse
             </div>
-            
 
-
+            @if($cities->count() > 0)
+                <div class="text-center mt-5">
+                    <p class="text-muted">
+                        Affichage de {{ $cities->count() }} 
+                        {{ $cities->count() > 1 ? 'destinations' : 'destination' }}
+                        @if($regionFilter && $regionFilter != 'all')
+                            dans la région {{ $regionFilter }}
+                        @endif
+                    </p>
+                </div>
+            @endif
         </div>
     </main>
 
-    <!-- Signup Modal -->
-    <div class="modal" id="signupModal">
-        <div class="modal-content">
-            <h3>Join RoadTrip</h3>
-            <p>Create an account to book amazing trips and get exclusive deals!</p>
-            <div class="modal-buttons">
-                <button class="btn btn-primary" onclick="redirectToSignup()">Sign Up Now</button>
-                <button class="btn btn-outline" onclick="closeModal('signupModal')">Maybe Later</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <h3>Welcome Back</h3>
-            <p>Login to access your bookings and continue your journey!</p>
-            <div class="modal-buttons">
-                <button class="btn btn-primary" onclick="redirectToLogin()">Login</button>
-                <button class="btn btn-outline" onclick="closeModal('loginModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Booking Modal -->
-    <div class="modal" id="bookingModal">
-        <div class="modal-content">
-            <h3>Ready to Book?</h3>
-            <p id="bookingDetails">You need to sign up first to book this amazing trip!</p>
-            <div class="modal-buttons">
-                <button class="btn btn-primary" onclick="redirectToSignupForBooking()">Sign Up & Book</button>
-                <button class="btn btn-outline" onclick="closeModal('bookingModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // User state (simulating authentication)
-        let isLoggedIn = false;
-        let currentBooking = null;
-
-        // Filter functionality
-        function filterTrips(category) {
-            const cards = document.querySelectorAll('.trip-card');
-            const buttons = document.querySelectorAll('.filter-btn');
-            
-            // Update active button
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Filter cards
-            cards.forEach(card => {
-                if (category === 'all' || card.dataset.category === category) {
-                    card.style.display = 'block';
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, 50);
-                } else {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(30px)';
-                    setTimeout(() => {
-                        card.style.display = 'none';
-                    }, 300);
-                }
-            });
-        }
-
-        // Search functionality
-        function searchTrips() {
-            const searchInput = document.querySelector('.search-input');
-            const query = searchInput.value.toLowerCase();
-            const cards = document.querySelectorAll('.trip-card');
-            
-            if (!query) return;
-            
-            cards.forEach(card => {
-                const destination = card.querySelector('.destination').textContent.toLowerCase();
-                const route = card.querySelector('.trip-route').textContent.toLowerCase();
-                
-                if (destination.includes(query) || route.includes(query)) {
-                    card.style.display = 'block';
+        // Add entrance animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.city-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
-                } else {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(30px)';
-                    setTimeout(() => {
-                        card.style.display = 'none';
-                    }, 300);
-                }
-            });
-            
-            // Reset active filter
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        }
-
-        // Modal functions
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.add('show');
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('show');
-        }
-
-        function showSignupModal() {
-            showModal('signupModal');
-        }
-
-        function showLoginModal() {
-            showModal('loginModal');
-        }
-
-        // Booking functionality
-        function bookTrip(route, price) {
-            if (!isLoggedIn) {
-                currentBooking = { route, price };
-                document.getElementById('bookingDetails').textContent = 
-                    `You want to book "${route}" for $${price}. Sign up first to complete your booking!`;
-                showModal('bookingModal');
-            } else {
-                // If logged in, proceed with booking
-                alert(`Booking confirmed for ${route} - $${price}!`);
-            }
-        }
-
-        // Redirect functions
-        function redirectToSignup() {
-            
-            window.location.href = '/sign_up';
-            closeModal('signupModal');
-        }
-
-        function redirectToLogin() {
-            window.location.href = '/sign_in';
-            closeModal('loginModal');
-        }
-
-        function redirectToSignupForBooking() {
-            // alert(`Redirecting to signup page with booking: ${currentBooking.route} - $${currentBooking.price}`);
-            window.location.href = '/sign_up';
-            closeModal('bookingModal');
-        }
-
-        // Close modals when clicking outside
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal(modal.id);
-                }
+                }, index * 100);
             });
         });
 
-        // Smooth scrolling for search
-        function scrollToTrips() {
-            document.querySelector('.main-content').scrollIntoView({
-                behavior: 'smooth'
+        // Smooth scroll when clicking filter
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-        }
-
-        // Add loading animation to book buttons
-        document.querySelectorAll('.book-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const originalText = this.textContent;
-                this.textContent = 'Loading...';
-                this.style.opacity = '0.7';
-                
-                setTimeout(() => {
-                    this.textContent = originalText;
-                    this.style.opacity = '1';
-                }, 1000);
-            });
-        });
-
-        // Add hover effects to trip cards
-        document.querySelectorAll('.trip-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-10px) scale(1.02)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
-        });
-
-        // Simulate real-time updates
-        function updateAvailableSeats() {
-            const seatElements = document.querySelectorAll('.detail-item span');
-            seatElements.forEach(element => {
-                if (element.textContent.includes('seats')) {
-                    const currentSeats = parseInt(element.textContent.match(/\d+/)[0]);
-                    if (Math.random() < 0.1) { // 10% chance to update
-                        const newSeats = Math.max(0, currentSeats - Math.floor(Math.random() * 3));
-                        element.textContent = `${newSeats} seats`;
-                        
-                        // Add visual feedback
-                        element.style.color = newSeats < 5 ? '#ef4444' : '#64748b';
-                        if (newSeats < 5) {
-                            element.parentElement.style.animation = 'pulse 0.5s ease-in-out';
-                        }
-                    }
-                }
-            });
-        }
-
-        // Update seats every 30 seconds
-        setInterval(updateAvailableSeats, 30000);
-
-        // Add pulse animation for low seat availability
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.05); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add entrance animations
-            setTimeout(() => {
-                document.querySelectorAll('.trip-card').forEach((card, index) => {
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 100);
-                });
-            }, 500);
-            
-            // Simulate user login for demo (uncomment to test logged-in state)
-            // isLoggedIn = true;
-        });
-
-        // Add search suggestions
-        const searchInput = document.querySelector('.search-input');
-        const suggestions = ['New York', 'Los Angeles', 'Chicago', 'Miami', 'Seattle', 'Las Vegas', 'Boston', 'San Francisco'];
-        
-        searchInput.addEventListener('input', function() {
-            const value = this.value.toLowerCase();
-            if (value.length > 0) {
-                const matches = suggestions.filter(s => s.toLowerCase().includes(value));
-                // In a real app, you'd show these suggestions in a dropdown
-                console.log('Suggestions:', matches);
-            }
-        });
-
-        // Add keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                // Close any open modals
-                document.querySelectorAll('.modal.show').forEach(modal => {
-                    closeModal(modal.id);
-                });
-            }
-            
-            if (e.key === 'Enter' && document.activeElement === searchInput) {
-                searchTrips();
-            }
-        });
-
-        // Add touch gestures for mobile
-        let touchStartY = 0;
-        document.addEventListener('touchstart', function(e) {
-            touchStartY = e.touches[0].clientY;
-        });
-
-        document.addEventListener('touchend', function(e) {
-            const touchEndY = e.changedTouches[0].clientY;
-            const diff = touchStartY - touchEndY;
-            
-            // Swipe up to refresh (simple implementation)
-            if (diff > 50 && window.scrollY === 0) {
-                location.reload();
-            }
-        });
-
-        // Add performance monitoring
-        window.addEventListener('load', function() {
-            console.log('Page loaded in:', performance.now(), 'ms');
         });
     </script>
 

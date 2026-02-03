@@ -245,17 +245,8 @@
                 </div>
             </div>
             
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <p>Total Revenue</p>
-                        <h3>{{ number_format($stats['total_revenue']) }} XAF</h3>
-                    </div>
-                    <div style="width: 48px; height: 48px; background: rgba(37, 99, 235, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-cash-stack" style="color: var(--primary-color); font-size: 1.5rem;"></i>
-                    </div>
-                </div>
-            </div>
+            
+            
         </div>
 
         <!-- Pending Approvals -->

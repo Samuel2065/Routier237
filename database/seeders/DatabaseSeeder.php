@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         // Create Super Admin
         $superAdmin = User::create([
             'full_name' => 'Super Admin',
-            'email' => 'admin@routier237.com',
+            'email' => 'admin@gmail.com',
             'phone' => '677000001',
             'password' => bcrypt('password'),
             'user_type' => 'staff',
@@ -60,11 +60,11 @@ class DatabaseSeeder extends Seeder
 
         // Create Companies with Directors
         $companiesData = [
-            ['name' => 'Centrale Voyage', 'acronym' => 'CV', 'email' => 'contact@centralevoyage.cm'],
-            ['name' => 'Express Voyage', 'acronym' => 'EV', 'email' => 'info@expressvoyage.cm'],
-            ['name' => 'Overline Voyage', 'acronym' => 'OV', 'email' => 'booking@overlinevoyage.cm'],
-            ['name' => 'Royal Express', 'acronym' => 'RE', 'email' => 'contact@royalexpress.cm'],
-            ['name' => 'Touristique Express', 'acronym' => 'TE', 'email' => 'info@touristiqueexpress.cm'],
+            ['name' => 'Centrale Voyage', 'acronym' => 'CV', 'email' => 'centrale@gmail.com'],
+            ['name' => 'Express Voyage', 'acronym' => 'EV', 'email' => 'express@gmail.com'],
+            ['name' => 'Overline Voyage', 'acronym' => 'OV', 'email' => 'overline@gmail.com'],
+            ['name' => 'Royal Express', 'acronym' => 'RE', 'email' => 'royal@gmail.com'],
+            ['name' => 'Touristique Express', 'acronym' => 'TE', 'email' => 'touristique@gmail.com'],
         ];
 
         $companies = [];
@@ -72,7 +72,7 @@ class DatabaseSeeder extends Seeder
             // Create director
             $director = User::create([
                 'full_name' => 'Director ' . $companyData['acronym'],
-                'email' => 'director' . ($index + 1) . '@routier237.com',
+                'email' => 'director' . ($index + 1) . '@gmail.com',
                 'phone' => '67700000' . ($index + 2),
                 'password' => bcrypt('password'),
                 'user_type' => 'staff',
@@ -143,7 +143,7 @@ class DatabaseSeeder extends Seeder
             // Create manager
             $manager = User::create([
                 'full_name' => 'Manager ' . ($index + 1),
-                'email' => 'manager' . ($index + 1) . '@routier237.com',
+                'email' => 'manager' . ($index + 1) . '@.cm',
                 'phone' => '67800000' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
                 'password' => bcrypt('password'),
                 'user_type' => 'staff',

@@ -249,8 +249,8 @@
                     <h6 class="fw-bold text-uppercase mb-3">Services</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="#" class="text-light text-decoration-none">Horaires de bus</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Agences partenaires</a></li>
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Destinations</a></li>
+                        <li class="mb-2"><a href="{{ route('agency') }}" class="text-light text-decoration-none">Agences partenaires</a></li>
+                        <li class="mb-2"><a href="{{ route('destinations') }}" class="text-light text-decoration-none">Destinations</a></li>
                         <li><a href="#" class="text-light text-decoration-none">Réservations</a></li>
                     </ul>
                 </div>

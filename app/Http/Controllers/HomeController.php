@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agency;
 use App\Models\City;
+use App\Models\Company;
 use App\Models\Route;
 use App\Models\Trip;
 use Illuminate\Http\Request;
@@ -16,18 +17,167 @@ class HomeController extends Controller
         return view('pages.home');
     }
 
-    public function destinations()
+    /**
+     * Display destinations page with cities grouped by region
+     */
+    public function destinations(Request $request)
     {
-        $cities = City::where('status', 'active')
-            ->orderBy('name')
-            ->get();
+        $regionFilter = $request->get('region');
 
-        return view('pages.destinations', compact('cities'));
+        // Get all active cities with their stats
+        $query = City::where('status', 'active')
+            ->withCount([
+                'agencies' => function ($q) {
+                    $q->where('approval_status', 'approved')
+                      ->where('status', 'active');
+                }
+            ]);
+
+        // Filter by region if specified
+        if ($regionFilter && $regionFilter != 'all') {
+            $query->where('region', $regionFilter);
+        }
+
+        $cities = $query->get()->map(function ($city) {
+            // Count routes from this city
+            $routesCount = Route::where('from_city_id', $city->id)
+                ->where('status', 'active')
+                ->count();
+
+            $city->routes_count = $routesCount;
+
+            // Estimate population based on city (you can adjust these values)
+            $populationEstimates = [
+                'Douala' => '4M+',
+                'Yaoundé' => '3.5M+',
+                'Bafoussam' => '450K+',
+                'Garoua' => '600K+',
+                'Maroua' => '350K+',
+                'Bamenda' => '500K+',
+                'Buea' => '200K+',
+                'Bertoua' => '150K+',
+                'Ngaoundéré' => '250K+',
+                'Ebolowa' => '120K+',
+            ];
+
+            $city->population = $populationEstimates[$city->name] ?? '100K+';
+
+            // Get city description based on name
+            $cityDescriptions = [
+                'Douala' => 'Economic Capital of Cameroon',
+                'Yaoundé' => 'Political Capital of Cameroon',
+                'Bafoussam' => 'Gateway to West Region',
+                'Garoua' => 'Heart of the North',
+                'Maroua' => 'Gateway to the Far North',
+                'Bamenda' => 'Capital of Northwest Region',
+                'Buea' => 'Mountain City',
+                'Bertoua' => 'Gateway to the East',
+                'Ngaoundéré' => 'City of Adamawa',
+                'Ebolowa' => 'Heart of the South',
+            ];
+
+            $city->description = $cityDescriptions[$city->name] ?? 'Beautiful City of Cameroon';
+
+            return $city;
+        });
+
+        // Get unique regions for filter
+        $regions = City::where('status', 'active')
+            ->distinct()
+            ->pluck('region')
+            ->sort()
+            ->values();
+
+        // Calculate total stats
+        $totalRegions = $regions->count();
+        $totalDestinations = $cities->count();
+        $totalAgencies = Agency::where('approval_status', 'approved')
+            ->where('status', 'active')
+            ->count();
+
+        return view('pages.destinations', compact(
+            'cities',
+            'regions',
+            'regionFilter',
+            'totalRegions',
+            'totalDestinations',
+            'totalAgencies'
+        ));
     }
 
-    public function agency()
+    /**
+     * Display all agencies page with filters
+     */
+    public function agency(Request $request)
     {
-        return view('pages.agency');
+        $serviceFilter = $request->get('service');
+
+        // Get all approved companies with their agencies
+        $query = Company::where('approval_status', 'approved')
+            ->where('status', 'active')
+            ->with([
+                'agencies' => function($q) {
+                    $q->where('approval_status', 'approved')
+                      ->where('status', 'active')
+                      ->with('city');
+                },
+                'agencies.trips.route.toCity'
+            ]);
+
+        // If service filter is applied, filter companies that have trips with that service
+        if ($serviceFilter && $serviceFilter != 'all') {
+            $query->whereHas('trips', function($q) use ($serviceFilter) {
+                $q->where('service_type', $serviceFilter);
+            });
+        }
+
+        $companies = $query->get();
+
+        // For each company, calculate:
+        // - Available routes (unique destinations)
+        // - Available services (unique service types)
+        // - Price range
+        $companies = $companies->map(function($company) use ($serviceFilter) {
+            // Get all trips for this company
+            $tripsQuery = Trip::where('company_id', $company->id)
+                ->where('status', 'scheduled');
+
+            if ($serviceFilter && $serviceFilter != 'all') {
+                $tripsQuery->where('service_type', $serviceFilter);
+            }
+
+            $trips = $tripsQuery->with('route.toCity')->get();
+
+            // Get unique destinations
+            $destinations = $trips->pluck('route.toCity.name')->unique()->values();
+            
+            // Get unique services
+            $services = Trip::where('company_id', $company->id)
+                ->where('status', 'scheduled')
+                ->distinct()
+                ->pluck('service_type')
+                ->map(function($service) {
+                    return $service == 'Normal' ? 'Classic' : $service;
+                });
+
+            // Get price range
+            $minPrice = $trips->min('base_price') ?? 0;
+            $maxPrice = $trips->max('base_price') ?? 0;
+
+            // Add computed properties
+            $company->destinations = $destinations;
+            $company->available_services = $services;
+            $company->min_price = $minPrice;
+            $company->max_price = $maxPrice;
+            $company->main_agency = $company->agencies->first(); // Get first agency for contact info
+
+            return $company;
+        })->filter(function($company) {
+            // Only keep companies that have at least one destination
+            return $company->destinations->count() > 0;
+        });
+
+        return view('pages.agency', compact('companies', 'serviceFilter'));
     }
 
     public function contact()

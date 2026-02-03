@@ -22,7 +22,7 @@ class SuperAdminController extends Controller
             'active_agencies' => Agency::where('status', 'active')->where('approval_status', 'approved')->count(),
             'pending_agencies' => Agency::where('approval_status', 'pending')->count(),
             'total_users' => User::count(),
-            'total_revenue' => Reservation::where('payment_status', 'paid')->sum('total_amount'),
+            // 'total_revenue' => Reservation::where('payment_status', 'paid')->sum('total_amount'),
         ];
 
         $recentCompanies = Company::with('director')
