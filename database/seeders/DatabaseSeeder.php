@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\City;
+use App\Models\Client;
 use App\Models\Agency;
 use App\Models\Route;
 use App\Models\Trip;
@@ -58,13 +59,38 @@ class DatabaseSeeder extends Seeder
             $cities[$cityData['name']] = City::create($cityData);
         }
 
-        // Create Companies with Directors
+        // Create Companies with Directors and descriptions
         $companiesData = [
-            ['name' => 'Centrale Voyage', 'acronym' => 'CV', 'email' => 'centrale@gmail.com'],
-            ['name' => 'Express Voyage', 'acronym' => 'EV', 'email' => 'express@gmail.com'],
-            ['name' => 'Overline Voyage', 'acronym' => 'OV', 'email' => 'overline@gmail.com'],
-            ['name' => 'Royal Express', 'acronym' => 'RE', 'email' => 'royal@gmail.com'],
-            ['name' => 'Touristique Express', 'acronym' => 'TE', 'email' => 'touristique@gmail.com'],
+            [
+                'name' => 'Centrale Voyage', 
+                'acronym' => 'CV', 
+                'email' => 'centrale@gmail.com',
+                'description' => 'Centrale Voyage is a leading transport agency in Cameroon, providing quality services since 2015. We serve major cities across the country with a modern fleet and qualified staff.'
+            ],
+            [
+                'name' => 'Express Voyage', 
+                'acronym' => 'EV', 
+                'email' => 'express@gmail.com',
+                'description' => 'Express Voyage offers fast and reliable inter-city transport services with comfortable buses and professional drivers. Your safety and comfort are our priority.'
+            ],
+            [
+                'name' => 'Overline Voyage', 
+                'acronym' => 'OV', 
+                'email' => 'overline@gmail.com',
+                'description' => 'Overline Voyage is a premium transport company serving Cameroon since 2010. We pride ourselves on punctuality, safety, and customer satisfaction.'
+            ],
+            [
+                'name' => 'Royal Express', 
+                'acronym' => 'RE', 
+                'email' => 'royal@gmail.com',
+                'description' => 'Royal Express provides luxury transport services across Cameroon with VIP buses, air conditioning, and entertainment systems for your comfort.'
+            ],
+            [
+                'name' => 'Touristique Express', 
+                'acronym' => 'TE', 
+                'email' => 'touristique@gmail.com',
+                'description' => 'Touristique Express specializes in long-distance travel with modern amenities. Experience comfort and reliability on every journey with us.'
+            ],
         ];
 
         $companies = [];
@@ -84,11 +110,13 @@ class DatabaseSeeder extends Seeder
             $companies[] = Company::create([
                 'name' => $companyData['name'],
                 'acronym' => $companyData['acronym'],
+                'slug' => Str::slug($companyData['name']),
                 'email' => $companyData['email'],
                 'phone' => '67700' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
                 'taxpayer_number' => 'TPN' . str_pad($index + 1, 6, '0', STR_PAD_LEFT),
                 'headquarters_address' => 'Quartier Central, ' . $citiesData[$index]['name'],
                 'director_id' => $director->id,
+                'description' => $companyData['description'],
                 'status' => 'active',
                 'approval_status' => 'approved',
                 'approved_by' => $superAdmin->id,
@@ -143,7 +171,7 @@ class DatabaseSeeder extends Seeder
             // Create manager
             $manager = User::create([
                 'full_name' => 'Manager ' . ($index + 1),
-                'email' => 'manager' . ($index + 1) . '@.cm',
+                'email' => 'manager' . ($index + 1) . '@gmail.com',
                 'phone' => '67800000' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
                 'password' => bcrypt('password'),
                 'user_type' => 'staff',
@@ -159,8 +187,10 @@ class DatabaseSeeder extends Seeder
                 'name' => $agencyData['name'],
                 'district' => $agencyData['district'],
                 'full_address' => $agencyData['district'] . ', ' . $agencyData['city'],
+                'slug' => Str::slug($agencyData['name']),
+                'rating' => 4.5,
                 'phone' => '67800' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
-                'email' => strtolower(str_replace(' ', '', $agencyData['name'])) . '@routier237.cm',
+                'email' => Str::slug($agencyData['name']) . '@gmail.com',
                 'agency_code' => 'AG' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
                 'type' => $index % 3 == 0 ? 'main' : 'secondary',
                 'status' => 'active',
@@ -221,8 +251,8 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create Vehicles for agencies
-        $vehicleTypes = ['bus', 'minibus', 'coaster'];
-        $seatCounts = [70, 50, 30];
+        $vehicleTypes = ['bus', 'coaster', 'minibus'];
+        $seatCounts = [70, 30, 15];
         
         foreach ($agencies as $index => $agency) {
             // Create 2-3 vehicles per agency
@@ -287,6 +317,12 @@ class DatabaseSeeder extends Seeder
                         $departureHour = 6 + ($t * 4); // 6am, 10am, 2pm
                         $departureTime = sprintf('%02d:00:00', $departureHour);
                         
+                        // Calculate arrival time based on route duration
+                        $arrivalTime = now()
+                            ->setTime($departureHour, 0, 0)
+                            ->addMinutes($route->estimated_duration_min)
+                            ->format('H:i:s');
+                        
                         // Calculate price multiplier based on service type
                         $priceMultiplier = match($serviceType) {
                             'VIP' => 1.5,
@@ -303,6 +339,7 @@ class DatabaseSeeder extends Seeder
                             'vehicle_id' => $vehicle->id,
                             'travel_date' => $travelDate->format('Y-m-d'),
                             'departure_time' => $departureTime,
+                            'arrival_time' => $arrivalTime,
                             'service_type' => $serviceType,
                             'base_price' => $basePrice,
                             'available_seats' => $vehicle->seat_count,

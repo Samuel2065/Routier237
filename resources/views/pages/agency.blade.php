@@ -194,28 +194,6 @@
                             {{ $company->description ?? 'Votre confort, notre priorité' }}
                         </div>
 
-                       <!-- 
-                        @if($company->main_agency)
-                            <div class="mb-2">
-                                <strong style="font-size: 0.9rem;">Contact</strong>
-                                <div class="text-muted">
-                                    <i class="fas fa-phone"></i> {{ $company->phone }}
-                                </div>
-                                @if($company->email)
-                                    <div class="text-muted">
-                                        <i class="fas fa-envelope"></i> {{ $company->email }}
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="mb-3">
-                                <strong style="font-size: 0.9rem;">Address</strong>
-                                <div class="text-muted" style="font-size: 0.85rem;">
-                                    {{ $company->headquarters_address }}
-                                </div>
-                            </div>
-                        @endif
--->
                         <div class="mb-3">
                             <strong class="d-flex">Routes</strong>
                             <div class="d-flex flex-wrap gap-1 mt-1">
@@ -257,7 +235,7 @@
                         </div>
 
                         <div class="d-grid d-flex">
-                            <a href="{{ route('agency_details') }}" style="text-decoration: none;">
+                            <a href="{{ route('agency_details', $company->slug) }}" style="text-decoration: none;">
                                 View Full Profile <i class="fas fa-arrow-right ms-2"></i>
                             </a>
                         </div>
@@ -297,14 +275,5 @@
         @endif
     </div>
 </main>
-
-<script>
-    // Optional: Add smooth scroll when clicking filter buttons
-    document.querySelectorAll('.filter-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    });
-</script>
 
 @endsection

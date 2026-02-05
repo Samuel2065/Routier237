@@ -431,72 +431,90 @@
         <!-- Welcome Section -->
         <section class="welcome-section" style="margin: 70px; background: white; padding: 80px 0;">
             <div class="container">
-                <h2>Find Your Pecfect journey</h2>
+                <h2>Find Your Perfect Journey</h2>
                 <p>Search and instantly book your trip with the best transport agencies in Cameroon</p>
 
                 <div class="search-section" style="border-radius: 10px;">
                     <div class="card shadow">
-                        <form action="" method="post">
+                        {{-- DYNAMIC FORM --}}
+                        <form action="{{ route('home.search') }}" method="GET" id="homeSearchForm">
                             <div class="row p-4 g-3">
                                 <div class="col-lg-5 col-md-6 mb-3">
                                     <label for="from" class="form-label">From</label>
                                     <div class="form-select-wrapper">
                                         <i class="fas fa-map-marker-alt" style="color: green;"></i>
-                                        <select name="" id="from" class="form-select">
+                                        <select name="from" id="from" class="form-select" required>
                                             <option value="">Departure city</option>
-                                            <option value="">Yaounde</option>
-                                            <option value="">Bertoua</option>
-                                            <option value="">Douala</option>
-                                            <option value="">Bamenda</option>
-                                            <option value="">Beau</option>
-                                            <option value="">Ngaoundere</option>
-                                            <option value="">Maroua</option>
-                                            <option value="">Garoua</option>
-                                            <option value="">Bafoussam</option>
-                                            <option value="">Ebolowa</option>
+                                            @foreach($cities as $city)
+                                                <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="col-lg-4 col-md-6 mb-3">
-                                    <label for="To" class="form-label">To</label>
+                                    <label for="to" class="form-label">To</label>
                                     <div class="form-select-wrapper">
                                         <i class="fas fa-map-marker-alt" style="color: red;"></i>
-                                        <select name="" id="from" class="form-select">
-                                            <option value="">Destination </option>
-                                            <option value="">Yaounde</option>
-                                            <option value="">Bertoua</option>
-                                            <option value="">Douala</option>
-                                            <option value="">Bamenda</option>
-                                            <option value="">Beau</option>
-                                            <option value="">Ngaoundere</option>
-                                            <option value="">Maroua</option>
-                                            <option value="">Garoua</option>
-                                            <option value="">Bafoussam</option>
-                                            <option value="">Ebolowa</option>
+                                        <select name="to" id="to" class="form-select" required>
+                                            <option value="">Destination</option>
+                                            @foreach($cities as $city)
+                                                <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="col-lg-3 col-md-12 mb-3">
                                     <label for="search" class="form-label">Search</label>
                                     <button type="submit" class="btn btn-primary w-100" id="search">
                                         <i class="fas fa-search"></i>
-                                        <a href="{{ route('marketplace') }}" style="text-decoration: none; color: white;">Search</a>
+                                        Search
                                     </button>
                                 </div>
                             </div>
                         </form>
 
+                        {{-- DYNAMIC POPULAR ROUTES --}}
                         <h6 style="text-align: left; margin-left: 25px;">Popular routes</h6>
                         <div class="popular-routes">
-                            <span class="route-tag">Bertoua->Yaounde</span>
-                            <span class="route-tag">Yaounde->Douala</span>
-                            <span class="route-tag">Douala->Kribi</span>
+                            @if($popularRoutes && $popularRoutes->count() > 0)
+                                @foreach($popularRoutes->take(3) as $route)
+                                    <span class="route-tag" style="cursor: pointer;" 
+                                        onclick="fillSearchForm('{{ $route->fromCity->name }}', '{{ $route->toCity->name }}')">
+                                        {{ $route->fromCity->name }} → {{ $route->toCity->name }}
+                                    </span>
+                                @endforeach
+                            @else
+                                {{-- Fallback static routes --}}
+                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Bertoua', 'Yaoundé')">
+                                    Bertoua → Yaoundé
+                                </span>
+                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Yaoundé', 'Douala')">
+                                    Yaoundé → Douala
+                                </span>
+                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Douala', 'Bafoussam')">
+                                    Douala → Bafoussam
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div> 
             </div>
         </section>
 
+        {{-- JavaScript for popular routes quick-select --}}
+        <script>
+            function fillSearchForm(from, to) {
+                // Fill the form fields
+                document.getElementById('from').value = from;
+                document.getElementById('to').value = to;
+                
+                // Optionally auto-submit
+                // document.getElementById('homeSearchForm').submit();
+            }
+        </script>
+        
         {{-- Stats Section --}}
         <section class="py-5" style="background-color: #f4faff; height=: 500px;">
             <div class="container">
@@ -546,128 +564,75 @@
         <section class="py-5 popular-routes-section">
             <div class="container-fluid px-0 px-md-5">
                 <h1>Most Popular Routes</h1>
-                <p>Travel savely through camerron's routes</p>
+                <p>Travel safely through Cameroon's routes</p>
 
                 <div class="row g-3 mb-4 mt-4">
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-
-                            <!-- Top image with overlay text -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Card body: prices, duration, rating -->
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <small class="text-muted">Starting from</small>
-                                        <h6 class="fw-bold mb-0">4,500 XAF</h6>
+                    @forelse($popularRoutes as $route)
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                                <!-- Top image with overlay text -->
+                                <div class="position-relative d-flex align-items-end p-3"
+                                    style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                    <div class="position-absolute top-0 start-0 w-100 h-100"
+                                        style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
                                     </div>
-
-                                    <div class="text-end">
-                                        <small class="text-muted">Duration</small>
-                                        <h6 class="fw-bold mb-0">4h 15min</h6>
-                                    </div>
-
-                                    <div class="text-warning fw-bold">
-                                        ⭐ 4.2
+                                    <div class="position-relative text-white" style="z-index: 1;">
+                                        <h5 class="fw-bold mb-1">
+                                            {{ $route->fromCity->name }} → {{ $route->toCity->name }}
+                                        </h5>
+                                        <p class="mb-0 text-white-50">
+                                            {{ $route->travelers_per_month }}+ travelers/month
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                                <!-- Card body: prices, duration, rating -->
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <small class="text-muted">Starting from</small>
+                                            <h6 class="fw-bold mb-0">{{ number_format($route->min_price, 0, ',', ' ') }} XAF</h6>
+                                        </div>
 
-                            <!-- Top image with overlay text -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
+                                        <div class="text-end">
+                                            <small class="text-muted">Duration</small>
+                                            <h6 class="fw-bold mb-0">
+                                                @php
+                                                    $hours = floor($route->estimated_duration_min / 60);
+                                                    $minutes = $route->estimated_duration_min % 60;
+                                                @endphp
+                                                {{ $hours }}h {{ $minutes }}min
+                                            </h6>
+                                        </div>
 
-                            <!-- Card body: prices, duration, rating -->
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <small class="text-muted">Starting from</small>
-                                        <h6 class="fw-bold mb-0">4,500 XAF</h6>
-                                    </div>
-
-                                    <div class="text-end">
-                                        <small class="text-muted">Duration</small>
-                                        <h6 class="fw-bold mb-0">4h 15min</h6>
-                                    </div>
-
-                                    <div class="text-warning fw-bold">
-                                        ⭐ 4.2
+                                        <div class="text-warning fw-bold">
+                                            ⭐ 4.{{ rand(2, 8) }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-
-                            <!-- Top image with overlay text -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Card body: prices, duration, rating -->
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <small class="text-muted">Starting from</small>
-                                        <h6 class="fw-bold mb-0">4,500 XAF</h6>
+                    @empty
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                                <div class="position-relative d-flex align-items-end p-3"
+                                    style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
+                                    <div class="position-relative text-white" style="z-index: 1;">
+                                        <h5 class="fw-bold mb-1">Yaoundé → Douala</h5>
+                                        <p class="mb-0 text-white-50">980+ travelers/month</p>
                                     </div>
-
-                                    <div class="text-end">
-                                        <small class="text-muted">Duration</small>
-                                        <h6 class="fw-bold mb-0">4h 15min</h6>
-                                    </div>
-
-                                    <div class="text-warning fw-bold">
-                                        ⭐ 4.2
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div><small class="text-muted">Starting from</small><h6 class="fw-bold mb-0">4,500 XAF</h6></div>
+                                        <div class="text-end"><small class="text-muted">Duration</small><h6 class="fw-bold mb-0">4h 15min</h6></div>
+                                        <div class="text-warning fw-bold">⭐ 4.2</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endforelse
                 </div>
 
                 <div class="text-center mt-4">
@@ -683,185 +648,93 @@
         <section class="py-5">  
             <div class="container">
                 <h1>Our Partner Agencies</h1>
-                <p>Travel savely through cameroon's routes</p>
+                <p>Travel safely through Cameroon's routes</p>
 
                 <div class="row g-3 mb-4 mt-4">
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
-    
-                            <!-- Image section -->
-                            <div class="position-relative">
-                                <img 
-                                    src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}"
-                                    class="card-img-top" 
-                                    alt="Agency Image"
-                                    style="height: 200px; object-fit: cover;"
-                                >
-
-                                <!-- Rating badge -->
-                                <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">
-                                    ⭐ 4.9
-                                </span>
-                            </div>
-
-                            <!-- Card body -->
-                            <div class="card-body">
-
-                                <!-- Agency name -->
-                                <h5 class="card-title fw-bold mb-1">
-                                    Baranti Express
-                                </h5>
-
-                                <!-- Location -->
-                                <p class="text-muted mb-2">
-                                    <i class="bi bi-geo-alt-fill"></i> Bertoua, Est
-                                </p>
-
-                                <!-- Routes -->
-                                <p class="mb-2">
-                                    <strong>Principales routes :</strong><br>
-                                    Yaoundé – Douala, Douala – Bertoua +1
-                                </p>
-
-                                <!-- Services tags -->
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="route-tag">VIP Services</span>
-                                    <span class="route-tag">Entertainment</span>
-                                    <span class="route-tag">Refreshments</span>
+                    @forelse($partnerAgencies as $company)
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
+                                <!-- Image section -->
+                                <div class="position-relative">
+                                    <img 
+                                        src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}"
+                                        class="card-img-top" 
+                                        alt="{{ $company->name }}"
+                                        style="height: 200px; object-fit: cover;"
+                                    >
+                                    <!-- Rating badge -->
+                                    <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">
+                                        ⭐ {{ number_format($company->rating, 1) }}
+                                    </span>
                                 </div>
 
-                                <!-- Actions -->
-                                <div class="d-flex gap-2">
-                                    <a href="#" class="btn btn-primary flex-grow-1" style="justify-content: center;">
-                                        Voir détails
-                                    </a>
+                                <!-- Card body -->
+                                <div class="card-body">
+                                    <!-- Agency name -->
+                                    <h5 class="card-title fw-bold mb-1">
+                                        {{ $company->name }}
+                                    </h5>
 
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-phone"></i>
-                                    </button>
+                                    <!-- Location -->
+                                    @if($company->main_agency)
+                                        <p class="text-muted mb-2">
+                                            <i class="bi bi-geo-alt-fill"></i> 
+                                            {{ $company->main_agency->city->name }}, {{ $company->main_agency->city->region }}
+                                        </p>
+                                    @endif
+
+                                    <!-- Routes -->
+                                    <p class="mb-2">
+                                        <strong>Principales routes :</strong><br>
+                                        @if($company->unique_routes->count() > 0)
+                                            {{ $company->unique_routes->take(2)->implode(', ') }}
+                                            @if($company->unique_routes->count() > 2)
+                                                +{{ $company->unique_routes->count() - 2 }}
+                                            @endif
+                                        @else
+                                            Multiple destinations
+                                        @endif
+                                    </p>
+
+                                    <!-- Services tags -->
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        @foreach($company->available_services->take(3) as $service)
+                                            <span class="route-tag">{{ $service }} Service</span>
+                                        @endforeach
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('agency_details') }}" class="btn btn-primary flex-grow-1" style="justify-content: center;">
+                                            Voir détails
+                                        </a>
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
                                 </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
-    
-                            <!-- Image section -->
-                            <div class="position-relative">
-                                <img 
-                                    src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}"
-                                    class="card-img-top" 
-                                    alt="Agency Image"
-                                    style="height: 200px; object-fit: cover;"
-                                >
-
-                                <!-- Rating badge -->
-                                <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">
-                                    ⭐ 4.9
-                                </span>
-                            </div>
-
-                            <!-- Card body -->
-                            <div class="card-body">
-
-                                <!-- Agency name -->
-                                <h5 class="card-title fw-bold mb-1">
-                                    Baranti Express
-                                </h5>
-
-                                <!-- Location -->
-                                <p class="text-muted mb-2">
-                                    <i class="bi bi-geo-alt-fill"></i> Bertoua, Est
-                                </p>
-
-                                <!-- Routes -->
-                                <p class="mb-2">
-                                    <strong>Principales routes :</strong><br>
-                                    Yaoundé – Douala, Douala – Bertoua +1
-                                </p>
-
-                                <!-- Services tags -->
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="route-tag">VIP Services</span>
-                                    <span class="route-tag">Entertainment</span>
-                                    <span class="route-tag">Refreshments</span>
-                                </div>
-
-                                <!-- Actions -->
-                                <div class="d-flex gap-2">
-                                    <a href="#" class="btn btn-primary flex-grow-1" style="justify-content: center;">
-                                        Voir détails
-                                    </a>
-
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-phone"></i>
-                                    </button>
-                                </div>
-
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
-    
-                            <!-- Image section -->
-                            <div class="position-relative">
-                                <img 
-                                    src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}"
-                                    class="card-img-top" 
-                                    alt="Agency Image"
-                                    style="height: 200px; object-fit: cover;"
-                                >
-
-                                <!-- Rating badge -->
-                                <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">
-                                    ⭐ 4.9
-                                </span>
-                            </div>
-
-                            <!-- Card body -->
-                            <div class="card-body">
-
-                                <!-- Agency name -->
-                                <h5 class="card-title fw-bold mb-1">
-                                    Baranti Express
-                                </h5>
-
-                                <!-- Location -->
-                                <p class="text-muted mb-2">
-                                    <i class="bi bi-geo-alt-fill"></i> Bertoua, Est
-                                </p>
-
-                                <!-- Routes -->
-                                <p class="mb-2">
-                                    <strong>Principales routes :</strong><br>
-                                    Yaoundé – Douala, Douala – Bertoua +1
-                                </p>
-
-                                <!-- Services tags -->
-                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                    <span class="route-tag">VIP Services</span>
-                                    <span class="route-tag">Entertainment</span>
-                                    <span class="route-tag">Refreshments</span>
+                    @empty
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
+                                <div class="position-relative">
+                                    <img src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}" class="card-img-top" alt="Agency" style="height: 200px; object-fit: cover;">
+                                    <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">⭐ 4.9</span>
                                 </div>
-
-                                <!-- Actions -->
-                                <div class="d-flex gap-2">
-                                    <a href="#" class="btn btn-primary flex-grow-1" style="justify-content: center;">
-                                        Voir détails
-                                    </a>
-
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-phone"></i>
-                                    </button>
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold mb-1">Transport Agency</h5>
+                                    <p class="text-muted mb-2"><i class="bi bi-geo-alt-fill"></i> Cameroon</p>
+                                    <p class="mb-2"><strong>Principales routes :</strong><br>Multiple destinations</p>
+                                    <div class="d-flex flex-wrap gap-2 mb-3"><span class="route-tag">VIP Service</span></div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('agency_details') }}" class="btn btn-primary flex-grow-1">Voir détails</a>
+                                        <button class="btn btn-outline-secondary"><i class="fas fa-phone"></i></button>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
-                    </div>
+                    @endforelse
                 </div>
 
                 <div class="text-center mt-4">
@@ -870,278 +743,83 @@
                         <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                 </div>
-
             </div>
         </section>
 
         {{-- Popular Destinations Section --}}
         <section class="py-5 popular-routes-section">
-            <div class="container">
-                <h1>Most Popular Destinations</h1>
-                <p>Travel savely through cameroon's routes</p>
+                <div class="container">
+                    <h1>Most Popular Destinations</h1>
+                    <p>Travel safely through Cameroon's routes</p>
 
-                <div class="row g-3 mb-4 mt-4">
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
-    
-                            <!-- Image -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-
-                                <!-- Bottom row -->
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <!-- Infos -->
-                                    <div class="text-muted">
-                                        <i class="bi bi-building"></i> 45 agences
-                                        <span class="mx-2">•</span>
-                                        <i class="bi bi-signpost-2"></i> 28 routes
+                    <div class="row g-3 mb-4 mt-4">
+                        @forelse($popularDestinations as $destination)
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
+                                    <!-- Image -->
+                                    <div class="position-relative d-flex align-items-end p-3"
+                                        style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                        <div class="position-absolute top-0 start-0 w-100 h-100"
+                                            style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
+                                        </div>
+                                        <div class="position-relative text-white" style="z-index: 1;">
+                                            <h5 class="fw-bold mb-1">
+                                                {{ $destination->name }}
+                                            </h5>
+                                            <p class="mb-0 text-white-50">
+                                                {{ $destination->travelers_per_month }}+ travelers/month
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    <!-- Explore -->
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        Explorer →
-                                    </a>
-                                </div>
+                                    <!-- Content -->
+                                    <div class="card-body">
+                                        <!-- Bottom row -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <!-- Infos -->
+                                            <div class="text-muted">
+                                                <i class="bi bi-building"></i> {{ $destination->agencies_count }} agences
+                                                <span class="mx-2">•</span>
+                                                <i class="bi bi-signpost-2"></i> {{ $destination->routes_count }} routes
+                                            </div>
 
+                                            <!-- Explore -->
+                                            <a href="{{ route('marketplace.city', $destination->slug) }}" class="text-decoration-none fw-semibold">
+                                                Explorer →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        @empty
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
+                                    <div class="position-relative d-flex align-items-end p-3" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
+                                        <div class="position-relative text-white" style="z-index: 1;">
+                                            <h5 class="fw-bold mb-1">Yaoundé</h5>
+                                            <p class="mb-0 text-white-50">980+ travelers/month</p>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="text-muted"><i class="bi bi-building"></i> 45 agences <span class="mx-2">•</span> <i class="bi bi-signpost-2"></i> 28 routes</div>
+                                            <a href="{{ route('destinations') }}" class="text-decoration-none fw-semibold">Explorer →</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforelse
                     </div>
 
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
-    
-                            <!-- Image -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-
-                                <!-- Bottom row -->
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <!-- Infos -->
-                                    <div class="text-muted">
-                                        <i class="bi bi-building"></i> 45 agences
-                                        <span class="mx-2">•</span>
-                                        <i class="bi bi-signpost-2"></i> 28 routes
-                                    </div>
-
-                                    <!-- Explore -->
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        Explorer →
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
-    
-                            <!-- Image -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-
-                                <!-- Bottom row -->
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <!-- Infos -->
-                                    <div class="text-muted">
-                                        <i class="bi bi-building"></i> 45 agences
-                                        <span class="mx-2">•</span>
-                                        <i class="bi bi-signpost-2"></i> 28 routes
-                                    </div>
-
-                                    <!-- Explore -->
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        Explorer →
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
-    
-                            <!-- Image -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-
-                                <!-- Bottom row -->
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <!-- Infos -->
-                                    <div class="text-muted">
-                                        <i class="bi bi-building"></i> 45 agences
-                                        <span class="mx-2">•</span>
-                                        <i class="bi bi-signpost-2"></i> 28 routes
-                                    </div>
-
-                                    <!-- Explore -->
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        Explorer →
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
-    
-                            <!-- Image -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-
-                                <!-- Bottom row -->
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <!-- Infos -->
-                                    <div class="text-muted">
-                                        <i class="bi bi-building"></i> 45 agences
-                                        <span class="mx-2">•</span>
-                                        <i class="bi bi-signpost-2"></i> 28 routes
-                                    </div>
-
-                                    <!-- Explore -->
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        Explorer →
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 col-sm-12">
-                        <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
-    
-                            <!-- Image -->
-                            <div class="position-relative d-flex align-items-end p-3"
-                                 style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
-                                <div class="position-absolute top-0 start-0 w-100 h-100"
-                                     style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
-                                </div>
-                                <div class="position-relative text-white" style="z-index: 1;">
-                                    <h5 class="fw-bold mb-1">
-                                        Yaoundé → Douala
-                                    </h5>
-                                    <p class="mb-0 text-white-50">
-                                        980+ travelers/month
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="card-body">
-
-                                <!-- Bottom row -->
-                                <div class="d-flex justify-content-between align-items-center">
-
-                                    <!-- Infos -->
-                                    <div class="text-muted">
-                                        <i class="bi bi-building"></i> 45 agences
-                                        <span class="mx-2">•</span>
-                                        <i class="bi bi-signpost-2"></i> 28 routes
-                                    </div>
-
-                                    <!-- Explore -->
-                                    <a href="#" class="text-decoration-none fw-semibold">
-                                        Explorer →
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ route('destinations') }}" class="button button-primary m-2 view-all-routes-btn" style="text-decoration: none;">
+                            View all destinations
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
                     </div>
                 </div>
-
-                <div class="text-center mt-4">
-                    <a href="{{ route('destinations') }}" class="button button-primary m-2 view-all-routes-btn" style="text-decoration: none;">
-                        View all destinations
-                        <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </section>
+            </section>
 
         {{-- Why Choose Us Section --}}
         <section class="py-5" style="background: white;">  

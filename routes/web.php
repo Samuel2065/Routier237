@@ -24,14 +24,16 @@ Route::get('/', [HomeController::class, 'home'])->name('/');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/agency', [HomeController::class, 'agency'])->name('agency');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-Route::get('/agency_details', [HomeController::class, 'agency_details'])->name('agency_details');
+Route::get('/agency/{company:slug}', [HomeController::class, 'agency_details'])->name('agency_details');
 Route::get('/destinations', [HomeController::class, 'destinations'])->name('destinations');
 Route::get('/partner', [HomeController::class, 'partner'])->name('partner');
 Route::get('/marketplace', [HomeController::class, 'marketplace'])->name('marketplace');
 Route::get('/marketplace/{city:slug}', [HomeController::class, 'marketplaceCity'])->name('marketplace.city');
 Route::get('/view', [HomeController::class, 'view'])->name('view');    
+Route::get('/search', [HomeController::class, 'homeSearch'])->name('home.search');
 
-// Authentication Routes
+
+
 Route::middleware('guest')->group(function () {
     Route::get('/sign-in', [SignInController::class, 'showSignInForm'])->name('sign_in');
     Route::post('/sign-in', [SignInController::class, 'signIn']);

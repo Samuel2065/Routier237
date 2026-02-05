@@ -200,20 +200,42 @@
                     @enderror
                 </div>
                 
-                <div class="mb-2">
+                <div class="mb-2 position-relative">
                     <label for="password" class="form-label">Password *</label>
-                    <input type="password" 
-                           class="form-control @error('password') is-invalid @enderror" 
-                           id="password" 
-                           name="password"
-                           placeholder="Password" 
-                           required>
+                    
+                    <input type="password"
+                        class="form-control @error('password') is-invalid @enderror"
+                        id="password"
+                        name="password"
+                        placeholder="Password"
+                        required>
+
+                    <i class="fas fa-eye"
+                    id="togglePassword"
+                    style="cursor: pointer; position: absolute; right: 30px; top: 58px; color: #6c757d;"></i>
+
                     @error('password')
                         <div class="invalid-feedback">
                             <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
                         </div>
                     @enderror
                 </div>
+
+
+                <script>
+                    const togglePassword = document.getElementById('togglePassword');
+                    const passwordInput = document.getElementById('password');
+
+                    togglePassword.addEventListener('click', function () {
+                        const isPassword = passwordInput.type === 'password';
+
+                        passwordInput.type = isPassword ? 'text' : 'password';
+
+                        this.classList.toggle('fa-eye');
+                        this.classList.toggle('fa-eye-slash');
+                    });
+                </script>
+
 
                 <div class="d-flex mb-3">
                     <div class="form-check">

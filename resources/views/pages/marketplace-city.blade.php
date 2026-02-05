@@ -6,7 +6,7 @@
 .results-header {
     background: linear-gradient(135deg, #1f6eff 0%, #1557d0 100%);
     padding: 60px 0 40px;
-    margin-top: 90px;
+    margin-top: 80px;
     color: white;
 }
 
@@ -319,7 +319,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="fw-bold mb-2">Agences à {{ $from }}</h1>
+                <h1 class="fw-bold mb-2">Agences à {{ $city->name }}</h1>
                 <p class="mb-0">
                     @if($from && $to)
                         <i class="fas fa-map-marker-alt"></i> {{ $from }} → {{ $to }}
@@ -330,7 +330,7 @@
                             <span class="ms-3"><i class="fas fa-star"></i> {{ $serviceType }}</span>
                         @endif
                     @else
-                        Toutes les agences disponibles à {{ $from }}
+                        Toutes les agences disponibles à {{ $city->name }}
                     @endif
                 </p>
             </div>

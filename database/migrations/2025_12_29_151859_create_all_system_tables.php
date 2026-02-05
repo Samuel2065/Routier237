@@ -97,6 +97,8 @@ return new class extends Migration
             $table->foreignId('manager_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('name');
             $table->string('acronym')->nullable();
+            $table->string('slug')->unique();
+            $table->string('rating')->default(4.5);
             $table->string('logo')->nullable();
             $table->string('headquarters_address');
             $table->string('phone');
@@ -134,6 +136,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('district')->nullable();
             $table->text('full_address');
+            $table->text('slug');
+            $table->decimal('rating', 10, 2)->default(4.5); 
             $table->string('phone');
             $table->string('email')->nullable();
             $table->string('agency_code')->unique();
