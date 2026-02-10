@@ -15,36 +15,52 @@ class CustomerController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        
-        $stats = [
-            'total_trips' => Reservation::where('client_id', $user->client->id)
-                ->where('status', 'used')
-                ->count(),
-            'upcoming_trips' => Reservation::where('client_id', $user->client->id)
-                ->where('status', 'confirmed')
-                ->whereHas('trip', function($q) {
-                    $q->where('departure_date', '>=', today());
-                })
-                ->count(),
-            'total_bookings' => Reservation::where('client_id', $user->client->id)
-                ->count(),
-        ];
+        $client = $user->client;
 
-        $recentBookings = Reservation::where('client_id', $user->client->id)
-            ->with(['trip.route.departureCity', 'trip.route.arrivalCity'])
-            ->latest()
+        if (!$client) {
+            return redirect()->route('sign_in')
+                ->with('error', 'No customer profile found for your account.');
+        }
+        
+        $totalTrips = Reservation::where('client_id', $client->id)
+            ->where('status', 'used')
+            ->count();
+
+        $upcomingTrips = Reservation::where('client_id', $client->id)
+            ->where('status', 'confirmed')
+            ->whereHas('trip', function($q) {
+                $q->where('travel_date', '>=', today());
+            })
+            ->count();
+
+        $totalBookings = Reservation::where('client_id', $client->id)->count();
+
+        $recentBookings = Reservation::where('client_id', $client->id)
+            ->with(['trip.route.fromCity', 'trip.route.toCity'])
+            ->latest('reservation_date')
             ->take(5)
             ->get();
 
-        return view('customer.dashboard', compact('stats', 'recentBookings'));
+        return view('customer.dashboard', compact(
+            'totalTrips',
+            'upcomingTrips',
+            'totalBookings',
+            'recentBookings'
+        ));
     }
 
     public function reservations()
     {
         $user = Auth::user();
+        $client = $user->client;
+
+        if (!$client) {
+            return redirect()->route('sign_in')
+                ->with('error', 'No customer profile found for your account.');
+        }
         
-        $reservations = Reservation::where('client_id', $user->client->id)
-            ->with(['trip.route.departureCity', 'trip.route.arrivalCity', 'trip.vehicle', 'salesAgency'])
+        $reservations = Reservation::where('client_id', $client->id)
+            ->with(['trip.route.fromCity', 'trip.route.toCity', 'trip.vehicle', 'salesAgency'])
             ->latest()
             ->paginate(20);
 
@@ -65,9 +81,9 @@ class CustomerController extends Controller
 
         // Get available trips from approved agencies only
         $availableTrips = Trip::where('status', 'scheduled')
-            ->where('departure_date', '>=', today())
+            ->where('travel_date', '>=', today())
             ->where('available_seats', '>', 0)
-            ->whereHas('departureAgency', function($q) {
+            ->whereHas('agency', function($q) {
                 $q->where('approval_status', 'approved')
                   ->where('status', 'active')
                   ->whereHas('company', function($q2) {
@@ -75,8 +91,8 @@ class CustomerController extends Controller
                          ->where('status', 'active');
                   });
             })
-            ->with(['route.departureCity', 'route.arrivalCity', 'vehicle', 'departureAgency.company'])
-            ->latest('departure_date')
+            ->with(['route.fromCity', 'route.toCity', 'vehicle', 'agency.company'])
+            ->latest('travel_date')
             ->paginate(20);
 
         return view('customer.book', compact('approvedAgencies', 'availableTrips'));
@@ -92,11 +108,16 @@ class CustomerController extends Controller
         ]);
 
         $user = Auth::user();
+        $client = $user->client;
+
+        if (!$client) {
+            return back()->with('error', 'No customer profile found for your account.');
+        }
         $trip = Trip::findOrFail($validated['trip_id']);
 
         // Verify trip is from approved agency
-        if ($trip->departureAgency->approval_status !== 'approved' || 
-            $trip->departureAgency->company->approval_status !== 'approved') {
+        if ($trip->agency->approval_status !== 'approved' || 
+            $trip->agency->company->approval_status !== 'approved') {
             return back()->with('error', 'This trip is not available for booking.');
         }
 
@@ -107,7 +128,7 @@ class CustomerController extends Controller
 
         try {
             // Calculate price
-            $price = $trip->unit_price;
+            $price = $trip->base_price;
             $baggageFees = $validated['baggage_fees'] ?? 0;
             $totalAmount = $price + $baggageFees;
 
@@ -118,7 +139,7 @@ class CustomerController extends Controller
             // Create reservation
             $reservation = Reservation::create([
                 'trip_id' => $trip->id,
-                'client_id' => $user->client->id,
+                'client_id' => $client->id,
                 'ticket_number' => $ticketNumber,
                 'seat_number' => $validated['seat_number'],
                 'passenger_type' => $validated['passenger_type'],
@@ -129,7 +150,7 @@ class CustomerController extends Controller
                 'payment_status' => 'pending',
                 'reservation_date' => now(),
                 'reserved_by' => $user->id,
-                'sales_agency_id' => $trip->departure_agency_id,
+                'sales_agency_id' => $trip->agency_id,
                 'confirmation_code' => $confirmationCode,
                 'status' => 'confirmed',
             ]);

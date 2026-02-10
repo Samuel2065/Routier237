@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/typography.css') }}">
+    <link rel="icon" sizes="64x64" href="{{ asset('logo_routier.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo_routier.ico') }}" style="border-radius: 100%;">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -188,17 +190,17 @@
 
                             <div class="row">
                                 <div class="col-md-6">
-                                    <a href="{{ route('destinations') }}" class="mega-item">Douala</a>
-                                    <a href="{{ route('destinations') }}" class="mega-item">Yaoundé</a>
-                                    <a href="{{ route('destinations') }}" class="mega-item">Bafoussam</a>
-                                    <a href="{{ route('destinations') }}" class="mega-item">Garoua</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Douala</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Yaoundé</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Bafoussam</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Garoua</a>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <a href="{{ route('destinations') }}" class="mega-item">Bamenda</a>
-                                    <a href="{{ route('destinations') }}" class="mega-item">Maroua</a>
-                                    <a href="{{ route('destinations') }}" class="mega-item">Ngaoundéré</a>
-                                    <a href="{{ route('destinations') }}" class="mega-item">Buea</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Bamenda</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Maroua</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Ngaoundéré</a>
+                                    <a href="{{ route('marketplace') }}" class="mega-item">Buea</a>
                                 </div>
                             </div>
                         </div>
@@ -224,7 +226,7 @@
 
                 <!-- Logo + description -->
                 <div class="col-md-3">
-                    <h4 class="fw-bold text-white">Routier+</h4>
+                    <h4 class="fw-bold text-white">Routier+237</h4>
                     <p class="small">
                         La plateforme de transport routier du Cameroun. 
                         Voyagez en toute sécurité avec des agences validées.

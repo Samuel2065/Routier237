@@ -72,7 +72,7 @@
         height: auto;
     }
 
-    .btn-primary {
+    .signin-container .btn-primary {
         width: 100%;
         margin-top: 1rem;
         border: none;
@@ -111,10 +111,52 @@
         border-color: #198754;
     }
 
-    .active {
+    .signin-container .btn-outline-primary.active {
         background-color: #2563eb !important;
         color: white !important;
         border-color: #2563eb !important;
+    }
+
+    .role-toggle {
+        background: #f1f4f8;
+        border-radius: 999px;
+        padding: 6px;
+        display: flex;
+        gap: 6px;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+
+    .role-btn {
+        flex: 1;
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 12px;
+        font-weight: 600;
+        font-size: 0.98rem;
+        color: #64748b;
+        background: transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.25s ease;
+    }
+
+    .role-btn .role-icon {
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .role-btn.active {
+        background: #0f172a;
+        color: #ffffff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .role-btn:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.35);
+        outline-offset: 3px;
     }
 
     /* Styles for dynamic fields */
@@ -173,12 +215,12 @@
                     </div>
                 @endif
 
-                <div class="d-flex justify-content-center mb-3 gap-2">
-                    <button type="button" class="btn btn-outline-primary active" name="role" style="width: 42%; font-weight: 500;" id="role-voyageur">
-                        <i class="bi bi-person"></i> Passenger
+                <div class="role-toggle mb-3">
+                    <button type="button" class="role-btn active" name="role" id="role-voyageur" aria-pressed="true">
+                        <i class="fa-solid fa-user role-icon"></i> Passenger
                     </button>
-                    <button type="button" class="btn btn-outline-primary" name="role" style="width: 42%; font-weight: 500;" id="role-agence">
-                        <i class="bi bi-building"></i> Agency
+                    <button type="button" class="role-btn" name="role" id="role-agence" aria-pressed="false">
+                        <i class="fa-solid fa-building role-icon"></i> Agency
                     </button>
                 </div>
                 
@@ -281,7 +323,7 @@
                     </div>
                     <div class="mb-2">
                         <label for="contact_person" class="form-label">Contact person <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('contact_person') is-invalid @enderror" id="contact_person" name="contact_person" placeholder="Manager Name" value="{{ old('contact_person') }}">
+                        <input type="text" class="form-control @error('contact_person') is-invalid @enderror" id="contact_person" name="contact_person" placeholder="Director Name" value="{{ old('contact_person') }}">
                         @error('contact_person')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -334,6 +376,8 @@
         function switchToPassenger() {
             roleVoyageur.classList.add('active');
             roleAgence.classList.remove('active');
+            roleVoyageur.setAttribute('aria-pressed', 'true');
+            roleAgence.setAttribute('aria-pressed', 'false');
             userTypeInput.value = 'passenger';
             
             // Show passenger fields
@@ -343,14 +387,19 @@
             // Enable passenger fields and set required
             nameInput.disabled = false;
             nameInput.required = true;
+            nameInput.setAttribute('name', 'full_name');
             emailInput.disabled = false;
             emailInput.required = true;
+            emailInput.setAttribute('name', 'email');
             passwordInput.disabled = false;
             passwordInput.required = true;
+            passwordInput.setAttribute('name', 'password');
             passwordConfirmationInput.disabled = false;
             passwordConfirmationInput.required = true;
+            passwordConfirmationInput.setAttribute('name', 'password_confirmation');
             phoneInput.disabled = false;
             phoneInput.required = true;
+            phoneInput.setAttribute('name', 'phone');
             
             // Disable agency fields, remove required and clear values
             agencyNameInput.disabled = true;
@@ -386,6 +435,8 @@
         function switchToAgency() {
             roleAgence.classList.add('active');
             roleVoyageur.classList.remove('active');
+            roleAgence.setAttribute('aria-pressed', 'true');
+            roleVoyageur.setAttribute('aria-pressed', 'false');
             userTypeInput.value = 'agency';
             
             // Show agency fields

@@ -7,6 +7,7 @@ use App\Models\Driver;
 use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class DriverController extends Controller
 {
@@ -24,30 +25,36 @@ class DriverController extends Controller
                 ->with('error', 'No driver profile found for your account.');
         }
 
+        $hasDriverId = Schema::hasColumn('trips', 'driver_id');
+        $driverTrips = $hasDriverId
+            ? Trip::where('driver_id', $driver->id)
+            : Trip::query()->whereRaw('1=0');
+
         $stats = [
-            'upcoming_trips' => Trip::where('driver_id', $driver->id)
+            'upcoming_trips' => (clone $driverTrips)
                 ->where('status', 'scheduled')
-                ->where('departure_date', '>=', today())
+                ->where('travel_date', '>=', today())
                 ->count(),
-            'completed_trips' => Trip::where('driver_id', $driver->id)
-                ->where('status', 'arrived')
-                ->whereMonth('departure_date', now()->month)
+            'completed_trips' => (clone $driverTrips)
+                ->where('status', 'completed')
+                ->whereMonth('travel_date', now()->month)
                 ->count(),
-            'in_progress_trips' => Trip::where('driver_id', $driver->id)
-                ->where('status', 'in_progress')
+            'in_progress_trips' => (clone $driverTrips)
+                ->whereIn('status', ['boarding', 'departed'])
                 ->count(),
-            'total_trips' => Trip::where('driver_id', $driver->id)
-                ->count(),
+            'total_trips' => (clone $driverTrips)->count(),
         ];
 
         // Get next scheduled trip
-        $nextTrip = Trip::where('driver_id', $driver->id)
-            ->where('status', 'scheduled')
-            ->where('departure_date', '>=', today())
-            ->with(['route.departureCity', 'route.arrivalCity', 'vehicle'])
-            ->orderBy('departure_date')
-            ->orderBy('departure_time')
-            ->first();
+        $nextTrip = $hasDriverId
+            ? (clone $driverTrips)
+                ->where('status', 'scheduled')
+                ->where('travel_date', '>=', today())
+                ->with(['route.fromCity', 'route.toCity', 'vehicle'])
+                ->orderBy('travel_date')
+                ->orderBy('departure_time')
+                ->first()
+            : null;
 
         return view('driver.dashboard', compact('stats', 'driver', 'nextTrip'));
     }
@@ -60,10 +67,12 @@ class DriverController extends Controller
             $query->where('user_id', $user->id);
         })->with(['employee.agency'])->firstOrFail();
 
-        $trips = Trip::where('driver_id', $driver->id)
-            ->with(['route.departureCity', 'route.arrivalCity', 'vehicle', 'departureAgency'])
-            ->latest('departure_date')
-            ->paginate(20);
+        $trips = Schema::hasColumn('trips', 'driver_id')
+            ? Trip::where('driver_id', $driver->id)
+                ->with(['route.fromCity', 'route.toCity', 'vehicle', 'departureAgency'])
+                ->latest('travel_date')
+                ->paginate(20)
+            : Trip::query()->whereRaw('1=0')->paginate(20);
 
         return view('driver.trips', compact('driver', 'trips'));
     }
@@ -76,13 +85,15 @@ class DriverController extends Controller
             $query->where('user_id', $user->id);
         })->with(['employee.agency'])->firstOrFail();
 
-        $upcomingTrips = Trip::where('driver_id', $driver->id)
-            ->where('status', 'scheduled')
-            ->where('departure_date', '>=', today())
-            ->with(['route.departureCity', 'route.arrivalCity', 'vehicle', 'departureAgency'])
-            ->orderBy('departure_date')
-            ->orderBy('departure_time')
-            ->get();
+        $upcomingTrips = Schema::hasColumn('trips', 'driver_id')
+            ? Trip::where('driver_id', $driver->id)
+                ->where('status', 'scheduled')
+                ->where('travel_date', '>=', today())
+                ->with(['route.fromCity', 'route.toCity', 'vehicle', 'departureAgency'])
+                ->orderBy('travel_date')
+                ->orderBy('departure_time')
+                ->get()
+            : collect();
 
         return view('driver.schedule', compact('driver', 'upcomingTrips'));
     }
@@ -96,12 +107,14 @@ class DriverController extends Controller
         })->with(['employee.agency'])->firstOrFail();
 
         // Get current or most recent vehicle assigned to this driver
-        $currentTrip = Trip::where('driver_id', $driver->id)
-            ->whereIn('status', ['scheduled', 'in_progress'])
-            ->with(['vehicle.vehicleType', 'vehicle.maintenances' => function($query) {
-                $query->latest('maintenance_date')->limit(5);
-            }])
-            ->first();
+        $currentTrip = Schema::hasColumn('trips', 'driver_id')
+            ? Trip::where('driver_id', $driver->id)
+                ->whereIn('status', ['scheduled', 'boarding', 'departed'])
+                ->with(['vehicle.vehicleType', 'vehicle.maintenances' => function($query) {
+                    $query->latest('maintenance_date')->limit(5);
+                }])
+                ->first()
+            : null;
 
         $vehicle = $currentTrip ? $currentTrip->vehicle : null;
 

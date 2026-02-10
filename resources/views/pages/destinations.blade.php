@@ -40,8 +40,14 @@
         /* Hero Section */
         .hero-section {
             min-height: 70vh;
+            padding-top: 90px;
+            padding-bottom: 60px;
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
             url('{{ asset("assets/images/destination-image.png") }}') center/cover no-repeat;
+        }
+
+        .hero-section .container {
+            max-width: 980px;
         }
         
         /* Main Content */
@@ -175,12 +181,18 @@
         
         /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
+            .hero-section {
+                min-height: calc(60vh + 80px);
+                padding-top: 110px;
+                padding-bottom: 40px;
+            }
+
+            .hero-section h1 {
+                font-size: 2.1rem;
             }
             
-            .hero p {
-                font-size: 1.1rem;
+            .hero-section p {
+                font-size: 1rem;
             }
             
             .nav {
@@ -196,7 +208,7 @@
 </style>   
 
     {{-- Hero Section --}}
-    <section class="hero-section d-flex align-items-center text-center text-white" style="height: 100%;">
+    <section class="hero-section d-flex align-items-center text-center text-white">
         <div class="container position-relative">
             <h1 class="fw-bold display-5 mb-3">
                 Explorez le Cameroun

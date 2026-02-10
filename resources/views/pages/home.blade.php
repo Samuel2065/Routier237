@@ -705,7 +705,7 @@
 
                                     <!-- Actions -->
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('agency_details') }}" class="btn btn-primary flex-grow-1" style="justify-content: center;">
+                                        <a href="{{ route('agency_details', $company->slug) }}" class="btn btn-primary flex-grow-1" style="justify-content: center;">
                                             Voir détails
                                         </a>
                                         <button class="btn btn-outline-secondary">

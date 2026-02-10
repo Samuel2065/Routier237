@@ -27,17 +27,46 @@ class AgencyManagerController extends Controller
                 ->with('error', 'No agency found for your account.');
         }
 
+        $today = today();
+        $yesterday = today()->subDay();
+
+        $todayReservations = $agency->reservations()->whereDate('reservation_date', $today);
+        $yesterdayReservations = $agency->reservations()->whereDate('reservation_date', $yesterday);
+
+        $dailyRevenue = (float) (clone $todayReservations)
+            ->where('payment_status', 'paid')
+            ->sum('total_amount');
+
+        $yesterdayRevenue = (float) (clone $yesterdayReservations)
+            ->where('payment_status', 'paid')
+            ->sum('total_amount');
+
+        $dailyRevenueChange = $yesterdayRevenue > 0
+            ? round((($dailyRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100, 1)
+            : null;
+
         $stats = [
             'total_reservations' => $agency->reservations()->count(),
-            'today_bookings' => $agency->reservations()->whereDate('reservation_date', today())->count(),
+            'today_bookings' => (clone $todayReservations)->count(),
+            'pending_reservations' => $agency->reservations()->where('payment_status', 'pending')->count(),
             'staff_count' => $agency->employees()->count(),
-            'daily_revenue' => $agency->reservations()
-                ->whereDate('reservation_date', today())
-                ->where('payment_status', 'paid')
-                ->sum('total_amount'),
+            'daily_revenue' => $dailyRevenue,
+            'daily_revenue_change' => $dailyRevenueChange,
+            'active_trips' => $agency->trips()
+                ->whereDate('travel_date', $today)
+                ->whereIn('status', ['scheduled', 'boarding', 'departed'])
+                ->count(),
         ];
 
-        return view('agency_manager.dashboard', compact('stats', 'agency'));
+        $todayTrips = $agency->trips()
+            ->with(['route.fromCity', 'route.toCity', 'vehicle'])
+            ->withCount('reservations')
+            ->whereDate('travel_date', $today)
+            ->orderBy('departure_time')
+            ->limit(10)
+            ->get();
+
+        return view('agency_manager.dashboard', compact('stats', 'agency', 'todayTrips'));
     }
 
     public function reservations()

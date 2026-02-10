@@ -23,10 +23,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'home'])->name('/');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/agency', [HomeController::class, 'agency'])->name('agency');
-Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/agency/{company:slug}', [HomeController::class, 'agency_details'])->name('agency_details');
 Route::get('/destinations', [HomeController::class, 'destinations'])->name('destinations');
-Route::get('/partner', [HomeController::class, 'partner'])->name('partner');
 Route::get('/marketplace', [HomeController::class, 'marketplace'])->name('marketplace');
 Route::get('/marketplace/{city:slug}', [HomeController::class, 'marketplaceCity'])->name('marketplace.city');
 Route::get('/view', [HomeController::class, 'view'])->name('view');    
@@ -46,6 +44,10 @@ Route::post('/logout', [SignInController::class, 'logout'])->name('logout')->mid
 
 // Protected Routes - Require Authentication
 Route::middleware(['auth'])->group(function () {
+    // Common dashboard entry point (used by intended redirects)
+    Route::get('/dashboard', function () {
+        return redirect(auth()->user()->getDashboardRoute());
+    })->name('dashboard');
     
     // Super Admin Routes
     Route::middleware(['role:super_admin'])->prefix('super-admin')->name('super_admin.')->group(function () {
@@ -101,6 +103,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/expenses', [AgencyManagerController::class, 'expenses'])->name('expenses');
         Route::get('/reports', [AgencyManagerController::class, 'reports'])->name('reports');
     });
+
+    // Alias routes for Agency Manager (handle common URL variants)
+    Route::middleware(['role:agency_manager'])->get('/manager/dashboard', function () {
+        return redirect()->route('agency_manager.dashboard');
+    })->name('agency_manager.dashboard_alias.manager');
+
+    Route::middleware(['role:agency_manager'])->get('/agency-manager/dashboard', function () {
+        return redirect()->route('agency_manager.dashboard');
+    })->name('agency_manager.dashboard_alias.hyphen');
+
+    Route::middleware(['role:agency_manager'])->get('/agency_manager/dashboard', function () {
+        return redirect()->route('agency_manager.dashboard');
+    })->name('agency_manager.dashboard_alias.underscore');
     
     // Counter Clerk Routes
     Route::middleware(['role:counter_clerk'])->prefix('clerk')->name('counter_clerk.')->group(function () {

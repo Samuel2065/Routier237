@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Agency extends Model
 {
@@ -24,6 +26,35 @@ class Agency extends Model
         'status',
         'approval_status',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function (Agency $agency) {
+            if (empty($agency->slug)) {
+                $baseSlug = Str::slug($agency->name);
+                $slug = $baseSlug;
+                $suffix = 1;
+
+                while (DB::table('agencies')->where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $suffix;
+                    $suffix++;
+                }
+
+                $agency->slug = $slug;
+            }
+
+            if (empty($agency->city_id)) {
+                $defaultCityId = DB::table('cities')
+                    ->where('status', 'active')
+                    ->orderBy('id')
+                    ->value('id');
+
+                if ($defaultCityId) {
+                    $agency->city_id = $defaultCityId;
+                }
+            }
+        });
+    }
 
     /**
      * Company that owns this agency
@@ -55,6 +86,22 @@ class Agency extends Model
     public function trips()
     {
         return $this->hasMany(Trip::class);
+    }
+
+    /**
+     * Alias for trips used in some controllers
+     */
+    public function departureTrips()
+    {
+        return $this->hasMany(Trip::class);
+    }
+
+    /**
+     * Reservations sold by this agency
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'sales_agency_id');
     }
 
     /**

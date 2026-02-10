@@ -12,7 +12,15 @@ class CounterClerkController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = null;
+
+        if (!empty($user->agency_id)) {
+            $agency = Agency::find($user->agency_id);
+        }
+
+        if (!$agency && $user->employee) {
+            $agency = $user->employee->agency;
+        }
 
         if (!$agency) {
             return redirect()->route('sign_in')
@@ -31,7 +39,15 @@ class CounterClerkController extends Controller
     public function reservations()
     {
         $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = null;
+
+        if (!empty($user->agency_id)) {
+            $agency = Agency::find($user->agency_id);
+        }
+
+        if (!$agency && $user->employee) {
+            $agency = $user->employee->agency;
+        }
 
         return view('counter_clerk.reservations', compact('agency'));
     }
@@ -39,7 +55,15 @@ class CounterClerkController extends Controller
     public function createReservation()
     {
         $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = null;
+
+        if (!empty($user->agency_id)) {
+            $agency = Agency::find($user->agency_id);
+        }
+
+        if (!$agency && $user->employee) {
+            $agency = $user->employee->agency;
+        }
 
         return view('counter_clerk.reservations.create', compact('agency'));
     }
@@ -64,7 +88,15 @@ class CounterClerkController extends Controller
     public function cashRegister()
     {
         $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = null;
+
+        if (!empty($user->agency_id)) {
+            $agency = Agency::find($user->agency_id);
+        }
+
+        if (!$agency && $user->employee) {
+            $agency = $user->employee->agency;
+        }
 
         return view('counter_clerk.cash_register', compact('agency'));
     }

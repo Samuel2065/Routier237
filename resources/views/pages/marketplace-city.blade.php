@@ -511,10 +511,10 @@
                                 <button class="btn-contact-icon" title="WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
                                 </button>
-                                <button class="btn-view-details">
+                                <a href="{{ route('agency_details', $agency->company->slug) }}" class="btn-view-details" style="text-decoration: none;">
                                     Voir les détails & horaires
                                     <i class="fas fa-arrow-right"></i>
-                                </button>
+                                </a>
                             </div>
                         </div>
 
@@ -537,7 +537,7 @@
                             @endif
                         </p>
                         <a href="{{ route('marketplace') }}" class="btn btn-primary mt-3">
-                            <i class="fas fa-arrow-left"></i> Retour à la recherche
+                            Retour à la recherche
                         </a>
                     </div>
                 </div>

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary-color: #2563eb;
+            --primary-color: #059669;
             --sidebar-width: 260px;
         }
         
@@ -88,13 +88,14 @@
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-left: 4px solid #059669;
+            border-left: 4px solid var(--primary-color);
         }
 
         .stat-card h3 {
             font-size: 2rem;
             font-weight: 700;
             margin: 0.5rem 0;
+            color: #1f2937;
         }
 
         .content-card {
@@ -103,6 +104,26 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 1.5rem;
+        }
+
+        .badge-boarding {
+            background: #f59e0b;
+        }
+
+        .badge-departed {
+            background: #0ea5e9;
+        }
+
+        .badge-scheduled {
+            background: #6b7280;
+        }
+
+        .badge-completed {
+            background: #10b981;
+        }
+
+        .badge-cancelled {
+            background: #ef4444;
         }
     </style>
 </head>
@@ -116,55 +137,58 @@
         
         <div class="nav-menu">
             <div class="nav-item">
-                <a href="#" class="nav-link active">
+                <a href="{{ route('agency_manager.dashboard') }}" class="nav-link active">
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.reservations') }}" class="nav-link">
                     <i class="bi bi-ticket-perforated"></i>
                     <span>Reservations</span>
+                    @if($stats['pending_reservations'] > 0)
+                        <span class="badge bg-warning ms-auto">{{ $stats['pending_reservations'] }}</span>
+                    @endif
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.staff') }}" class="nav-link">
                     <i class="bi bi-people"></i>
                     <span>My Staff</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.vehicles') }}" class="nav-link">
                     <i class="bi bi-truck"></i>
                     <span>Vehicles</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.drivers') }}" class="nav-link">
                     <i class="bi bi-person-badge"></i>
                     <span>Drivers</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.trips') }}" class="nav-link">
                     <i class="bi bi-calendar3"></i>
                     <span>Trips & Schedules</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.cash_register') }}" class="nav-link">
                     <i class="bi bi-cash-coin"></i>
                     <span>Cash Register</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.expenses') }}" class="nav-link">
                     <i class="bi bi-receipt"></i>
                     <span>Expenses</span>
                 </a>
             </div>
             <div class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('agency_manager.reports') }}" class="nav-link">
                     <i class="bi bi-graph-up"></i>
                     <span>Reports</span>
                 </a>
@@ -178,16 +202,13 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2 class="mb-0">Agency Dashboard</h2>
-                    <small class="text-muted">Yaoundé Main Office</small>
+                    <small class="text-muted">{{ $agency->name }}</small>
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> Manager
+                        <i class="bi bi-person-circle"></i> {{ auth()->user()->full_name }}
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-shop"></i> Agency Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -199,17 +220,40 @@
             </div>
         </div>
 
+        <!-- Alerts -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <!-- Stats Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted mb-1">Today's Sales</p>
-                        <h3>450K XAF</h3>
-                        <small class="text-success"><i class="bi bi-arrow-up"></i> 12% vs yesterday</small>
+                        <h3>{{ number_format($stats['daily_revenue']) }} XAF</h3>
+                        @if(!is_null($stats['daily_revenue_change']))
+                            @if($stats['daily_revenue_change'] >= 0)
+                                <small class="text- success"><i class="bi bi-arrow-up"></i> {{ $stats['daily_revenue_change'] }}% vs yesterday</small>
+                            @else
+                                <small class="text-danger"><i class="bi bi-arrow-down"></i> {{ abs($stats['daily_revenue_change']) }}% vs yesterday</small>
+                            @endif
+                        @else
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> No data for yesterday</small>
+                        @endif
                     </div>
                     <div style="width: 48px; height: 48px; background: rgba(5, 150, 105, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-cash-stack" style="color: #059669; font-size: 1.5rem;"></i>
+                        <i class="bi bi-cash-stack" style="color: var(--primary-color); font-size: 1.5rem;"></i>
                     </div>
                 </div>
             </div>
@@ -218,11 +262,11 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted mb-1">Reservations</p>
-                        <h3>142</h3>
-                        <small class="text-info"><i class="bi bi-info-circle"></i> 38 pending</small>
+                        <h3>{{ $stats['total_reservations'] }}</h3>
+                        <small class="text-info"><i class="bi bi-info-circle"></i> {{ $stats['pending_reservations'] }} pending</small>
                     </div>
                     <div style="width: 48px; height: 48px; background: rgba(5, 150, 105, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-ticket-perforated" style="color: #059669; font-size: 1.5rem;"></i>
+                        <i class="bi bi-ticket-perforated" style="color: var(--primary-color); font-size: 1.5rem;"></i>
                     </div>
                 </div>
             </div>
@@ -230,12 +274,12 @@
             <div class="stat-card">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <p class="text-muted mb-1">Active Trips</p>
-                        <h3>8</h3>
-                        <small class="text-success"><i class="bi bi-check-circle"></i> All on schedule</small>
+                        <p class="text-muted mb-1">Today's Trips</p>
+                        <h3>{{ $stats['active_trips'] }}</h3>
+                        <small class="text-success"><i class="bi bi-check-circle"></i> {{ $stats['today_bookings'] }} bookings today</small>
                     </div>
                     <div style="width: 48px; height: 48px; background: rgba(5, 150, 105, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-geo-alt" style="color: #059669; font-size: 1.5rem;"></i>
+                        <i class="bi bi-geo-alt" style="color: var(--primary-color); font-size: 1.5rem;"></i>
                     </div>
                 </div>
             </div>
@@ -244,11 +288,11 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="text-muted mb-1">My Staff</p>
-                        <h3>15</h3>
-                        <small class="text-success"><i class="bi bi-check-circle"></i> 14 on duty</small>
+                        <h3>{{ $stats['staff_count'] }}</h3>
+                        <small class="text-success"><i class="bi bi-people"></i> Active staff</small>
                     </div>
                     <div style="width: 48px; height: 48px; background: rgba(5, 150, 105, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-people" style="color: #059669; font-size: 1.5rem;"></i>
+                        <i class="bi bi-people" style="color: var(--primary-color); font-size: 1.5rem;"></i>
                     </div>
                 </div>
             </div>
@@ -257,34 +301,39 @@
         <!-- Quick Actions -->
         <div class="row mb-4">
             <div class="col-md-3">
-                <button class="btn btn-success w-100 p-3">
+                <a href="{{ route('agency_manager.reservations') }}" class="btn btn-success w-100 p-3">
                     <i class="bi bi-plus-circle"></i><br>
                     New Reservation
-                </button>
+                </a>
             </div>
             <div class="col-md-3">
-                <button class="btn btn-primary w-100 p-3">
+                <a href="{{ route('agency_manager.cash_register') }}" class="btn btn-primary w-100 p-3">
                     <i class="bi bi-cash-coin"></i><br>
                     Open Cash Register
-                </button>
+                </a>
             </div>
             <div class="col-md-3">
-                <button class="btn btn-warning w-100 p-3">
+                <a href="{{ route('agency_manager.trips') }}" class="btn btn-warning w-100 p-3">
                     <i class="bi bi-calendar-plus"></i><br>
                     Schedule Trip
-                </button>
+                </a>
             </div>
             <div class="col-md-3">
-                <button class="btn btn-info w-100 p-3 text-white">
+                <a href="{{ route('agency_manager.staff.create') }}" class="btn btn-info w-100 p-3 text-white">
                     <i class="bi bi-person-plus"></i><br>
                     Add Staff
-                </button>
+                </a>
             </div>
         </div>
 
         <!-- Today's Trips -->
         <div class="content-card">
-            <h5 class="mb-3">Today's Scheduled Trips</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Today's Scheduled Trips</h5>
+                <a href="{{ route('agency_manager.trips') }}" class="btn btn-sm btn-success">
+                    <i class="bi bi-calendar3"></i> View All
+                </a>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -298,22 +347,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Yaoundé → Douala</strong></td>
-                            <td>08:00 AM</td>
-                            <td>Bus 001</td>
-                            <td>John Doe</td>
-                            <td>45/70</td>
-                            <td><span class="badge bg-warning">Boarding</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Yaoundé → Bamenda</strong></td>
-                            <td>10:30 AM</td>
-                            <td>Bus 003</td>
-                            <td>Paul Biya</td>
-                            <td>62/70</td>
-                            <td><span class="badge bg-success">In Progress</span></td>
-                        </tr>
+                        @forelse($todayTrips as $trip)
+                            @php
+                                $fromCity = $trip->route->fromCity->name ?? 'N/A';
+                                $toCity = $trip->route->toCity->name ?? 'N/A';
+                                $vehiclePlate = optional($trip->vehicle)->plate_number;
+                                $vehicleModel = optional($trip->vehicle)->model;
+                                $vehicleLabel = $vehiclePlate ?: ($vehicleModel ?: 'N/A');
+                                $totalSeats = optional($trip->vehicle)->seat_count ?? $trip->available_seats;
+                                $reservedSeats = $trip->reservations_count ?? 0;
+                                $statusClass = match($trip->status) {
+                                    'boarding' => 'badge-boarding',
+                                    'departed' => 'badge-departed',
+                                    'completed' => 'badge-completed',
+                                    'cancelled' => 'badge-cancelled',
+                                    default => 'badge-scheduled',
+                                };
+                            @endphp
+                            <tr>
+                                <td><strong>{{ $fromCity }} → {{ $toCity }}</strong></td>
+                                <td>{{ \Carbon\Carbon::parse($trip->departure_time)->format('h:i A') }}</td>
+                                <td>{{ $vehicleLabel }}</td>
+                                <td><span class="text-muted">Not assigned</span></td>
+                                <td>{{ $reservedSeats }}/{{ $totalSeats }}</td>
+                                <td><span class="badge {{ $statusClass }}">{{ ucfirst($trip->status) }}</span></td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No trips scheduled for today</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

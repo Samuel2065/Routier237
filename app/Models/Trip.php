@@ -44,6 +44,14 @@ class Trip extends Model
     }
 
     /**
+     * Alias used by controllers for the departure agency
+     */
+    public function departureAgency()
+    {
+        return $this->belongsTo(Agency::class, 'agency_id');
+    }
+
+    /**
      * Route for this trip
      */
     public function route()
@@ -65,6 +73,14 @@ class Trip extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Reservations linked to this trip
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
     }
 
     /**

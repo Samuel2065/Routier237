@@ -104,6 +104,34 @@
     .filter-btn{
         border-radius: 50px;
     }
+
+    .button {
+        padding: 16px 32px;
+        border-radius: 5px;
+        border: none;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        min-width: 180px;
+        border-radius: 15px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .button-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
 </style>
 
 <!-- Hero Section -->
@@ -116,8 +144,8 @@
             Discover all verified transport agencies of Cameroon
         </p>
         <div class="d-flex justify-content-center gap-3">
-            <a href="#" class="btn btn-primary btn-lg">Become a Partner</a>
-            <a href="{{ route('marketplace') }}" class="btn btn-outline-light btn-lg">Search a Trip</a>
+            <a href="#" class="btn btn-primary btn-lg" style="border-radius: 15px;">Become a Partner</a>
+            <a href="{{ route('marketplace') }}" class="button button-secondary" style="color: white;">Search a Trip</a>
         </div>
     </div>
 </section>

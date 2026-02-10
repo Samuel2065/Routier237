@@ -65,7 +65,7 @@
         height: auto;
     }
 
-    .btn-primary {
+    .signin-container .btn-primary {
         width: 100%;
         margin-top: 1rem;
         border: none;
@@ -74,7 +74,7 @@
         color: white !important;
     }
 
-    .btn-primary span {
+    .signin-container .btn-primary span {
         color: white !important;
     }
 

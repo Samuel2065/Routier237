@@ -16,7 +16,15 @@ class AccountantController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        $agency = Agency::find($user->agency_id ?? null);
+        $agency = null;
+
+        if (!empty($user->agency_id)) {
+            $agency = Agency::find($user->agency_id);
+        }
+
+        if (!$agency && $user->employee) {
+            $agency = $user->employee->agency;
+        }
 
         $stats = [
             'today_revenue' => Reservation::whereDate('reservation_date', today())
@@ -79,7 +87,15 @@ class AccountantController extends Controller
     public function reports()
     {
         $user = Auth::user();
-        $agency = Agency::find($user->agency_id ?? null);
+        $agency = null;
+
+        if (!empty($user->agency_id)) {
+            $agency = Agency::find($user->agency_id);
+        }
+
+        if (!$agency && $user->employee) {
+            $agency = $user->employee->agency;
+        }
 
         // Monthly revenue
         $monthlyRevenue = Reservation::whereMonth('reservation_date', now()->month)
