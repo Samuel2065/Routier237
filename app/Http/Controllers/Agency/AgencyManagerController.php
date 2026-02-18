@@ -37,7 +37,7 @@ class AgencyManagerController extends Controller
                 ->sum('total_amount'),
         ];
 
-        return view('agency_manager.dashboard', compact('stats', 'agency'));
+        return view('agency-manager.dashboard', compact('stats', 'agency'));
     }
 
     public function reservations()

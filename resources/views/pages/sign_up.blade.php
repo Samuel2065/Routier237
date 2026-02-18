@@ -72,7 +72,7 @@
         height: auto;
     }
 
-    .btn-primary {
+    .signin-container .btn-primary {
         width: 100%;
         margin-top: 1rem;
         border: none;
@@ -111,10 +111,44 @@
         border-color: #198754;
     }
 
-    .active {
+    .signin-container .btn-outline-primary.active {
         background-color: #2563eb !important;
         color: white !important;
         border-color: #2563eb !important;
+    }
+
+    .role-toggle {
+        display: flex;
+        gap: 6px;
+        padding: 6px;
+        border-radius: 999px;
+        background: #eef2f7;
+        border: 1px solid #e2e8f0;
+    }
+
+    .role-btn {
+        flex: 1;
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 12px;
+        font-weight: 600;
+        color: #64748b;
+        background: transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .role-btn i {
+        font-size: 0.9rem;
+    }
+
+    .role-btn.active {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
     }
 
     /* Styles for dynamic fields */
@@ -173,12 +207,12 @@
                     </div>
                 @endif
 
-                <div class="d-flex justify-content-center mb-3 gap-2">
-                    <button type="button" class="btn btn-outline-primary active" name="role" style="width: 42%; font-weight: 500;" id="role-voyageur">
-                        <i class="bi bi-person"></i> Passenger
+                <div class="role-toggle mb-3">
+                    <button type="button" class="role-btn active" name="role" id="role-voyageur" aria-pressed="true">
+                        <i class="fa-solid fa-user"></i> Passenger
                     </button>
-                    <button type="button" class="btn btn-outline-primary" name="role" style="width: 42%; font-weight: 500;" id="role-agence">
-                        <i class="bi bi-building"></i> Agency
+                    <button type="button" class="role-btn" name="role" id="role-agence" aria-pressed="false">
+                        <i class="fa-solid fa-building"></i> Agency
                     </button>
                 </div>
                 
@@ -307,7 +341,7 @@
     <script>
         // Get elements
         const roleVoyageur = document.getElementById('role-voyageur');
-        const roleAgence = document.getElementById('role-agence');
+        const roleAgency = document.getElementById('role-agence');
         const userTypeInput = document.getElementById('user_type');
         const passengerFields = document.getElementById('passengerFields');
         const agencyFields = document.getElementById('agencyFields');
@@ -333,7 +367,9 @@
         // Function to switch to passenger mode
         function switchToPassenger() {
             roleVoyageur.classList.add('active');
-            roleAgence.classList.remove('active');
+            roleAgency.classList.remove('active');
+            roleVoyageur.setAttribute('aria-pressed', 'true');
+            roleAgency.setAttribute('aria-pressed', 'false');
             userTypeInput.value = 'passenger';
             
             // Show passenger fields
@@ -343,14 +379,19 @@
             // Enable passenger fields and set required
             nameInput.disabled = false;
             nameInput.required = true;
+            nameInput.setAttribute('name', 'full_name');
             emailInput.disabled = false;
             emailInput.required = true;
+            emailInput.setAttribute('name', 'email');
             passwordInput.disabled = false;
             passwordInput.required = true;
+            passwordInput.setAttribute('name', 'password');
             passwordConfirmationInput.disabled = false;
             passwordConfirmationInput.required = true;
+            passwordConfirmationInput.setAttribute('name', 'password_confirmation');
             phoneInput.disabled = false;
             phoneInput.required = true;
+            phoneInput.setAttribute('name', 'phone');
             
             // Disable agency fields, remove required and clear values
             agencyNameInput.disabled = true;
@@ -384,8 +425,10 @@
 
         // Function to switch to agency mode
         function switchToAgency() {
-            roleAgence.classList.add('active');
+            roleAgency.classList.add('active');
             roleVoyageur.classList.remove('active');
+            roleAgency.setAttribute('aria-pressed', 'true');
+            roleVoyageur.setAttribute('aria-pressed', 'false');
             userTypeInput.value = 'agency';
             
             // Show agency fields
@@ -441,7 +484,7 @@
 
         // Event listeners
         roleVoyageur.addEventListener('click', switchToPassenger);
-        roleAgence.addEventListener('click', switchToAgency);
+        roleAgency.addEventListener('click', switchToAgency);
 
         // Initialize based on old input (for validation errors)
         @if(old('user_type') === 'agency')

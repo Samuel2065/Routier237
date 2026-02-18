@@ -95,10 +95,10 @@ h6{
 
                 <div class="text-center text-white mb-5">
                     <h1 class="fw-bold display-5 mb-3">
-                        Trouvez votre trajet idéal
+                        Find your ideal trip
                     </h1>
                     <p class="lead mb-0">
-                        Rechercher parmi toutes les agences et destinations du Cameroun
+                        Search among all agencies and destinations in Cameroon
                     </p>
                 </div>
 
@@ -109,9 +109,9 @@ h6{
                             <div class="row g-3">
 
                                 <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Ville de départ</label>
+                                    <label class="form-label fw-semibold">Departure city</label>
                                     <select name="from" id="fromCity" class="form-select" required>
-                                        <option value="">Choisir</option>
+                                        <option value="">Choose</option>
                                         @foreach($cities as $city)
                                             <option value="{{ $city->name }}" {{ old('from', $request->from) == $city->name ? 'selected' : '' }}>
                                                 {{ $city->name }}
@@ -123,7 +123,7 @@ h6{
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Destination</label>
                                     <select name="to" class="form-select" required>
-                                        <option value="">Choisir</option>
+                                        <option value="">Choose</option>
                                         @foreach($cities as $city)
                                             <option value="{{ $city->name }}" {{ old('to', $request->to) == $city->name ? 'selected' : '' }}>
                                                 {{ $city->name }}
@@ -138,10 +138,10 @@ h6{
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Classe</label>
+                                    <label class="form-label fw-semibold">Class</label>
                                     <select name="service_type" class="form-select">
-                                        <option value="">Toutes</option>
-                                        <option value="Normal" {{ old('service_type', $request->service_type) == 'Normal' ? 'selected' : '' }}>Classique</option>
+                                        <option value="">All</option>
+                                        <option value="Normal" {{ old('service_type', $request->service_type) == 'Normal' ? 'selected' : '' }}>Standard</option>
                                         <option value="Express" {{ old('service_type', $request->service_type) == 'Express' ? 'selected' : '' }}>Express</option>
                                         <option value="VIP" {{ old('service_type', $request->service_type) == 'VIP' ? 'selected' : '' }}>VIP</option>
                                     </select>
@@ -149,14 +149,14 @@ h6{
 
                                 <div class="col-12 mt-4">
                                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex justify-content-center align-items-center gap-2">
-                                        <i class="fas fa-search"></i> Rechercher des trajets
+                                        <i class="fas fa-search"></i> Search trips
                                     </button>
                                 </div>
                             </div>
 
                             <div class="mt-4 pt-3 border-top">
                                 <h6 class="mb-3 text-start text-dark" style="font-size: medium;">
-                                    Trajets populaires
+                                    Popular routes
                                 </h6>
 
                                 <div class="row g-3">
@@ -198,9 +198,9 @@ h6{
     <div class="container">
 
         <div class="text-center mb-5">
-            <h2 class="fw-bold">Choisissez votre ville</h2>
+            <h2 class="fw-bold">Choose your city</h2>
             <p class="text-muted">
-                Sélectionnez une ville pour voir toutes les agences de transport disponibles
+                Select a city to see all available transport agencies
             </p>
         </div>
 
@@ -212,7 +212,7 @@ h6{
 
                             <div class="city-image-wrapper">
                                 <div class="city-image"
-                                     style="background-image:url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}');">
+                                     style="background-image:url('{{ asset('assets/images/yaounde.png') }}');">
                                 </div>
 
                                 <div class="city-overlay p-3 d-flex text-start" style="margin-top: 110px;">
@@ -226,16 +226,16 @@ h6{
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-2 text-dark">
                                     <span class="text-dark">
-                                        <i class="fas fa-building"></i> {{ $cityItem->agencies_count }} agences
+                                        <i class="fas fa-building"></i> {{ $cityItem->agencies_count }} agencies
                                     </span>
                                     <span class="text-dark">
-                                        <i class="fas fa-route"></i> {{ $cityItem->routes_count }} trajets
+                                        <i class="fas fa-route"></i> {{ $cityItem->routes_count }} routes
                                     </span>
                                 </div>
 
                                 <div class="fw-semibold text-primary text-decoration-none d-flex justify-content-between align-items-center">
                                     <span style="color: #0d6efd;">
-                                        Voir les agences 
+                                        View agencies 
                                         <i class="fas fa-arrow-right" style="margin-left: 80px;"></i>
                                     </span>
                                 </div>
@@ -247,7 +247,7 @@ h6{
             @empty
                 <div class="col-12">
                     <div class="alert alert-info text-center">
-                        <i class="fas fa-info-circle"></i> Aucune ville disponible pour le moment.
+                        <i class="fas fa-info-circle"></i> No city available at the moment.
                     </div>
                 </div>
             @endforelse

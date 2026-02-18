@@ -466,7 +466,6 @@ return new class extends Migration
         Schema::dropIfExists('expenses');
         Schema::dropIfExists('transactions');
         Schema::dropIfExists('cash_registers');
-        Schema::dropIfExists('reservations');
         Schema::dropIfExists('trips');
         Schema::dropIfExists('drivers');
         Schema::dropIfExists('employees');

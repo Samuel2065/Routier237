@@ -8,12 +8,21 @@ use App\Models\Company;
 use App\Models\Agency;
 use App\Models\Role;
 use App\Models\Reservation;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
 class SuperAdminController extends Controller
 {
+    private function getSidebarStats(): array
+    {
+        return [
+            'pending_companies' => Company::where('approval_status', 'pending')->count(),
+            'pending_agencies' => Agency::where('approval_status', 'pending')->count(),
+        ];
+    }
+
     public function dashboard()
     {
         $stats = [
@@ -36,7 +45,9 @@ class SuperAdminController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentCompanies', 'pendingApprovals'));
+        $sidebarStats = $this->getSidebarStats();
+
+        return view('admin.dashboard', compact('stats', 'recentCompanies', 'pendingApprovals', 'sidebarStats'));
     }
 
     public function companies()
@@ -45,7 +56,8 @@ class SuperAdminController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.companies', compact('companies'));
+        $sidebarStats = $this->getSidebarStats();
+        return view('admin.companies', compact('companies', 'sidebarStats'));
     }
 
     public function createCompany()
@@ -56,7 +68,8 @@ class SuperAdminController extends Controller
             ->whereDoesntHave('managedCompany')
             ->get();
 
-        return view('admin.companies.create', compact('availableDirectors'));
+        $sidebarStats = $this->getSidebarStats();
+        return view('admin.companies.create', compact('availableDirectors', 'sidebarStats'));
     }
 
     public function storeCompany(Request $request)
@@ -188,7 +201,8 @@ class SuperAdminController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.agencies', compact('agencies'));
+        $sidebarStats = $this->getSidebarStats();
+        return view('admin.agencies', compact('agencies', 'sidebarStats'));
     }
 
     public function approveAgency($id)
@@ -243,19 +257,28 @@ class SuperAdminController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.users', compact('users'));
+        $sidebarStats = $this->getSidebarStats();
+        return view('admin.users', compact('users', 'sidebarStats'));
     }
 
     public function roles()
     {
-        $roles = Role::withCount('users')
+        $roles = Role::with(['permissions'])
+            ->withCount(['users', 'permissions'])
             ->get();
 
-        return view('admin.roles', compact('roles'));
+        $sidebarStats = $this->getSidebarStats();
+        return view('admin.roles', compact('roles', 'sidebarStats'));
     }
 
     public function permissions()
     {
-        return view('admin.permissions');
+        $permissions = Permission::withCount('roles')
+            ->orderBy('module')
+            ->orderBy('name')
+            ->paginate(25);
+
+        $sidebarStats = $this->getSidebarStats();
+        return view('admin.permissions', compact('permissions', 'sidebarStats'));
     }
 }

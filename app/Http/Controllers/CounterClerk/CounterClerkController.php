@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CounterClerk;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,12 +12,11 @@ class CounterClerkController extends Controller
 {
     public function dashboard()
     {
-        $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = $this->resolveAgency();
 
         if (!$agency) {
-            return redirect()->route('sign_in')
-                ->with('error', 'No agency assigned to your account.');
+            return redirect()->route('/')
+                ->with('error', 'No agency assigned to your clerk account. Contact your manager.');
         }
 
         $stats = [
@@ -25,23 +25,31 @@ class CounterClerkController extends Controller
             'cash_register_balance' => 0,
         ];
 
-        return view('counter_clerk.dashboard', compact('stats', 'agency'));
+        return view('clerk.dashboard', compact('stats', 'agency'));
     }
 
     public function reservations()
     {
-        $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = $this->resolveAgency();
 
-        return view('counter_clerk.reservations', compact('agency'));
+        if (!$agency) {
+            return redirect()->route('/')
+                ->with('error', 'No agency assigned to your clerk account. Contact your manager.');
+        }
+
+        return view('clerk.reservations', compact('agency'));
     }
 
     public function createReservation()
     {
-        $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = $this->resolveAgency();
 
-        return view('counter_clerk.reservations.create', compact('agency'));
+        if (!$agency) {
+            return redirect()->route('/')
+                ->with('error', 'No agency assigned to your clerk account. Contact your manager.');
+        }
+
+        return view('clerk.reservations.create', compact('agency'));
     }
 
     public function storeReservation(Request $request)
@@ -63,10 +71,14 @@ class CounterClerkController extends Controller
 
     public function cashRegister()
     {
-        $user = Auth::user();
-        $agency = Agency::find($user->agency_id);
+        $agency = $this->resolveAgency();
 
-        return view('counter_clerk.cash_register', compact('agency'));
+        if (!$agency) {
+            return redirect()->route('/')
+                ->with('error', 'No agency assigned to your clerk account. Contact your manager.');
+        }
+
+        return view('clerk.cash_register', compact('agency'));
     }
 
     public function openRegister(Request $request)
@@ -90,5 +102,22 @@ class CounterClerkController extends Controller
         // Add cash register closing logic
 
         return back()->with('success', 'Cash register closed successfully!');
+    }
+
+    private function resolveAgency(): ?Agency
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return null;
+        }
+
+        $employee = Employee::where('user_id', $user->id)->first();
+
+        if (!$employee) {
+            return null;
+        }
+
+        return Agency::with(['city', 'company'])->find($employee->agency_id);
     }
 }

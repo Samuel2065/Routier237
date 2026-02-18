@@ -338,7 +338,7 @@
             <!-- Main Content -->
             <main class="col-lg-10 col-md-9 main-content">
               <div class="d-flex justify-content-between container pt-4">
-                <h1>Companies de voyages</h1>
+                <h1>Transport companies</h1>
                 <div>
                   <span class="btn-primary btn rounded-circle" data-bs-toggle="modal" data-bs-target="#createCompany">
                     <i class="fas fa-plus"></i>
@@ -349,10 +349,10 @@
               <table class="table table-bordered table-striped table-responsive">
                 <thead>
                   <th>Logo</th>
-                  <th>Nom</th>
+                  <th>Name</th>
                   <th>Email</th>
-                  <th>Ville Siège</th>
-                  <th>Téléphone</th>
+                  <th>Head Office City</th>
+                  <th>Phone</th>
                   <th>Actions</th>
                 </thead>
                 <tbody>
@@ -363,13 +363,13 @@
                 <div class="modal-dialog modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">Creer une companie de transport</h5>
+                      <h5 class="modal-title">Create a transport company</h5>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                       <form action="">
                         <div class="form-group">
-                          <label for="name">Nom</label>
+                          <label for="name">Name</label>
                           <input type="text" class="form-control" id="name" name="name">
                         </div>
                         <div class="form-group">
@@ -377,7 +377,7 @@
                           <input type="email" class="form-control" id="email" name="email">
                         </div>
                         <div class="form-group">
-                          <label for="phone">Téléphone</label>
+                          <label for="phone">Phone</label>
                           <input type="text" class="form-control" id="phone" name="phone">
                         </div>
                         <div class="form-group">
@@ -385,18 +385,18 @@
                           <input type="file" class="form-control" id="logo" name="logo">
                         </div>
                         <div class="form-group">
-                          <label for="address">Adresse</label>
+                          <label for="address">Address</label>
                           <input type="text" class="form-control" id="address" name="address">
                         </div>
                         <div class="form-group">
-                          <label for="city">Ville Siège</label>
+                          <label for="city">Head Office City</label>
                           <input type="text" class="form-control" id="city" name="city">
                         </div>
                       </form>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                      <button type="button" class="btn btn-primary">Enregistrer</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary">Save</button>
                     </div>
                   </div>
                 </div>

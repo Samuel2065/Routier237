@@ -118,6 +118,6 @@ class SignInController extends Controller
             ]);
         }
         
-        return redirect()->route('sign_in')->with('success', 'You have been logged out successfully.');
+        return redirect()->route('/')->with('success', 'You have been logged out successfully.');
     }
 }

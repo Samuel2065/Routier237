@@ -23,7 +23,7 @@ class CustomerController extends Controller
             'upcoming_trips' => Reservation::where('client_id', $user->client->id)
                 ->where('status', 'confirmed')
                 ->whereHas('trip', function($q) {
-                    $q->where('departure_date', '>=', today());
+                    $q->where('travel_date', '>=', today());
                 })
                 ->count(),
             'total_bookings' => Reservation::where('client_id', $user->client->id)

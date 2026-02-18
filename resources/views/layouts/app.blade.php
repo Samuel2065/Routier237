@@ -224,10 +224,10 @@
 
                 <!-- Logo + description -->
                 <div class="col-md-3">
-                    <h4 class="fw-bold text-white">Routier+</h4>
+                    <h4 class="fw-bold text-white">Routier+237</h4>
                     <p class="small">
-                        La plateforme de transport routier du Cameroun. 
-                        Voyagez en toute sécurité avec des agences validées.
+                        Cameroon's road transport platform. 
+                        Travel safely with verified agencies.
                     </p>
 
                     <!-- Social icons -->
@@ -248,16 +248,16 @@
                 <div class="col-md-3">
                     <h6 class="fw-bold text-uppercase mb-3">Services</h6>
                     <ul class="list-unstyled small">
-                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Horaires de bus</a></li>
-                        <li class="mb-2"><a href="{{ route('agency') }}" class="text-light text-decoration-none">Agences partenaires</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none">Bus schedules</a></li>
+                        <li class="mb-2"><a href="{{ route('agency') }}" class="text-light text-decoration-none">Partner agencies</a></li>
                         <li class="mb-2"><a href="{{ route('destinations') }}" class="text-light text-decoration-none">Destinations</a></li>
-                        <li><a href="#" class="text-light text-decoration-none">Réservations</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Bookings</a></li>
                     </ul>
                 </div>
 
-                <!-- Villes populaires -->
+                <!-- Popular cities -->
                 <div class="col-md-3">
-                    <h6 class="fw-bold text-uppercase mb-3">Villes populaires</h6>
+                    <h6 class="fw-bold text-uppercase mb-3">Popular cities</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2">Douala</li>
                         <li class="mb-2">Yaoundé</li>
@@ -291,11 +291,11 @@
             <hr class="border-secondary my-4">
 
             <div class="d-flex flex-column flex-md-row justify-content-between small">
-                <span style="color: white;">© 2026 Routier+ — Tous droits réservés.</span>
+                <span style="color: white;"> &copy;2026 Routier+237 - All rights reserved.</span>
                 <div class="d-flex gap-3">
-                    <a href="#" class="text-light text-decoration-none">Confidentialité</a>
-                    <a href="#" class="text-light text-decoration-none">Conditions d'utilisation</a>
-                    <a href="#" class="text-light text-decoration-none">Assistance</a>
+                    <a href="#" class="text-light text-decoration-none">Privacy</a>
+                    <a href="#" class="text-light text-decoration-none">Terms of Use</a>
+                    <a href="#" class="text-light text-decoration-none">Support</a>
                 </div>
             </div>
         </div>

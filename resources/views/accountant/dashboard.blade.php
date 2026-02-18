@@ -27,6 +27,8 @@
             color: white;
             overflow-y: auto;
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-header {
@@ -36,6 +38,7 @@
 
         .nav-menu {
             padding: 1rem 0;
+            flex: 1;
         }
 
         .nav-item {
@@ -114,9 +117,131 @@
         .transaction-row:hover {
             background: #f9fafb;
         }
+
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .sidebar-logout-btn {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            text-align: left;
+        }
+
+        .sidebar-logout-btn:hover {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+        }
+
+        .profile-trigger {
+            border: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.1;
+            text-align: right;
+        }
+
+        .profile-status {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #6b7280;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .profile-avatar-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 2px solid #fff;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        .profile-menu {
+            border: 0;
+            border-radius: 14px;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.18);
+            min-width: 250px;
+            padding: 0.8rem;
+        }
+
+        .profile-menu .menu-header {
+            padding: 0.5rem 0.4rem 0.7rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 0.45rem;
+        }
+
+        .profile-menu .menu-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+
+        .profile-menu .menu-email {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .profile-menu .dropdown-item {
+            border-radius: 10px;
+            padding: 0.6rem 0.55rem;
+            font-weight: 500;
+        }
+
+        .profile-menu .dropdown-item.text-danger {
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
+    @php
+        $dashboardUser = auth()->user();
+        $dashboardUserName = $dashboardUser->full_name ?? $dashboardUser->name ?? 'User';
+        $dashboardUserEmail = $dashboardUser->email ?? '';
+        $dashboardUserPhoto = $dashboardUser->photo ?? null;
+        if (!empty($dashboardUserPhoto)) {
+            if (\Illuminate\Support\Str::startsWith($dashboardUserPhoto, ['http://', 'https://'])) {
+                $dashboardPhotoUrl = $dashboardUserPhoto;
+            } elseif (\Illuminate\Support\Str::startsWith($dashboardUserPhoto, ['assets/', 'storage/'])) {
+                $dashboardPhotoUrl = asset($dashboardUserPhoto);
+            } else {
+                $dashboardPhotoUrl = asset('storage/' . ltrim($dashboardUserPhoto, '/'));
+            }
+        } else {
+            $dashboardPhotoUrl = asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png');
+        }
+    @endphp
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
@@ -174,6 +299,14 @@
                 </a>
             </div>
         </div>
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -185,17 +318,36 @@
                     <small class="text-muted">Express Voyages - Accounting</small>
                 </div>
                 <div class="dropdown">
-                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> Accountant
+                    <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data" id="profilePhotoFormAccountant" class="d-none">
+                        @csrf
+                        <input type="file" id="profilePhotoInputAccountant" name="photo" accept="image/*" onchange="this.form.submit()">
+                    </form>
+                    <button class="profile-trigger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-none d-md-block">
+                                <div class="profile-name">{{ $dashboardUserName }}</div>
+                                <div class="profile-status">Compte active</div>
+                            </div>
+                            <div class="profile-avatar-wrap" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('profilePhotoInputAccountant').click();">
+                                <img src="{{ $dashboardPhotoUrl }}" alt="{{ $dashboardUserName }}" class="profile-avatar">
+                                <span class="status-dot"></span>
+                            </div>
+                        </div>
                     </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end profile-menu">
+                        <li class="menu-header">
+                            <div class="menu-label">Utilisateur</div>
+                            <div class="menu-email">{{ $dashboardUserEmail }}</div>
+                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Mon Profil</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-clock-history me-2"></i> Historique</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Déconnexion
+                                </button>
                             </form>
                         </li>
                     </ul>

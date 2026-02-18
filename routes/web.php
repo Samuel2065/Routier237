@@ -11,6 +11,7 @@ use App\Http\Controllers\CounterClerk\CounterClerkController;
 use App\Http\Controllers\Accountant\AccountantController;
 use App\Http\Controllers\Driver\DriverController;
 use App\Http\Controllers\Clients\CustomerController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,6 +44,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [SignInController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update')->middleware('auth');
 
 // Protected Routes - Require Authentication
 Route::middleware(['auth'])->group(function () {

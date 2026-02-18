@@ -17,6 +17,7 @@ class Agency extends Model
         'name',
         'district',
         'full_address',
+        'slug',
         'phone',
         'email',
         'agency_code',

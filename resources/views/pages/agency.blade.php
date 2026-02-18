@@ -43,6 +43,50 @@
         font-weight: bold;
         color: #1f6eff;
     }
+    .button {
+        padding: 16px 32px;
+        border-radius: 15px;
+        border: none;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        min-width: 180px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .button-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .button-secondary:hover {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+    }
+    .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .button:active {
+        transform: translateY(0);
+    }
+
+    .button-primary {
+        background: #097cffff;
+        color: white;
+    }
+
+    .button-primary:hover {
+        background: #1482ffff;
+        color: white;
+    }
 
     .company-name {
         font-size: 1.1rem;
@@ -116,8 +160,8 @@
             Discover all verified transport agencies of Cameroon
         </p>
         <div class="d-flex justify-content-center gap-3">
-            <a href="#" class="btn btn-primary btn-lg">Become a Partner</a>
-            <a href="{{ route('marketplace') }}" class="btn btn-outline-light btn-lg">Search a Trip</a>
+            <a href="#" class="button button-primary">Become a Partner</a>
+            <a href="{{ route('marketplace') }}" class="button button-secondary">Search a Trip</a>
         </div>
     </div>
 </section>
@@ -191,7 +235,7 @@
                         </div>
 
                         <div class="mb-3" style="font-style: italic; color: #666;">
-                            {{ $company->description ?? 'Votre confort, notre priorité' }}
+                            {{ $company->description ?? 'Your comfort, our priority' }}
                         </div>
 
                         <div class="mb-3">

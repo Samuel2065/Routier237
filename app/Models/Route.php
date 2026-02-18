@@ -35,6 +35,22 @@ class Route extends Model
     }
 
     /**
+     * Backward compatibility for legacy templates.
+     */
+    public function getDepartureCityAttribute()
+    {
+        return optional($this->fromCity)->name;
+    }
+
+    /**
+     * Backward compatibility for legacy templates.
+     */
+    public function getArrivalCityAttribute()
+    {
+        return optional($this->toCity)->name;
+    }
+
+    /**
      * Trips on this route
      */
     public function trips()

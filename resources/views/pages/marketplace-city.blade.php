@@ -239,6 +239,7 @@
     background: white;
     color: #666;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .btn-contact-icon:hover {
@@ -262,12 +263,14 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
+    text-decoration: none;
 }
 
 .btn-view-details:hover {
     background: #1557d0;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(31, 110, 255, 0.3);
+    color: white;
 }
 
 /* No Results */
@@ -319,7 +322,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="fw-bold mb-2">Agences à {{ $city->name }}</h1>
+                <h1 class="fw-bold mb-2">Agencies in {{ $city->name }}</h1>
                 <p class="mb-0">
                     @if($from && $to)
                         <i class="fas fa-map-marker-alt"></i> {{ $from }} → {{ $to }}
@@ -330,13 +333,13 @@
                             <span class="ms-3"><i class="fas fa-star"></i> {{ $serviceType }}</span>
                         @endif
                     @else
-                        Toutes les agences disponibles à {{ $city->name }}
+                        All available agencies in {{ $city->name }}
                     @endif
                 </p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <h3 class="fw-bold mb-0">{{ $agencies->total() }}</h3>
-                <small>{{ $agencies->total() > 1 ? 'agences trouvées' : 'agence trouvée' }}</small>
+                <small>{{ $agencies->total() > 1 ? 'agencies found' : 'agency found' }}</small>
             </div>
         </div>
     </div>
@@ -349,9 +352,9 @@
             <form method="GET" action="{{ route('marketplace.city', $city->slug) }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold small">Ville de départ</label>
+                        <label class="form-label fw-semibold small">Departure city</label>
                         <select name="from" class="form-select">
-                            <option value="">Toutes</option>
+                            <option value="">All</option>
                             @foreach($cities as $c)
                                 <option value="{{ $c->name }}" {{ $from == $c->name ? 'selected' : '' }}>
                                     {{ $c->name }}
@@ -363,7 +366,7 @@
                     <div class="col-md-3">
                         <label class="form-label fw-semibold small">Destination</label>
                         <select name="to" class="form-select">
-                            <option value="">Toutes</option>
+                            <option value="">All</option>
                             @foreach($cities as $c)
                                 <option value="{{ $c->name }}" {{ $to == $c->name ? 'selected' : '' }}>
                                     {{ $c->name }}
@@ -378,10 +381,10 @@
                     </div>
 
                     <div class="col-md-2">
-                        <label class="form-label fw-semibold small">Classe</label>
+                        <label class="form-label fw-semibold small">Class</label>
                         <select name="service_type" class="form-select">
-                            <option value="">Toutes</option>
-                            <option value="Normal" {{ $serviceType == 'Classique' ? 'selected' : '' }}>Classique</option>
+                            <option value="">All</option>
+                            <option value="Normal" {{ $serviceType == 'Standard' ? 'selected' : '' }}>Standard</option>
                             <option value="Express" {{ $serviceType == 'Express' ? 'selected' : '' }}>Express</option>
                             <option value="VIP" {{ $serviceType == 'VIP' ? 'selected' : '' }}>VIP</option>
                         </select>
@@ -389,7 +392,7 @@
 
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-search"></i> Rechercher
+                            <i class="fas fa-search"></i> Search
                         </button>
                     </div>
                 </div>
@@ -406,14 +409,14 @@
         @if($agencies->count() > 0)
             <div class="filter-sort-section">
                 <div class="text-muted small">
-                    Affichage de {{ $agencies->count() }} agence(s)
+                    Showing {{ $agencies->count() }} agency(ies)
                 </div>
                 <div class="filter-buttons">
                     <button class="btn-filter active">
-                        <i class="fas fa-th"></i> Toutes les classes
+                        <i class="fas fa-th"></i> All classes
                     </button>
                     <button class="btn-filter">
-                        <i class="fas fa-filter"></i> Filtrer
+                        <i class="fas fa-filter"></i> Filter
                     </button>
                 </div>
             </div>
@@ -433,7 +436,7 @@
                             <div class="agency-name">{{ $agency->company->name ?? $agency->name }}</div>
                             <div class="agency-verification">
                                 <i class="fas fa-check-circle"></i>
-                                <span>Vérifié</span>
+                                <span>Verified</span>
                             </div>
                             <div class="agency-rating-stars">
                                 @for($i = 0; $i < 5; $i++)
@@ -445,7 +448,7 @@
 
                         {{-- Trips List --}}
                         <div class="agency-trips-list">
-                            <div class="service-available-label">Service disponible</div>
+                            <div class="service-available-label">Available services</div>
                             
                             @php
                                 $displayTrips = $agency->trips->take(3);
@@ -466,14 +469,14 @@
                                             @elseif($trip->service_type == 'Express')
                                                 <i class="fas fa-bolt"></i>
                                             @endif
-                                            {{ $trip->service_type == 'Normal' ? 'Classique' : $trip->service_type }}
+                                            {{ $trip->service_type == 'Normal' ? 'Standard' : $trip->service_type }}
                                         </span>
                                         <span class="trip-price">{{ number_format($trip->base_price, 0, ',', ' ') }} XAF</span>
                                     </div>
                                 @endforeach
                             @else
                                 <div class="text-center text-muted small py-3">
-                                    Aucun trajet disponible
+                                    No trips available
                                 </div>
                             @endif
                         </div>
@@ -481,7 +484,7 @@
                         {{-- Choice Available --}}
                         @if($agency->trips->count() > 0)
                             <div class="choice-available">
-                                <div class="choice-label">Choix disponible</div>
+                                <div class="choice-label">Available options</div>
                                 <div class="choice-pills">
                                     @php
                                         $uniqueServices = $agency->trips->pluck('service_type')->unique();
@@ -489,7 +492,7 @@
                                     @foreach($uniqueServices as $service)
                                         <div class="choice-pill">
                                             <i class="fas fa-{{ $service == 'VIP' ? 'star' : ($service == 'Express' ? 'bolt' : 'bus') }}"></i>
-                                            {{ $service == 'Normal' ? 'Classique' : $service }}
+                                            {{ $service == 'Normal' ? 'Standard' : $service }}
                                         </div>
                                     @endforeach
                                 </div>
@@ -498,23 +501,23 @@
 
                         {{-- Card Footer --}}
                         <div class="agency-card-footer">
-                            <div class="starting-price">À partir de</div>
+                            <div class="starting-price">Starting from</div>
                             @php
                                 $minPrice = $agency->trips->min('base_price') ?? 0;
                             @endphp
                             <div class="price-amount">{{ number_format($minPrice, 0, ',', ' ') }} XAF</div>
                             
                             <div class="contact-buttons">
-                                <button class="btn-contact-icon" title="Appeler">
+                                <a href="tel:{{ $agency->phone }}" class="btn-contact-icon" title="Call">
                                     <i class="fas fa-phone"></i>
-                                </button>
-                                <button class="btn-contact-icon" title="WhatsApp">
+                                </a>
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $agency->phone) }}" target="_blank" class="btn-contact-icon" title="WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
-                                </button>
-                                <button class="btn-view-details">
-                                    Voir les détails & horaires
+                                </a>
+                                <a href="{{ route('agency_details', $agency->company->slug ?? 'agency-' . $agency->id) }}" class="btn-view-details">
+                                    View details & schedules
                                     <i class="fas fa-arrow-right"></i>
-                                </button>
+                                </a>
                             </div>
                         </div>
 
@@ -524,20 +527,20 @@
                 <div class="col-12">
                     <div class="no-results">
                         <i class="fas fa-search"></i>
-                        <h4 class="fw-bold mb-2">Aucune agence trouvée</h4>
+                        <h4 class="fw-bold mb-2">No agency found</h4>
                         <p class="text-muted">
                             @if($from && $to)
-                                Désolé, aucune agence ne propose de trajets {{ $from }} → {{ $to }} 
+                                Sorry, no agency offers trips {{ $from }} → {{ $to }} 
                                 @if($date)
-                                    pour le {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
+                                    for {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
                                 @endif
-                                selon vos critères.
+                                matching your criteria.
                             @else
-                                Il n'y a actuellement aucune agence enregistrée à {{ $city->name }}.
+                                There is currently no registered agency in {{ $city->name }}.
                             @endif
                         </p>
                         <a href="{{ route('marketplace') }}" class="btn btn-primary mt-3">
-                            <i class="fas fa-arrow-left"></i> Retour à la recherche
+                            Back to search
                         </a>
                     </div>
                 </div>

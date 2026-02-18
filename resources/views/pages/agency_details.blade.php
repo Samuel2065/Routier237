@@ -1,599 +1,539 @@
 @extends('layouts.app')
 
-@section('title', $company->name . ' - Agency Details')
+@section('title', ($company->name ?? 'Agency') . ' - Full Profile')
 
 @section('content')
 <style>
-    .agency-header {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 2rem;
+.agency-profile-page {
+    background: #ffffff;
+    padding-top: 96px;
+    padding-bottom: 56px;
+}
+
+.profile-shell {
+    max-width: 1180px;
+}
+
+.profile-hero {
+    padding: 18px 0 12px;
+}
+
+.hero-logo {
+    width: 86px;
+    height: 86px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1d4ed8;
+    font-size: 1.8rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-title {
+    margin: 0;
+    font-size: clamp(2rem, 3vw, 3.1rem);
+    font-weight: 800;
+    color: #111827;
+}
+
+.verified-badge {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1e40af;
+    background: #eff6ff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.92rem;
+}
+
+.hero-description {
+    margin-top: 14px;
+    margin-bottom: 16px;
+    color: #4b5563;
+    line-height: 1.7;
+    max-width: 820px;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hero-btn {
+    border: 0;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hero-btn-call { background: #2097f3; }
+.hero-btn-wa { background: #16a34a; }
+.hero-btn-mail { background: #3b5bc9; }
+
+.rating-box {
+    text-align: right;
+    padding-top: 18px;
+}
+
+.rating-score {
+    color: #111827;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.rating-meta {
+    color: #6b7280;
+    font-size: 0.92rem;
+}
+
+.tabs-wrap {
+    border-top: 1px solid #edf1f7;
+    border-bottom: 1px solid #edf1f7;
+    margin-top: 16px;
+}
+
+.profile-tabs {
+    border: 0;
+    gap: 8px;
+    padding: 10px 0;
+}
+
+.profile-tabs .nav-link {
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 24px;
+    color: #4b5563;
+    font-weight: 600;
+}
+
+.profile-tabs .nav-link.active {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.profile-content {
+    padding-top: 26px;
+}
+
+.section-title {
+    font-size: clamp(1.8rem, 2.6vw, 2.7rem);
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+.route-block {
+    border-bottom: 1px solid #edf1f7;
+    padding: 24px 0;
+}
+
+.route-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+}
+
+.route-name {
+    margin: 0;
+    font-size: clamp(1.3rem, 2vw, 2rem);
+    font-weight: 700;
+    color: #111827;
+}
+
+.route-duration {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.route-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.35fr 1fr;
+    gap: 28px;
+}
+
+.column-title {
+    font-weight: 700;
+    color: #111827;
+    font-size: 1.32rem;
+    margin-bottom: 12px;
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(90px, 122px));
+    gap: 10px;
+}
+
+.time-chip {
+    background: #eef5ff;
+    border-radius: 6px;
+    text-align: center;
+    padding: 10px 12px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.fare-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 7px 0;
+}
+
+.fare-title {
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 0.98rem;
+}
+
+.fare-meta {
+    color: #6b7280;
+    font-size: 0.88rem;
+}
+
+.fare-price {
+    color: #111827;
+    font-weight: 800;
+    font-size: 1.56rem;
+}
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.quick-btn {
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 700;
+    padding: 11px 14px;
+}
+
+.quick-wa { background: #16a34a; }
+.quick-classic { background: #1658d1; }
+.quick-vip { background: #5b3fce; }
+.quick-alert { background: #1f335e; }
+
+.branch-card,
+.review-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+}
+
+.branch-title,
+.review-title {
+    font-weight: 700;
+    color: #111827;
+}
+
+.branch-meta,
+.review-meta {
+    color: #6b7280;
+    margin: 0;
+}
+
+.empty-box {
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+}
+
+@media (max-width: 991.98px) {
+    .route-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 
-    .logo-box {
-        width: 100px;
-        height: 100px;
-        border: 2px solid #ddd;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        background: #f0f4ff;
-        flex-shrink: 0;
+    .rating-box {
+        text-align: left;
+        padding-top: 10px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .profile-tabs .nav-link {
+        padding: 10px 14px;
+        font-size: 0.92rem;
     }
 
-    .logo-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+    .time-grid {
+        grid-template-columns: repeat(2, minmax(74px, 1fr));
     }
-
-    .logo-text {
-        font-size: 32px;
-        font-weight: bold;
-        color: #1f6eff;
-    }
-
-    .verified-badge {
-        background: #e8f4ff;
-        color: #1f6eff;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-weight: 500;
-    }
-
-    .verified-badge i {
-        color: #1f6eff;
-    }
-
-    .rating-stars {
-        color: #fbbf24;
-        font-size: 1.2rem;
-    }
-
-    .action-btn {
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 500;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-    }
-
-    .btn-call {
-        background: #3b82f6;
-        color: white;
-        border: none;
-    }
-
-    .btn-call:hover {
-        background: #2563eb;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .btn-whatsapp {
-        background: #25d366;
-        color: white;
-        border: none;
-    }
-
-    .btn-whatsapp:hover {
-        background: #20ba5a;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .btn-email {
-        background: #6366f1;
-        color: white;
-        border: none;
-    }
-
-    .btn-email:hover {
-        background: #4f46e5;
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .nav-tabs {
-        border-bottom: 2px solid #e5e7eb;
-        margin-bottom: 2rem;
-    }
-
-    .nav-tabs .nav-link {
-        color: #6b7280;
-        border: none;
-        padding: 1rem 2rem;
-        font-weight: 500;
-        position: relative;
-    }
-
-    .nav-tabs .nav-link.active {
-        color: #1f6eff;
-        background: transparent;
-        border-bottom: 3px solid #1f6eff;
-    }
-
-    .nav-tabs .nav-link:hover {
-        color: #1f6eff;
-    }
-
-    .route-section {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        margin-bottom: 2rem;
-    }
-
-    .route-title {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-    }
-
-    .trip-card {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        transition: all 0.3s;
-    }
-
-    .trip-card:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-
-    .time-badge {
-        background: #dbeafe;
-        color: #1e40af;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    .service-badge {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .service-classic {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .service-vip {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .service-express {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .price-tag {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #1f6eff;
-    }
-
-    .quick-action-btn {
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 500;
-        text-decoration: none;
-        display: block;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        transition: all 0.3s;
-    }
-
-    .btn-book-whatsapp {
-        background: #25d366;
-        color: white;
-    }
-
-    .btn-book-whatsapp:hover {
-        background: #20ba5a;
-        color: white;
-        transform: translateX(5px);
-    }
-
-    .btn-book-classic {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .btn-book-classic:hover {
-        background: #2563eb;
-        color: white;
-        transform: translateX(5px);
-    }
-
-    .btn-book-vip {
-        background: #8b5cf6;
-        color: white;
-    }
-
-    .btn-book-vip:hover {
-        background: #7c3aed;
-        color: white;
-        transform: translateX(5px);
-    }
-
-    .btn-price-alert {
-        background: #374151;
-        color: white;
-    }
-
-    .btn-price-alert:hover {
-        background: #1f2937;
-        color: white;
-        transform: translateX(5px);
-    }
-
-    .branch-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .review-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .review-stars {
-        color: #fbbf24;
-    }
-
-    .seats-available {
-        color: #10b981;
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
-
-    .seats-limited {
-        color: #f59e0b;
-        font-weight: 500;
-        font-size: 0.9rem;
-    }
-
-    .no-trips-message {
-        text-align: center;
-        padding: 3rem;
-        color: #6b7280;
-    }
+}
 </style>
 
-<!-- Agency Header -->
-<section class="container mt-4">
-    <div class="agency-header">
-        <div class="row align-items-start">
-            <div class="col-auto">
-                <div class="logo-box">
-                    @if($company->logo)
-                        <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}">
-                    @else
-                        <div class="logo-text">{{ strtoupper(substr($company->acronym ?? $company->name, 0, 2)) }}</div>
-                    @endif
+@php
+    $phoneRaw = $company->phone ?? optional($company->agencies->first())->phone;
+    $phoneDigits = $phoneRaw ? preg_replace('/\D+/', '', $phoneRaw) : null;
+    $waLink = $phoneDigits ? 'https://wa.me/' . $phoneDigits : null;
+
+    $safeReviewsCount = is_countable($reviews) ? count($reviews) : 0;
+@endphp
+
+<section class="agency-profile-page">
+    <div class="container profile-shell">
+        <div class="profile-hero">
+            <div class="row align-items-start">
+                <div class="col-lg-9">
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="hero-logo">
+                            @if($company->logo)
+                                <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name }}">
+                            @else
+                                {{ strtoupper(substr($company->acronym ?? $company->name, 0, 2)) }}
+                            @endif
+                        </div>
+
+                        <div>
+                            <h1 class="hero-title">{{ $company->name }}</h1>
+                            <span class="verified-badge">
+                                <i class="fas fa-check-circle"></i>
+                                Verified Agency
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="hero-description">
+                        {{ $company->description ?: ($company->name . ' is a transport agency serving intercity routes with multiple fare classes and daily departures.') }}
+                    </p>
+
+                    <div class="hero-actions">
+                        @if($phoneRaw)
+                            <a href="tel:{{ $phoneRaw }}" class="hero-btn hero-btn-call">
+                                <i class="fas fa-phone"></i>
+                                Call Now
+                            </a>
+                        @endif
+
+                        @if($waLink)
+                            <a href="{{ $waLink }}" target="_blank" rel="noopener" class="hero-btn hero-btn-wa">
+                                <i class="fab fa-whatsapp"></i>
+                                WhatsApp
+                            </a>
+                        @endif
+
+                        @if($company->email)
+                            <a href="mailto:{{ $company->email }}" class="hero-btn hero-btn-mail">
+                                <i class="fas fa-envelope"></i>
+                                Email
+                            </a>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="col">
-                <h1 class="mb-2">{{ $company->name }}</h1>
-                <div class="mb-2">
-                    <span class="verified-badge">
-                        <i class="bi bi-patch-check-fill"></i>
-                        Verified Agency
-                    </span>
-                </div>
-                <div class="rating-stars mb-2">
-                    @php
-                        $fullStars = floor($rating);
-                        $halfStar = ($rating - $fullStars) >= 0.5;
-                    @endphp
-                    @for($i = 0; $i < $fullStars; $i++)
-                        ★
-                    @endfor
-                    @if($halfStar)
-                        ★
-                    @endif
-                    @for($i = 0; $i < (5 - $fullStars - ($halfStar ? 1 : 0)); $i++)
-                        ☆
-                    @endfor
-                    <span style="color: #6b7280; font-size: 1rem;">{{ number_format($rating, 1) }} ({{ count($reviews) }} reviews)</span>
-                </div>
-                <p class="text-muted mb-3" style="font-style: italic;">
-                    {{ $company->description ?? $company->name . ' is a leading transport agency in Cameroon, providing quality services since 2015. We serve major cities across the country with a modern fleet and qualified staff.' }}
-                </p>
-                <div class="d-flex gap-2 flex-wrap">
-                    @if($company->phone)
-                        <a href="tel:{{ $company->phone }}" class="action-btn btn-call">
-                            <i class="bi bi-telephone-fill"></i>
-                            Call Now
-                        </a>
-                    @endif
-                    @if($company->phone)
-                        <a href="https://wa.me/237{{ ltrim($company->phone, '0') }}" target="_blank" class="action-btn btn-whatsapp">
-                            <i class="bi bi-whatsapp"></i>
-                            WhatsApp
-                        </a>
-                    @endif
-                    @if($company->email)
-                        <a href="mailto:{{ $company->email }}" class="action-btn btn-email">
-                            <i class="bi bi-envelope-fill"></i>
-                            Email
-                        </a>
-                    @endif
+
+                <div class="col-lg-3">
+                    <div class="rating-box">
+                        <div class="rating-score"><i class="fas fa-star" style="color:#fbbf24;font-size:1rem"></i> {{ number_format($rating, 1) }}</div>
+                        <div class="rating-meta">{{ $safeReviewsCount }} reviews</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
 
-<!-- Navigation Tabs -->
-<section class="container">
-    <ul class="nav nav-tabs" id="agencyTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="schedules-tab" data-bs-toggle="tab" data-bs-target="#schedules" type="button" role="tab">
-                Schedules & Fares
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="branches-tab" data-bs-toggle="tab" data-bs-target="#branches" type="button" role="tab">
-                Our Branches
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
-                Customer Reviews
-            </button>
-        </li>
-    </ul>
+        <div class="tabs-wrap">
+            <ul class="nav profile-tabs" id="agencyTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="schedules-tab" data-bs-toggle="tab" data-bs-target="#schedules" type="button" role="tab" aria-controls="schedules" aria-selected="true">Schedules & Fares</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="branches-tab" data-bs-toggle="tab" data-bs-target="#branches" type="button" role="tab" aria-controls="branches" aria-selected="false">Our Branches</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Customer Reviews</button>
+                </li>
+            </ul>
+        </div>
 
-    <div class="tab-content" id="agencyTabsContent">
-        <!-- Schedules & Fares Tab -->
-        <div class="tab-pane fade show active" id="schedules" role="tabpanel">
-            <div class="mt-4">
-                <h3 class="mb-4">Schedules and Fares</h3>
+        <div class="tab-content profile-content" id="agencyTabContent">
+            <div class="tab-pane fade show active" id="schedules" role="tabpanel" aria-labelledby="schedules-tab">
+                <h2 class="section-title">Schedules and Fares</h2>
 
-                @forelse($tripsGroupedByRoute as $routeName => $trips)
-                    <div class="route-section">
-                        <h4 class="route-title">{{ $routeName }}</h4>
+                @forelse($tripsGroupedByRoute as $routeLabel => $routeTrips)
+                    @php
+                        $firstTrip = $routeTrips->first();
+                        $routeName = ($firstTrip && $firstTrip->route && $firstTrip->route->fromCity && $firstTrip->route->toCity)
+                            ? ($firstTrip->route->fromCity->name . ' - ' . $firstTrip->route->toCity->name)
+                            : $routeLabel;
 
-                        <div class="row">
-                            <div class="col-lg-8">
-                                @foreach($trips as $trip)
-                                    <div class="trip-card">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-3">
-                                                <div class="mb-2"><strong>Departure Times</strong></div>
-                                                <div class="time-badge">
-                                                    {{ \Carbon\Carbon::parse($trip->departure_time)->format('H:i') }}
-                                                </div>
-                                                @if($trip->arrival_time)
-                                                    <div class="mt-2 text-muted" style="font-size: 0.85rem;">
-                                                        Arrival: {{ \Carbon\Carbon::parse($trip->arrival_time)->format('H:i') }}
-                                                    </div>
-                                                @endif
-                                                <div class="mt-2 text-muted" style="font-size: 0.85rem;">
-                                                    <i class="bi bi-calendar3"></i> {{ \Carbon\Carbon::parse($trip->travel_date)->format('M d, Y') }}
-                                                </div>
-                                            </div>
+                        $times = $routeTrips->pluck('departure_time')->filter()->unique()->sort()->values();
 
-                                            <div class="col-md-5">
-                                                <div class="mb-2"><strong>Service Classes & Fares (XAF)</strong></div>
-                                                @foreach($trip->tripPrices as $price)
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <div>
-                                                            <span class="service-badge service-{{ strtolower($price->class) }}">
-                                                                @if($price->class == 'Normal')
-                                                                    <i class="bi bi-check-circle"></i> Classic Class
-                                                                @else
-                                                                    <i class="bi bi-star-fill"></i> {{ $price->class }} Class
-                                                                @endif
-                                                            </span>
-                                                            <small class="text-muted d-block mt-1">
-                                                                {{ $trip->service_type }} Service
-                                                            </small>
-                                                        </div>
-                                                        <div class="price-tag">
-                                                            {{ number_format($price->price, 0, ',', ' ') }}
-                                                        </div>
-                                                    </div>
-                                                @endforeach
+                        $durationText = 'Flexible schedule';
+                        if ($firstTrip && $firstTrip->departure_time && $firstTrip->arrival_time) {
+                            $start = \Carbon\Carbon::createFromFormat('H:i:s', $firstTrip->departure_time);
+                            $end = \Carbon\Carbon::createFromFormat('H:i:s', $firstTrip->arrival_time);
+                            if ($end->lt($start)) {
+                                $end->addDay();
+                            }
+                            $minutes = $start->diffInMinutes($end);
+                            $durationText = floor($minutes / 60) . 'h ' . str_pad($minutes % 60, 2, '0', STR_PAD_LEFT) . 'm';
+                        }
 
-                                                <div class="mt-2">
-                                                    @if($trip->available_seats > 10)
-                                                        <span class="seats-available">
-                                                            <i class="bi bi-check-circle-fill"></i> {{ $trip->available_seats }} seats available
-                                                        </span>
-                                                    @elseif($trip->available_seats > 0)
-                                                        <span class="seats-limited">
-                                                            <i class="bi bi-exclamation-circle-fill"></i> Only {{ $trip->available_seats }} seats left!
-                                                        </span>
-                                                    @else
-                                                        <span class="text-danger">
-                                                            <i class="bi bi-x-circle-fill"></i> Fully booked
-                                                        </span>
-                                                    @endif
-                                                </div>
+                        $fareRows = collect();
+                        foreach ($routeTrips as $trip) {
+                            $normal = $trip->tripPrices->firstWhere('class', 'Normal');
+                            $vip = $trip->tripPrices->firstWhere('class', 'VIP');
 
-                                                @if($trip->agency)
-                                                    <div class="mt-2 text-muted" style="font-size: 0.85rem;">
-                                                        <i class="bi bi-geo-alt-fill"></i> {{ $trip->agency->name }}
-                                                    </div>
-                                                @endif
-                                            </div>
+                            if ($normal || strtoupper($trip->service_type ?? '') === 'NORMAL' || strtoupper($trip->service_type ?? '') === 'EXPRESS') {
+                                $fareRows->push([
+                                    'service' => 'Classic Bus',
+                                    'meta' => ($trip->agency->name ?? $company->name),
+                                    'price' => $normal ? $normal->price : $trip->base_price,
+                                ]);
+                            }
 
-                                            <div class="col-md-4">
-                                                <div class="mb-2"><strong>Quick Actions</strong></div>
-                                                @if($trip->agency && $trip->agency->phone)
-                                                    <a href="https://wa.me/237{{ ltrim($trip->agency->phone, '0') }}?text=Hello, I want to book a trip from {{ $trip->route->fromCity->name }} to {{ $trip->route->toCity->name }} on {{ \Carbon\Carbon::parse($trip->travel_date)->format('M d, Y') }} at {{ \Carbon\Carbon::parse($trip->departure_time)->format('H:i') }}" 
-                                                       target="_blank" 
-                                                       class="quick-action-btn btn-book-whatsapp">
-                                                        <i class="bi bi-whatsapp"></i> Book via WhatsApp
-                                                    </a>
-                                                @endif
-                                                
-                                                @auth
-                                                    @php
-                                                        $classicPrice = $trip->tripPrices->where('class', 'Normal')->first();
-                                                        $vipPrice = $trip->tripPrices->where('class', 'VIP')->first();
-                                                    @endphp
-                                                    
-                                                    @if($classicPrice)
-                                                        <a href="#" class="quick-action-btn btn-book-classic">
-                                                            <i class="bi bi-ticket-detailed"></i> Book Classic
-                                                        </a>
-                                                    @endif
-                                                    
-                                                    @if($vipPrice)
-                                                        <a href="#" class="quick-action-btn btn-book-vip">
-                                                            <i class="bi bi-star"></i> Book VIP
-                                                        </a>
-                                                    @endif
-                                                    
-                                                    <a href="#" class="quick-action-btn btn-price-alert">
-                                                        <i class="bi bi-bell"></i> Set Price Alert
-                                                    </a>
+                            if ($vip || strtoupper($trip->service_type ?? '') === 'VIP') {
+                                $fareRows->push([
+                                    'service' => 'VIP Class',
+                                    'meta' => ($trip->agency->name ?? $company->name),
+                                    'price' => $vip ? $vip->price : $trip->base_price,
+                                ]);
+                            }
+                        }
+
+                        $fareRows = $fareRows
+                            ->groupBy('service')
+                            ->map(function ($rows, $service) {
+                                return [
+                                    'service' => $service,
+                                    'meta' => $rows->pluck('meta')->filter()->unique()->implode(', '),
+                                    'price' => $rows->min('price'),
+                                ];
+                            })
+                            ->values();
+
+                        $hasClassic = $fareRows->contains(function ($row) { return $row['service'] === 'Classic Bus'; });
+                        $hasVip = $fareRows->contains(function ($row) { return $row['service'] === 'VIP Class'; });
+                    @endphp
+
+                    <div class="route-block">
+                        <div class="route-top">
+                            <h3 class="route-name">{{ $routeName }}</h3>
+                            <span class="route-duration"><i class="far fa-clock"></i> {{ $durationText }}</span>
+                        </div>
+
+                        <div class="route-grid">
+                            <div>
+                                <div class="column-title">Departure Times</div>
+                                <div class="time-grid">
+                                    @forelse($times as $time)
+                                        <div class="time-chip">{{ \Carbon\Carbon::createFromFormat('H:i:s', $time)->format('H:i') }}</div>
+                                    @empty
+                                        <div class="time-chip">N/A</div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="column-title">Service Classs & Fares (XAF)</div>
+                                @foreach($fareRows as $row)
+                                    <div class="fare-row">
+                                        <div>
+                                            <div class="fare-title">
+                                                @if($row['service'] === 'VIP Class')
+                                                    <i class="fas fa-crown"></i>
                                                 @else
-                                                    <a href="{{ route('sign_in') }}" class="quick-action-btn btn-book-classic">
-                                                        <i class="bi bi-ticket-detailed"></i> Book Classic
-                                                    </a>
-                                                    <a href="{{ route('sign_in') }}" class="quick-action-btn btn-book-vip">
-                                                        <i class="bi bi-star"></i> Book VIP
-                                                    </a>
-                                                    <small class="text-muted d-block text-center mt-2">Login to book online</small>
-                                                @endauth
+                                                    <i class="fas fa-bus"></i>
+                                                @endif
+                                                {{ $row['service'] }}
                                             </div>
+                                            <div class="fare-meta">{{ $row['meta'] ?: $company->name }}</div>
                                         </div>
+                                        <div class="fare-price">{{ number_format($row['price'] ?? 0, 0, ',', ' ') }}</div>
                                     </div>
                                 @endforeach
+                            </div>
+
+                            <div>
+                                <div class="column-title">Quick Actions</div>
+                                <div class="quick-actions">
+                                    @if($waLink)
+                                        <a class="quick-btn quick-wa" href="{{ $waLink }}" target="_blank" rel="noopener">
+                                            <i class="fab fa-whatsapp"></i> Book via WhatsApp
+                                        </a>
+                                    @endif
+
+                                    @if($hasClassic)
+                                        <a class="quick-btn quick-classic" href="{{ route('sign_in') }}">
+                                            <i class="fas fa-ticket-alt"></i> Book Classic
+                                        </a>
+                                    @endif
+
+                                    @if($hasVip)
+                                        <a class="quick-btn quick-vip" href="{{ route('sign_in') }}">
+                                            <i class="fas fa-gem"></i> Book VIP
+                                        </a>
+                                    @endif
+
+                                    <a class="quick-btn quick-alert" href="{{ route('sign_in') }}">
+                                        <i class="far fa-bell"></i> Set Price Alert
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="no-trips-message">
-                        <i class="bi bi-calendar-x" style="font-size: 64px; color: #d1d5db;"></i>
-                        <h4 class="mt-3">No Scheduled Trips Available</h4>
-                        <p>This agency currently has no scheduled trips. Please check back later or contact them directly.</p>
-                        @if($company->phone)
-                            <a href="tel:{{ $company->phone }}" class="btn btn-primary mt-3">
-                                <i class="bi bi-telephone-fill"></i> Call for Information
-                            </a>
-                        @endif
-                    </div>
+                    <div class="empty-box">No scheduled trips are currently available for this agency.</div>
                 @endforelse
             </div>
-        </div>
 
-        <!-- Our Branches Tab -->
-        <div class="tab-pane fade" id="branches" role="tabpanel">
-            <div class="mt-4">
-                <h3 class="mb-4">Our Branches</h3>
-                <div class="row">
-                    @forelse($company->agencies as $agency)
-                        <div class="col-md-6 mb-3">
-                            <div class="branch-card">
-                                <h5 class="mb-2">{{ $agency->name }}</h5>
-                                @if($agency->type == 'main')
-                                    <span class="badge bg-primary mb-2">Main Branch</span>
-                                @endif
-                                <div class="text-muted mb-2">
-                                    <i class="bi bi-geo-alt-fill"></i> {{ $agency->full_address }}
-                                </div>
-                                @if($agency->phone)
-                                    <div class="mb-2">
-                                        <i class="bi bi-telephone-fill"></i> {{ $agency->phone }}
-                                    </div>
-                                @endif
-                                @if($agency->email)
-                                    <div class="mb-2">
-                                        <i class="bi bi-envelope-fill"></i> {{ $agency->email }}
-                                    </div>
-                                @endif
-                                <div class="rating-stars mt-2">
-                                    ★★★★★ <span style="color: #6b7280; font-size: 0.9rem;">{{ number_format($agency->rating, 1) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-muted text-center">No branches information available.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <!-- Customer Reviews Tab -->
-        <div class="tab-pane fade" id="reviews" role="tabpanel">
-            <div class="mt-4">
-                <h3 class="mb-4">Customer Reviews</h3>
-                @foreach($reviews as $review)
-                    <div class="review-card">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <h6 class="mb-1">{{ $review['customer_name'] }}</h6>
-                                <div class="review-stars">
-                                    @for($i = 0; $i < $review['rating']; $i++)
-                                        ★
-                                    @endfor
-                                    @for($i = 0; $i < (5 - $review['rating']); $i++)
-                                        ☆
-                                    @endfor
-                                </div>
-                            </div>
-                            <small class="text-muted">{{ $review['date'] }}</small>
-                        </div>
-                        <p class="mb-0">{{ $review['comment'] }}</p>
+            <div class="tab-pane fade" id="branches" role="tabpanel" aria-labelledby="branches-tab">
+                <h2 class="section-title">Our Branches</h2>
+                @forelse($company->agencies as $agency)
+                    <div class="branch-card">
+                        <div class="branch-title">{{ $agency->name }}</div>
+                        <p class="branch-meta"><i class="fas fa-map-marker-alt"></i> {{ $agency->full_address ?: (($agency->city->name ?? 'Unknown city') . ($agency->district ? ' - ' . $agency->district : '')) }}</p>
+                        <p class="branch-meta"><i class="fas fa-phone"></i> {{ $agency->phone ?: ($company->phone ?: 'Not provided') }}</p>
+                        <p class="branch-meta"><i class="fas fa-envelope"></i> {{ $agency->email ?: ($company->email ?: 'Not provided') }}</p>
                     </div>
-                @endforeach
+                @empty
+                    <div class="empty-box">No branch data available.</div>
+                @endforelse
+            </div>
 
-                <div class="text-center mt-4">
-                    <p class="text-muted">Have you traveled with {{ $company->name }}?</p>
-                    <button class="btn btn-outline-primary">Leave a Review</button>
-                </div>
+            <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                <h2 class="section-title">Customer Reviews</h2>
+                @forelse($reviews as $review)
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="review-title">{{ $review['customer_name'] }}</div>
+                            <div class="review-meta"><i class="fas fa-star" style="color:#fbbf24"></i> {{ $review['rating'] }}/5</div>
+                        </div>
+                        <p class="review-meta mb-1">{{ $review['comment'] }}</p>
+                        <p class="review-meta mb-0">{{ $review['date'] }}</p>
+                    </div>
+                @empty
+                    <div class="empty-box">No reviews available yet.</div>
+                @endforelse
             </div>
         </div>
     </div>
 </section>
-
-<script>
-    // Initialize Bootstrap tabs
-    var triggerTabList = [].slice.call(document.querySelectorAll('#agencyTabs button'))
-    triggerTabList.forEach(function (triggerEl) {
-        var tabTrigger = new bootstrap.Tab(triggerEl)
-
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault()
-            tabTrigger.show()
-        })
-    })
-</script>
-
 @endsection
-

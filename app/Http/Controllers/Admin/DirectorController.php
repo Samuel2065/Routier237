@@ -36,19 +36,13 @@ class DirectorController extends Controller
             'pending_agencies' => Agency::where('company_id', $company->id)
                 ->where('approval_status', 'pending')->count(),
             'active_vehicles' => Vehicle::whereHas('trips', function($q) use ($company) {
-                $q->whereHas('departureAgency', function($q2) use ($company) {
-                    $q2->where('company_id', $company->id);
-                });
+                $q->where('company_id', $company->id);
             })->where('status', 'active')->count(),
             'total_bookings' => Reservation::whereHas('trip', function($q) use ($company) {
-                $q->whereHas('departureAgency', function($q2) use ($company) {
-                    $q2->where('company_id', $company->id);
-                });
+                $q->where('company_id', $company->id);
             })->count(),
             'monthly_revenue' => Reservation::whereHas('trip', function($q) use ($company) {
-                $q->whereHas('departureAgency', function($q2) use ($company) {
-                    $q2->where('company_id', $company->id);
-                });
+                $q->where('company_id', $company->id);
             })
             ->whereMonth('reservation_date', now()->month)
             ->where('payment_status', 'paid')
@@ -86,7 +80,7 @@ class DirectorController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('director.agencies', compact('agencies', 'company'));
+        return view('director.agencies.index', compact('agencies', 'company'));
     }
 
     public function createAgency()

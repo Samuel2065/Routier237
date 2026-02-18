@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Agency;
+use App\Models\City;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class SignUpController extends Controller
@@ -55,6 +57,7 @@ class SignUpController extends Controller
                 $rules['address'] = 'required|string|max:500';
                 $rules['tax_id'] = 'required|string|max:255|unique:companies,taxpayer_number';
                 $rules['contact_person'] = 'required|string|max:255';
+                $rules['email'] = 'required|email|max:255|unique:users,email|unique:companies,email';
             }
 
             $validator = Validator::make($request->all(), $rules);
@@ -94,6 +97,19 @@ class SignUpController extends Controller
                 Log::info('Customer account created', ['user_id' => $user->id]);
 
             } else {
+                $defaultCity = City::query()
+                    ->where('status', 'active')
+                    ->orderBy('id')
+                    ->first();
+
+                if (!$defaultCity) {
+                    return back()
+                        ->withInput($request->except(['password', 'password_confirmation']))
+                        ->withErrors([
+                            'error' => 'Registration failed: no active city is configured yet.',
+                        ]);
+                }
+
                 // Create director account for agency
                 $role = Role::where('slug', 'director')->firstOrFail();
                 
@@ -111,6 +127,7 @@ class SignUpController extends Controller
                 $company = Company::create([
                     'director_id' => $user->id,
                     'name' => $request->agency_name,
+                    'slug' => $this->generateUniqueSlug('companies', $request->agency_name),
                     'headquarters_address' => $request->address,
                     'phone' => $request->phone,
                     'email' => $request->email,
@@ -125,9 +142,10 @@ class SignUpController extends Controller
                 $agency = Agency::create([
                     'company_id' => $company->id,
                     'manager_id' => $user->id,
+                    'city_id' => $defaultCity->id,
                     'name' => $request->agency_name . ' - Main Office',
-                    'city' => 'To be updated',
                     'full_address' => $request->address,
+                    'slug' => $this->generateUniqueSlug('agencies', $request->agency_name . ' Main Office'),
                     'phone' => $request->phone,
                     'email' => $request->email,
                     'agency_code' => $agencyCode,
@@ -165,5 +183,20 @@ class SignUpController extends Controller
                 ->withInput($request->except(['password', 'password_confirmation']))
                 ->withErrors(['error' => 'Registration failed. Please try again.']);
         }
+    }
+
+    private function generateUniqueSlug(string $table, string $source): string
+    {
+        $base = Str::slug($source);
+        $base = $base !== '' ? $base : 'item';
+        $slug = $base;
+        $suffix = 1;
+
+        while (DB::table($table)->where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 }

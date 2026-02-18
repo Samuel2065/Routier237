@@ -1,0 +1,25 @@
+<?php
+
+return array (
+  'home' => 'Welcome',
+  'marketplace' => 'Marketplace',
+  'agencies' => 'Agencies',
+  'destinations' => 'Destinations',
+  'cities' => 'Cities',
+  'major_cities' => 'Big Cities',
+  'login' => 'Connection',
+  'sign_up' => 'Registration',
+  'toggle_theme' => 'Change the theme',
+  'footer_description' => 'Cameroon\'s road transport platform. Travel safely with validated agencies.',
+  'services' => 'Services',
+  'bus_schedules' => 'Bus timetable',
+  'partner_agencies' => 'Partner agencies',
+  'bookings' => 'Reservations',
+  'popular_cities' => 'Popular cities',
+  'contact' => 'Contact',
+  'whatsapp_support' => 'WhatsApp Support',
+  'all_rights_reserved' => 'All rights reserved',
+  'privacy' => 'Confidentiality',
+  'terms_of_use' => 'Terms of Use',
+  'support' => 'Assistance',
+);

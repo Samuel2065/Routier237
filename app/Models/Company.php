@@ -15,6 +15,7 @@ class Company extends Model
         'manager_id',
         'name',
         'acronym',
+        'slug',
         'logo',
         'headquarters_address',
         'phone',

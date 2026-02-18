@@ -199,19 +199,19 @@
     <section class="hero-section d-flex align-items-center text-center text-white" style="height: 100%;">
         <div class="container position-relative">
             <h1 class="fw-bold display-5 mb-3">
-                Explorez le Cameroun
+                Explore Cameroon
             </h1>
 
             <p class="lead mb-4">
-                Découvrez toutes les destinations desservies par nos agences partenaires.
-                Du nord au sud, d'est en ouest, voyagez partout au Cameroun.
+                Discover all destinations served by our partner agencies.
+                From north to south, and east to west, travel all across Cameroon.
             </p>
 
             <!-- Stats -->
             <div class="d-flex justify-content-center gap-4 flex-wrap small">
                 <span style="color: white;">
                     <i class="fas fa-map me-1"></i>
-                    {{ $totalRegions }} régions
+                    {{ $totalRegions }} regions
                 </span>
                 <span style="color: white;">
                     <i class="fas fa-city me-1"></i>
@@ -219,7 +219,7 @@
                 </span>
                 <span style="color: white;">
                     <i class="fas fa-building me-1"></i>
-                    {{ $totalAgencies }} agences
+                    {{ $totalAgencies }} agencies
                 </span>
             </div>
         </div>
@@ -252,7 +252,7 @@
                             <!-- IMAGE -->
                             <div class="city-image-wrapper">
                                 <div class="position-relative image-bg" 
-                                     style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                     style="height: 220px; background-image: url('{{ asset('assets/images/douala.png') }}'); background-size: cover; background-position: center;">
                                     <div class="overlay-veil"></div>
                                     
                                     <!-- Region badge -->
@@ -276,18 +276,18 @@
 
                                     <div>
                                         <strong>{{ $city->agencies_count }}</strong><br>
-                                        <small class="text-muted">{{ $city->agencies_count > 1 ? 'Agences' : 'Agence' }}</small>
+                                        <small class="text-muted">{{ $city->agencies_count > 1 ? 'Agencies' : 'Agency' }}</small>
                                     </div>
 
                                     <div>
                                         <strong>{{ $city->routes_count }}</strong><br>
-                                        <small class="text-muted">{{ $city->routes_count > 1 ? 'Trajets' : 'Trajet' }}</small>
+                                        <small class="text-muted">{{ $city->routes_count > 1 ? 'Trips' : 'Trip' }}</small>
                                     </div>
                                 </div>
 
                                 <a href="{{ route('marketplace.city', $city->slug) }}" 
                                    class="mt-3 text-decoration-none fw-semibold d-inline-block text-primary">
-                                    Voir les trajets <i class="fas fa-arrow-right ms-1"></i>
+                                    View trips <i class="fas fa-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
@@ -296,16 +296,16 @@
                     <div class="col-12">
                         <div class="text-center py-5">
                             <i class="fas fa-city" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
-                            <h4 class="fw-bold mb-2">Aucune destination trouvée</h4>
+                            <h4 class="fw-bold mb-2">No destinations found</h4>
                             <p class="text-muted">
                                 @if($regionFilter && $regionFilter != 'all')
-                                    Aucune destination disponible dans la région {{ $regionFilter }}.
+                                    No destinations available in the region {{ $regionFilter }}.
                                 @else
-                                    Aucune destination n'est actuellement disponible.
+                                    No destinations are currently available.
                                 @endif
                             </p>
                             <a href="{{ route('destinations') }}" class="btn btn-primary mt-3">
-                                <i class="fas fa-refresh"></i> Voir toutes les destinations
+                                <i class="fas fa-refresh"></i> View all destinations
                             </a>
                         </div>
                     </div>
@@ -315,10 +315,10 @@
             @if($cities->count() > 0)
                 <div class="text-center mt-5">
                     <p class="text-muted">
-                        Affichage de {{ $cities->count() }} 
+                        Showing {{ $cities->count() }} 
                         {{ $cities->count() > 1 ? 'destinations' : 'destination' }}
                         @if($regionFilter && $regionFilter != 'all')
-                            dans la région {{ $regionFilter }}
+                            in the region {{ $regionFilter }}
                         @endif
                     </p>
                 </div>

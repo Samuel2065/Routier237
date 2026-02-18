@@ -136,275 +136,275 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-        }
+    .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
 
-        .button:active {
-            transform: translateY(0);
-        }
+    .button:active {
+        transform: translateY(0);
+    }
 
-        .button-primary {
-            background: #097cffff;
-            color: white;
-        }
+    .button-primary {
+        background: #097cffff;
+        color: white;
+    }
 
-        .button-primary:hover {
-            background: #1482ffff;
-            color: white;
-        }
+    .button-primary:hover {
+        background: #1482ffff;
+        color: white;
+    }
 
-        .button-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+    .button-secondary {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
 
-        .button-secondary:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-        }
+    .button-secondary:hover {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+    }
 
-        h2{
-            color: blue;
-        }
+    h2{
+        color: blue;
+    }
 
-        .main-content {
-            position: relative;
-            z-index: 2;
-            background: white;
-            margin-top: 100vh;
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-        }
+    .main-content {
+        position: relative;
+        z-index: 2;
+        background: white;
+        margin-top: 100vh;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+    }
 
-        #hero-content{
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-        }
+    #hero-content{
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+    }
 
-        .welcome-section {
-            padding: 80px 0;
-            background: white;
-        }
+    .welcome-section {
+        padding: 80px 0;
+        background: white;
+    }
 
-        .features-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
+    .features-section {
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
 
-        .testimonials-section {
-            padding: 80px 0;
-            background: white;
-        }
+    .testimonials-section {
+        padding: 80px 0;
+        background: white;
+    }
 
-        .stats-section {
-            padding: 80px 0;
-            background: #f8f9fa;
-        }
+    .stats-section {
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
 
-        #mypara{
-            text-align: center;
-            margin: 0 auto;
-            max-width: 100%;
-            padding: 0 20px;
-        }
+    #mypara{
+        text-align: center;
+        margin: 0 auto;
+        max-width: 100%;
+        padding: 0 20px;
+    }
 
-        @media (max-width: 768px) {
-            #mypara {
-                padding: 0 15px;
-            }
+    @media (max-width: 768px) {
+        #mypara {
+            padding: 0 15px;
         }
+    }
 
-        /* Form styling */
-        .search-section .form-label {
-            margin-bottom: 0.5rem;
-            margin-inline-start: 0;
-            font-weight: 500;
-            display: block;
-            text-align: left;
-        }
+    /* Form styling */
+    .search-section .form-label {
+        margin-bottom: 0.5rem;
+        margin-inline-start: 0;
+        font-weight: 500;
+        display: block;
+        text-align: left;
+    }
 
-        .search-section .form-select-wrapper {
-            position: relative;
-        }
+    .search-section .form-select-wrapper {
+        position: relative;
+    }
 
-        .search-section .form-select-wrapper i {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-            pointer-events: none;
-            z-index: 10;
-            font-size: 1rem;
-        }
+    .search-section .form-select-wrapper i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+        z-index: 10;
+        font-size: 1rem;
+    }
 
-        .search-section .form-select {
-            padding-left: 40px;
-            height: 38px;
-            position: relative;
-            z-index: 1;
-        }
+    .search-section .form-select {
+        padding-left: 40px;
+        height: 38px;
+        position: relative;
+        z-index: 1;
+    }
 
-        .search-section .btn-primary {
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.375rem 0.75rem;
-        }
+    .search-section .btn-primary {
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+    }
 
-        .search-section .row {
-            align-items: flex-end;
-        }
+    .search-section .row {
+        align-items: flex-end;
+    }
 
-        .search-section .mb-3 {
-            margin-bottom: 1rem !important;
-        }
+    .search-section .mb-3 {
+        margin-bottom: 1rem !important;
+    }
 
-        .search-section .row {
-            display: flex;
-            flex-wrap: wrap;
-        }
+    .search-section .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
 
-        .search-section .col-lg-5,
-        .search-section .col-lg-4,
-        .search-section .col-lg-3 {
-            flex: 1 1 auto;
-            min-width: 0;
-        }
+    .search-section .col-lg-5,
+    .search-section .col-lg-4,
+    .search-section .col-lg-3 {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
 
-        .popular-routes{
-            align-items: left;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-left: 25px;
-            margin-bottom: 2rem;
-        }
+    .popular-routes{
+        align-items: left;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-left: 25px;
+        margin-bottom: 2rem;
+    }
 
-        .route-tag {
-            text-align: center;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            background: #f4faff;
-            color: #000;
-        }
+    .route-tag {
+        text-align: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: #f4faff;
+        color: #000;
+    }
 
-        /* Cards section styling */
+    /* Cards section styling */
+    .popular-routes-section {
+        margin: 2rem 0;
+    }
+
+    .popular-routes-section .row {
+        margin: 2rem 0;
+    }
+
+    .popular-routes-section .card {
+        margin-bottom: 1.5rem;
+        transition: box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+    .popular-routes-section .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .popular-routes-section .card-img-top {
+        transition: transform 0.5s ease;
+        width: 100%;
+    }
+
+    .popular-routes-section .card:hover .card-img-top {
+        transform: scale(1.1);
+    }
+
+    /* Performance stats section */
+    .performance-section-wrapper {
+        margin-top: 3rem;
+    }
+
+    .performance-card {
+        background: linear-gradient(90deg, #1d4ed8, #2563eb, #1e40af);
+        border-radius: 24px;
+        color: #fff;
+        padding: 2.5rem 1.5rem;
+        box-shadow: 0 15px 30px rgba(15, 23, 42, 0.35);
+    }
+
+    .performance-card h2 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .performance-card p.lead {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+
+    .performance-card .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: yellow;
+    }
+
+    .performance-card .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* Ready to Travel Section */
+    .ready-to-travel-section {
+        margin-bottom: 0 !important;
+    }
+
+    .ready-to-travel-section .container-fluid:last-child {
+        margin-bottom: 0 !important;
+        padding-bottom: 4rem !important;
+    }
+
+    @media (min-width: 768px) {
         .popular-routes-section {
-            margin: 2rem 0;
+            margin: 3rem 0;
         }
+    }
 
-        .popular-routes-section .row {
-            margin: 2rem 0;
-        }
+    /* Remove hover effect from View all routes button */
+    .view-all-routes-btn {
+        transition: none;
+    }
 
-        .popular-routes-section .card {
-            margin-bottom: 1.5rem;
-            transition: box-shadow 0.3s ease;
-            overflow: hidden;
-        }
+    .view-all-routes-btn:hover {
+        transform: none !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
 
-        .popular-routes-section .card:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
-        }
+    .view-all-routes-btn:active {
+        transform: none !important;
+    }
 
-        .popular-routes-section .card-img-top {
-            transition: transform 0.5s ease;
-            width: 100%;
+    @media (min-width: 992px) {
+        .search-section .col-lg-5 {
+            flex: 0 0 40%;
+            max-width: 40%;
         }
-
-        .popular-routes-section .card:hover .card-img-top {
-            transform: scale(1.1);
+        .search-section .col-lg-4 {
+            flex: 0 0 35%;
+            max-width: 35%;
         }
-
-        /* Performance stats section */
-        .performance-section-wrapper {
-            margin-top: 3rem;
+        .search-section .col-lg-3 {
+            flex: 0 0 25%;
+            max-width: 25%;
         }
-
-        .performance-card {
-            background: linear-gradient(90deg, #1d4ed8, #2563eb, #1e40af);
-            border-radius: 24px;
-            color: #fff;
-            padding: 2.5rem 1.5rem;
-            box-shadow: 0 15px 30px rgba(15, 23, 42, 0.35);
-        }
-
-        .performance-card h2 {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .performance-card p.lead {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-
-        .performance-card .stat-number {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: yellow;
-        }
-
-        .performance-card .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        /* Ready to Travel Section */
-        .ready-to-travel-section {
-            margin-bottom: 0 !important;
-        }
-
-        .ready-to-travel-section .container-fluid:last-child {
-            margin-bottom: 0 !important;
-            padding-bottom: 4rem !important;
-        }
-
-        @media (min-width: 768px) {
-            .popular-routes-section {
-                margin: 3rem 0;
-            }
-        }
-
-        /* Remove hover effect from View all routes button */
-        .view-all-routes-btn {
-            transition: none;
-        }
-
-        .view-all-routes-btn:hover {
-            transform: none !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .view-all-routes-btn:active {
-            transform: none !important;
-        }
-
-        @media (min-width: 992px) {
-            .search-section .col-lg-5 {
-                flex: 0 0 40%;
-                max-width: 40%;
-            }
-            .search-section .col-lg-4 {
-                flex: 0 0 35%;
-                max-width: 35%;
-            }
-            .search-section .col-lg-3 {
-                flex: 0 0 25%;
-                max-width: 25%;
-            }
-        }
+    }
 </style> 
 
 
@@ -482,19 +482,19 @@
                                 @foreach($popularRoutes->take(3) as $route)
                                     <span class="route-tag" style="cursor: pointer;" 
                                         onclick="fillSearchForm('{{ $route->fromCity->name }}', '{{ $route->toCity->name }}')">
-                                        {{ $route->fromCity->name }} → {{ $route->toCity->name }}
+                                        {{ $route->fromCity->name }} ? {{ $route->toCity->name }}
                                     </span>
                                 @endforeach
                             @else
                                 {{-- Fallback static routes --}}
-                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Bertoua', 'Yaoundé')">
-                                    Bertoua → Yaoundé
+                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Bertoua', 'Yaound�')">
+                                    Bertou->Yaoundé
                                 </span>
-                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Yaoundé', 'Douala')">
-                                    Yaoundé → Douala
+                                <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Yaound�', 'Douala')">
+                                    Yaound->Douala
                                 </span>
                                 <span class="route-tag" style="cursor: pointer;" onclick="fillSearchForm('Douala', 'Bafoussam')">
-                                    Douala → Bafoussam
+                                    Doual->Bafoussam
                                 </span>
                             @endif
                         </div>
@@ -566,19 +566,32 @@
                 <h1>Most Popular Routes</h1>
                 <p>Travel safely through Cameroon's routes</p>
 
+                @php
+                    $routeCardImages = [
+                        'routes.png',
+                        'douala.png',
+                        'yaounde.png',
+                        'bafoussam.png',
+                        'destination-image.png',
+                        'beau.png',
+                    ];
+                @endphp
                 <div class="row g-3 mb-4 mt-4">
                     @forelse($popularRoutes as $route)
+                        @php
+                            $routeImage = $routeCardImages[$loop->index % count($routeCardImages)];
+                        @endphp
                         <div class="col-lg-4 col-md-6 col-sm-12">
                             <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
                                 <!-- Top image with overlay text -->
                                 <div class="position-relative d-flex align-items-end p-3"
-                                    style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                    style="height: 180px; background-image: url('{{ asset('assets/images/' . $routeImage) }}'); background-size: cover; background-position: center;">
                                     <div class="position-absolute top-0 start-0 w-100 h-100"
                                         style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
                                     </div>
                                     <div class="position-relative text-white" style="z-index: 1;">
                                         <h5 class="fw-bold mb-1">
-                                            {{ $route->fromCity->name }} → {{ $route->toCity->name }}
+                                            {{ $route->fromCity->name }} ? {{ $route->toCity->name }}
                                         </h5>
                                         <p class="mb-0 text-white-50">
                                             {{ $route->travelers_per_month }}+ travelers/month
@@ -606,7 +619,7 @@
                                         </div>
 
                                         <div class="text-warning fw-bold">
-                                            ⭐ 4.{{ rand(2, 8) }}
+                                            ? 4.{{ rand(2, 8) }}
                                         </div>
                                     </div>
                                 </div>
@@ -619,7 +632,7 @@
                                     style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
                                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
                                     <div class="position-relative text-white" style="z-index: 1;">
-                                        <h5 class="fw-bold mb-1">Yaoundé → Douala</h5>
+                                        <h5 class="fw-bold mb-1">Yaound� ? Douala</h5>
                                         <p class="mb-0 text-white-50">980+ travelers/month</p>
                                     </div>
                                 </div>
@@ -627,7 +640,7 @@
                                     <div class="d-flex justify-content-between">
                                         <div><small class="text-muted">Starting from</small><h6 class="fw-bold mb-0">4,500 XAF</h6></div>
                                         <div class="text-end"><small class="text-muted">Duration</small><h6 class="fw-bold mb-0">4h 15min</h6></div>
-                                        <div class="text-warning fw-bold">⭐ 4.2</div>
+                                        <div class="text-warning fw-bold">? 4.2</div>
                                     </div>
                                 </div>
                             </div>
@@ -650,21 +663,44 @@
                 <h1>Our Partner Agencies</h1>
                 <p>Travel safely through Cameroon's routes</p>
 
+                @php
+                    $agencyCardImages = [
+                        'agency1.png',
+                        'agency2.png',
+                        'agency3.png',
+                        'agency-image.png',
+                        'download.jpg',
+                        'licensed-image2.jpeg',
+                    ];
+                @endphp
                 <div class="row g-3 mb-4 mt-4">
                     @forelse($partnerAgencies as $company)
+                        @php
+                            if (!empty($company->logo)) {
+                                if (\Illuminate\Support\Str::startsWith($company->logo, ['http://', 'https://'])) {
+                                    $agencyImage = $company->logo;
+                                } elseif (\Illuminate\Support\Str::startsWith($company->logo, ['assets/', 'storage/'])) {
+                                    $agencyImage = asset($company->logo);
+                                } else {
+                                    $agencyImage = asset('storage/' . ltrim($company->logo, '/'));
+                                }
+                            } else {
+                                $agencyImage = asset('assets/images/' . $agencyCardImages[$loop->index % count($agencyCardImages)]);
+                            }
+                        @endphp
                         <div class="col-lg-4 col-md-6 col-sm-12">
                             <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
                                 <!-- Image section -->
                                 <div class="position-relative">
                                     <img 
-                                        src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}"
+                                        src="{{ $agencyImage }}"
                                         class="card-img-top" 
                                         alt="{{ $company->name }}"
                                         style="height: 200px; object-fit: cover;"
                                     >
                                     <!-- Rating badge -->
                                     <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">
-                                        ⭐ {{ number_format($company->rating, 1) }}
+                                        ? {{ number_format($company->rating, 1) }}
                                     </span>
                                 </div>
 
@@ -705,8 +741,8 @@
 
                                     <!-- Actions -->
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('agency_details') }}" class="btn btn-primary flex-grow-1" style="justify-content: center;">
-                                            Voir détails
+                                        <a href="{{ route('agency_details', $company->slug) }}" class="btn btn-primary flex-grow-1" style="justify-content: center;">
+                                            View details
                                         </a>
                                         <button class="btn btn-outline-secondary">
                                             <i class="fas fa-phone"></i>
@@ -720,7 +756,7 @@
                             <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
                                 <div class="position-relative">
                                     <img src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}" class="card-img-top" alt="Agency" style="height: 200px; object-fit: cover;">
-                                    <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">⭐ 4.9</span>
+                                    <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">? 4.9</span>
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold mb-1">Transport Agency</h5>
@@ -728,7 +764,7 @@
                                     <p class="mb-2"><strong>Principales routes :</strong><br>Multiple destinations</p>
                                     <div class="d-flex flex-wrap gap-2 mb-3"><span class="route-tag">VIP Service</span></div>
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('agency_details') }}" class="btn btn-primary flex-grow-1">Voir détails</a>
+                                        <a href="{{ route('agency') }}" class="btn btn-primary flex-grow-1">View details</a>
                                         <button class="btn btn-outline-secondary"><i class="fas fa-phone"></i></button>
                                     </div>
                                 </div>
@@ -752,13 +788,26 @@
                     <h1>Most Popular Destinations</h1>
                     <p>Travel safely through Cameroon's routes</p>
 
+                    @php
+                        $destinationCardImages = [
+                            'bafoussam.png',
+                            'douala.png',
+                            'yaounde.png',
+                            'destination-image.png',
+                            'beau.png',
+                            'routes.png',
+                        ];
+                    @endphp
                     <div class="row g-3 mb-4 mt-4">
                         @forelse($popularDestinations as $destination)
+                            @php
+                                $destinationImage = $destinationCardImages[$loop->index % count($destinationCardImages)];
+                            @endphp
                             <div class="col-lg-4 col-md-6 col-sm-12">
                                 <div class="card shadow-sm rounded-4 overflow-hidden" style="max-width: 400px;">
                                     <!-- Image -->
                                     <div class="position-relative d-flex align-items-end p-3"
-                                        style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
+                                        style="height: 220px; background-image: url('{{ asset('assets/images/' . $destinationImage) }}'); background-size: cover; background-position: center;">
                                         <div class="position-absolute top-0 start-0 w-100 h-100"
                                             style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
                                         </div>
@@ -778,14 +827,14 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <!-- Infos -->
                                             <div class="text-muted">
-                                                <i class="bi bi-building"></i> {{ $destination->agencies_count }} agences
-                                                <span class="mx-2">•</span>
+                                                <i class="bi bi-building"></i> {{ $destination->agencies_count }} agencies
+                                                <span class="mx-2">�</span>
                                                 <i class="bi bi-signpost-2"></i> {{ $destination->routes_count }} routes
                                             </div>
 
                                             <!-- Explore -->
                                             <a href="{{ route('marketplace.city', $destination->slug) }}" class="text-decoration-none fw-semibold">
-                                                Explorer →
+                                                Explore
                                             </a>
                                         </div>
                                     </div>
@@ -797,14 +846,14 @@
                                     <div class="position-relative d-flex align-items-end p-3" style="height: 220px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
                                         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
                                         <div class="position-relative text-white" style="z-index: 1;">
-                                            <h5 class="fw-bold mb-1">Yaoundé</h5>
+                                            <h5 class="fw-bold mb-1">Yaound�</h5>
                                             <p class="mb-0 text-white-50">980+ travelers/month</p>
                                         </div>
                                     </div>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <div class="text-muted"><i class="bi bi-building"></i> 45 agences <span class="mx-2">•</span> <i class="bi bi-signpost-2"></i> 28 routes</div>
-                                            <a href="{{ route('destinations') }}" class="text-decoration-none fw-semibold">Explorer →</a>
+                                            <div class="text-muted"><i class="bi bi-building"></i> 45 agencies <span class="mx-2">�</span> <i class="bi bi-signpost-2"></i> 28 routes</div>
+                                            <a href="{{ route('destinations') }}" class="text-decoration-none fw-semibold">Explore</a>
                                         </div>
                                     </div>
                                 </div>
@@ -827,30 +876,30 @@
                 <div class="text-center mb-5">
                     <h1>Why choose us?</h1>
                     <p class="text-muted mb-0">
-                        Des services pensés pour rendre vos trajets plus simples, sûrs et transparents.
+                        Services designed to make your trips simpler, safer, and more transparent.
                     </p>
                 </div>
 
                 <div class="row g-4">
-                    <!-- Agences Vérifiées -->
+                    <!-- Verified agencies -->
                     <div class="col-lg-3 col-md-6 col-sm-12">
                         <div class="text-center p-4 h-100" style="background: #f8fafc; border-radius: 16px;">
                             <div class="mb-3">
                                 <i class="fas fa-shield-alt fa-2x" style="color: #2563eb;"></i>
                             </div>
-                            <h5 class="fw-bold mb-3">Agences Vérifiées</h5>
-                            <p class="text-muted">Toutes nos agences partenaires sont vérifiées et certifiées pour votre sécurité</p>
+                            <h5 class="fw-bold mb-3">Verified agencies</h5>
+                            <p class="text-muted">All our partner agencies are verified and certified for your safety</p>
                         </div>
                     </div>
 
-                    <!-- Horaires Temps Réel -->
+                    <!-- Real-Time Schedules -->
                     <div class="col-lg-3 col-md-6 col-sm-12">
                         <div class="text-center p-4 h-100" style="background: #f0fdf4; border-radius: 16px;">
                             <div class="mb-3">
                                 <i class="fas fa-clock fa-2x" style="color: #16a34a;"></i>
                             </div>
-                            <h5 class="fw-bold mb-3">Horaires Temps Réel</h5>
-                            <p class="text-muted">Consultez les horaires en temps réel et réservez vos billets instantanément</p>
+                            <h5 class="fw-bold mb-3">Real-Time Schedules</h5>
+                            <p class="text-muted">Check schedules in real time and book your tickets instantly</p>
                         </div>
                     </div>
 
@@ -861,44 +910,44 @@
                                 <i class="fas fa-headset fa-2x" style="color: #7c3aed;"></i>
                             </div>
                             <h5 class="fw-bold mb-3">Support 24/7</h5>
-                            <p class="text-muted">Notre équipe est disponible 24h/24 et 7j/7 pour répondre à toutes vos questions</p>
+                            <p class="text-muted">Our team is available 24/7 to answer all your questions</p>
                         </div>
                     </div>
 
-                    <!-- Tarifs Transparents -->
+                    <!-- Transparent Pricing -->
                     <div class="col-lg-3 col-md-6 col-sm-12">
                         <div class="text-center p-4 h-100" style="background: #fef2f2; border-radius: 16px;">
                             <div class="mb-3">
                                 <i class="fas fa-tag fa-2x" style="color: #dc2626;"></i>
                             </div>
-                            <h5 class="fw-bold mb-3">Tarifs Transparents</h5>
-                            <p class="text-muted">Des prix clairs et transparents sans frais cachés pour une réservation en toute confiance</p>
+                            <h5 class="fw-bold mb-3">Transparent Pricing</h5>
+                            <p class="text-muted">Clear and transparent pricing with no hidden fees for confident booking</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Nos Performances section -->
+                <!-- Our Performance section -->
                 <div class="performance-section-wrapper">
                     <div class="performance-card text-center">
-                        <h2>Nos Performances</h2>
-                        <p class="lead">Des chiffres qui témoignent de notre engagement à offrir le meilleur service.</p>
+                        <h2>Our Performance</h2>
+                        <p class="lead">Numbers that reflect our commitment to delivering the best service.</p>
 
                         <div class="row text-center gy-4 gx-4">
                             <div class="col-6 col-md-3">
                                 <div class="stat-number">150+</div>
-                                <div class="stat-label">Agences Partenaires</div>
+                                <div class="stat-label">Partner Agencies</div>
                             </div>
                             <div class="col-6 col-md-3">
                                 <div class="stat-number">50K+</div>
-                                <div class="stat-label">Voyageurs Satisfaits</div>
+                                <div class="stat-label">Satisfied Travelers</div>
                             </div>
                             <div class="col-6 col-md-3">
                                 <div class="stat-number">300+</div>
-                                <div class="stat-label">Routes Disponibles</div>
+                                <div class="stat-label">Available Routes</div>
                             </div>
                             <div class="col-6 col-md-3">
                                 <div class="stat-number">99%</div>
-                                <div class="stat-label">Taux de Satisfaction</div>
+                                <div class="stat-label">Satisfaction Rate</div>
                             </div>
                         </div>
                     </div>
@@ -912,14 +961,14 @@
             <!-- Light Grey Hero Section -->
             <div class="container-fluid py-5" style="background: #f8f9fa;">
                 <div class="container text-center py-5">
-                    <h1 class="display-4 fw-bold mb-4">Prêt à Voyager?</h1>
-                    <p class="lead mb-5">Rejoignez des milliers de voyageurs qui nous font confiance pour leurs déplacements au Cameroun.</p>
+                    <h1 class="display-4 fw-bold mb-4">Ready to Travel?</h1>
+                    <p class="lead mb-5">Join thousands of travelers who trust us for their trips across Cameroon.</p>
                     <div class="d-flex justify-content-center gap-3 flex-wrap">
                         <a href="{{ route('marketplace') }}" class="btn btn-primary btn-lg px-5 py-3" style="border-radius: 10px; font-weight: 600;">
-                            Rechercher un Trajet
+                            Search for a Trip
                         </a>
                         <a href="#" class="btn btn-outline-primary btn-lg px-5 py-3" style="border-radius: 10px; font-weight: 600; border-width: 2px;">
-                            Devenir Partenaire
+                            Become a Partner
                         </a>
                     </div>
                 </div>
@@ -928,15 +977,15 @@
             <!-- Blue CTA Section -->
             <div class="container-fluid py-5" style="background: #2563eb; margin-bottom: 0;">
                 <div class="container text-center py-5">
-                    <h2 class="text-white fw-bold mb-3" style="font-size: 2.5rem;">Ready to Travel?</h2>
-                    <p class="text-white lead mb-5">Join thousands of travelers who trust Routier+ for their journeys.</p>
+                    <h2 class="text-white fw-bold mb-3" style="font-size: 2.5rem;">Prêt à voyager ?</h2>
+                    <p class="text-white lead mb-5">Rejoignez les milliers de voyageurs qui font confiance à Routier+ pour leurs voyages.</p>
                     <div class="d-flex justify-content-center gap-3 flex-wrap">
                         <a href="{{ route('marketplace') }}" class="btn btn-light btn-lg px-5 py-3" style="border-radius: 10px; font-weight: 600;">
-                            Rechercher un Trajet
+                            rechercher un voyage
                         </a>
                         <a href="{{ route('sign_up') }}" class="btn btn-outline-light btn-lg px-5 py-3" style="border-radius: 10px; font-weight: 600; border-width: 2px;">
                             <i class="fas fa-user-plus" style="margin-right: 5px;"></i>
-                            Sign up free
+                            inscrivez-vous gratuitement
                         </a>
                     </div>
                 </div>
