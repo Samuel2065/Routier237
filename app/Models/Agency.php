@@ -59,6 +59,21 @@ class Agency extends Model
     }
 
     /**
+     * Reservations sold for trips operated by this agency
+     */
+    public function reservations()
+    {
+        return $this->hasManyThrough(
+            Reservation::class,
+            Trip::class,
+            'agency_id',
+            'trip_id',
+            'id',
+            'id'
+        );
+    }
+
+    /**
      * Employees working at this agency
      */
     public function employees()

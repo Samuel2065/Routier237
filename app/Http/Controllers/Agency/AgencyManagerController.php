@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AgencyManagerController extends Controller
 {
@@ -27,14 +28,34 @@ class AgencyManagerController extends Controller
                 ->with('error', 'No agency found for your account.');
         }
 
+        $reservationsQuery = $agency->reservations();
+
+        // Support different reservation schemas without breaking manager login.
+        $todayBookingsQuery = clone $reservationsQuery;
+        if (Schema::hasColumn('reservations', 'reservation_date')) {
+            $todayBookingsQuery->whereDate('reservation_date', today());
+        } elseif (Schema::hasColumn('reservations', 'departure_date')) {
+            $todayBookingsQuery->whereDate('departure_date', today());
+        } else {
+            $todayBookingsQuery->whereHas('trip', function ($query) {
+                $query->whereDate('travel_date', today());
+            });
+        }
+
+        $dailyRevenue = 0;
+        if (Schema::hasColumn('reservations', 'total_amount')) {
+            $dailyRevenueQuery = clone $todayBookingsQuery;
+            if (Schema::hasColumn('reservations', 'payment_status')) {
+                $dailyRevenueQuery->where('payment_status', 'paid');
+            }
+            $dailyRevenue = $dailyRevenueQuery->sum('total_amount');
+        }
+
         $stats = [
-            'total_reservations' => $agency->reservations()->count(),
-            'today_bookings' => $agency->reservations()->whereDate('reservation_date', today())->count(),
+            'total_reservations' => $reservationsQuery->count(),
+            'today_bookings' => $todayBookingsQuery->count(),
             'staff_count' => $agency->employees()->count(),
-            'daily_revenue' => $agency->reservations()
-                ->whereDate('reservation_date', today())
-                ->where('payment_status', 'paid')
-                ->sum('total_amount'),
+            'daily_revenue' => $dailyRevenue,
         ];
 
         return view('agency-manager.dashboard', compact('stats', 'agency'));

@@ -25,7 +25,9 @@ Route::get('/', [HomeController::class, 'home'])->name('/');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/agency', [HomeController::class, 'agency'])->name('agency');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-Route::get('/agency/{company:slug}', [HomeController::class, 'agency_details'])->name('agency_details');
+Route::get('/agency/{company:slug}', [HomeController::class, 'agency_details'])
+    ->where('company', '^(?!dashboard$|reservations$|staff$|vehicles$|drivers$|trips$|cash-register$|expenses$|reports$).+')
+    ->name('agency_details');
 Route::get('/destinations', [HomeController::class, 'destinations'])->name('destinations');
 Route::get('/partner', [HomeController::class, 'partner'])->name('partner');
 Route::get('/marketplace', [HomeController::class, 'marketplace'])->name('marketplace');
