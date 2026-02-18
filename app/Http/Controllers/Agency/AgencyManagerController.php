@@ -58,7 +58,7 @@ class AgencyManagerController extends Controller
             'daily_revenue' => $dailyRevenue,
         ];
 
-        return view('agency-manager.dashboard', compact('stats', 'agency'));
+        return view('agency_manager.dashboard', compact('stats', 'agency'));
     }
 
     public function reservations()
