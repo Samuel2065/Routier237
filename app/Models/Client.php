@@ -29,9 +29,9 @@ class Client extends Model
     /**
      * Relation avec Reservations
      */
-    public function booking()
+    public function reservations()
     {
-        return $this->belongsTo(Booking::class);
+        return $this->hasMany(Reservation::class);
     }
 
     /**

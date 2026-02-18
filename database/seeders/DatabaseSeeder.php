@@ -14,7 +14,10 @@ use App\Models\Trip;
 use App\Models\TripPrice;
 use App\Models\Vehicle;
 use App\Models\Seat;
+use App\Models\Employee;
+use App\Models\Driver;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -28,17 +31,19 @@ class DatabaseSeeder extends Seeder
         $directorRole = Role::where('slug', 'director')->first();
         $agencyManagerRole = Role::where('slug', 'agency_manager')->first();
 
-        // Create Super Admin
-        $superAdmin = User::create([
-            'full_name' => 'Super Admin',
-            'email' => 'admin@gmail.com',
-            'phone' => '677000001',
-            'password' => bcrypt('password'),
-            'user_type' => 'staff',
-            'role_id' => $superAdminRole->id,
-            'status' => 'active',
-            'email_verified_at' => now(),
-        ]);
+        // Create Super Admin (idempotent)
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'full_name' => 'Super Admin',
+                'phone' => '677000001',
+                'password' => bcrypt('password'),
+                'user_type' => 'staff',
+                'role_id' => $superAdminRole->id,
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Create Cities with realistic data
         $citiesData = [
@@ -54,9 +59,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Ebolowa', 'slug' => 'ebolowa', 'region' => 'Sud', 'postal_code' => '10000'],
         ];
 
-        $cities = [];
-        foreach ($citiesData as $cityData) {
-            $cities[$cityData['name']] = City::create($cityData);
+        $cities = City::all()->keyBy('name');
+        if ($cities->isEmpty()) {
+            foreach ($citiesData as $cityData) {
+                $cities[$cityData['name']] = City::create($cityData);
+            }
+            $cities = City::all()->keyBy('name');
         }
 
         // Create Companies with Directors and descriptions
@@ -93,35 +101,42 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        $companies = [];
-        foreach ($companiesData as $index => $companyData) {
-            // Create director
-            $director = User::create([
-                'full_name' => 'Director ' . $companyData['acronym'],
-                'email' => 'director' . ($index + 1) . '@gmail.com',
-                'phone' => '67700000' . ($index + 2),
-                'password' => bcrypt('password'),
-                'user_type' => 'staff',
-                'role_id' => $directorRole->id,
-                'status' => 'active',
-                'email_verified_at' => now(),
-            ]);
+        $companies = Company::all();
+        if ($companies->isEmpty()) {
+            $companies = [];
+            foreach ($companiesData as $index => $companyData) {
+                // Create director
+                $director = User::firstOrCreate(
+                    ['email' => 'director' . ($index + 1) . '@gmail.com'],
+                    [
+                        'full_name' => 'Director ' . $companyData['acronym'],
+                        'phone' => '67700000' . ($index + 2),
+                        'password' => bcrypt('password'),
+                        'user_type' => 'staff',
+                        'role_id' => $directorRole->id,
+                        'status' => 'active',
+                        'email_verified_at' => now(),
+                    ]
+                );
 
-            $companies[] = Company::create([
-                'name' => $companyData['name'],
-                'acronym' => $companyData['acronym'],
-                'slug' => Str::slug($companyData['name']),
-                'email' => $companyData['email'],
-                'phone' => '67700' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
-                'taxpayer_number' => 'TPN' . str_pad($index + 1, 6, '0', STR_PAD_LEFT),
-                'headquarters_address' => 'Quartier Central, ' . $citiesData[$index]['name'],
-                'director_id' => $director->id,
-                'description' => $companyData['description'],
-                'status' => 'active',
-                'approval_status' => 'approved',
-                'approved_by' => $superAdmin->id,
-                'approved_at' => now(),
-            ]);
+                $companies[] = Company::firstOrCreate(
+                    ['email' => $companyData['email']],
+                    [
+                        'name' => $companyData['name'],
+                        'acronym' => $companyData['acronym'],
+                        'slug' => Str::slug($companyData['name']),
+                        'phone' => '67700' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
+                        'taxpayer_number' => 'TPN' . str_pad($index + 1, 6, '0', STR_PAD_LEFT),
+                        'headquarters_address' => 'Quartier Central, ' . $citiesData[$index]['name'],
+                        'director_id' => $director->id,
+                        'description' => $companyData['description'],
+                        'status' => 'active',
+                        'approval_status' => 'approved',
+                        'approved_by' => $superAdmin->id,
+                        'approved_at' => now(),
+                    ]
+                );
+            }
         }
 
         // Create Agencies across different cities
@@ -166,36 +181,47 @@ class DatabaseSeeder extends Seeder
             ['company' => 4, 'city' => 'Maroua', 'name' => 'Touristique Express Maroua', 'district' => 'Domayo'],
         ];
 
-        $agencies = [];
-        foreach ($agenciesData as $index => $agencyData) {
-            // Create manager
-            $manager = User::create([
-                'full_name' => 'Manager ' . ($index + 1),
-                'email' => 'manager' . ($index + 1) . '@gmail.com',
-                'phone' => '67800000' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
-                'password' => bcrypt('password'),
-                'user_type' => 'staff',
-                'role_id' => $agencyManagerRole->id,
-                'status' => 'active',
-                'email_verified_at' => now(),
-            ]);
+        $agencies = Agency::all();
+        if ($agencies->isEmpty() && !$companies->isEmpty()) {
+            $agencies = [];
+            $companiesCollection = collect($companies)->values();
 
-            $agencies[] = Agency::create([
-                'company_id' => $companies[$agencyData['company']]->id,
-                'city_id' => $cities[$agencyData['city']]->id,
-                'manager_id' => $manager->id,
-                'name' => $agencyData['name'],
-                'district' => $agencyData['district'],
-                'full_address' => $agencyData['district'] . ', ' . $agencyData['city'],
-                'slug' => Str::slug($agencyData['name']),
-                'rating' => 4.5,
-                'phone' => '67800' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
-                'email' => Str::slug($agencyData['name']) . '@gmail.com',
-                'agency_code' => 'AG' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
-                'type' => $index % 3 == 0 ? 'main' : 'secondary',
-                'status' => 'active',
-                'approval_status' => 'approved',
-            ]);
+            foreach ($agenciesData as $index => $agencyData) {
+                // Create manager
+                $manager = User::firstOrCreate(
+                    ['email' => 'manager' . ($index + 1) . '@gmail.com'],
+                    [
+                        'full_name' => 'Manager ' . ($index + 1),
+                        'phone' => '67800000' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
+                        'password' => bcrypt('password'),
+                        'user_type' => 'staff',
+                        'role_id' => $agencyManagerRole->id,
+                        'status' => 'active',
+                        'email_verified_at' => now(),
+                    ]
+                );
+
+                $company = $companiesCollection[$agencyData['company']] ?? $companiesCollection->first();
+
+                $agencies[] = Agency::firstOrCreate(
+                    ['agency_code' => 'AG' . str_pad($index + 1, 4, '0', STR_PAD_LEFT)],
+                    [
+                        'company_id' => $company->id,
+                        'city_id' => $cities[$agencyData['city']]->id,
+                        'manager_id' => $manager->id,
+                        'name' => $agencyData['name'],
+                        'district' => $agencyData['district'],
+                        'full_address' => $agencyData['district'] . ', ' . $agencyData['city'],
+                        'slug' => Str::slug($agencyData['name']),
+                        'rating' => 4.5,
+                        'phone' => '67800' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
+                        'email' => Str::slug($agencyData['name']) . '@gmail.com',
+                        'type' => $index % 3 == 0 ? 'main' : 'secondary',
+                        'status' => 'active',
+                        'approval_status' => 'approved',
+                    ]
+                );
+            }
         }
 
         // Create Routes between major cities
@@ -238,46 +264,56 @@ class DatabaseSeeder extends Seeder
             ['from' => 'Buea', 'to' => 'Yaoundé', 'distance' => 310, 'duration' => 300, 'price' => 4000],
         ];
 
-        $routes = [];
-        foreach ($routesData as $routeData) {
-            $routes[] = Route::create([
-                'from_city_id' => $cities[$routeData['from']]->id,
-                'to_city_id' => $cities[$routeData['to']]->id,
-                'distance_km' => $routeData['distance'],
-                'estimated_duration_min' => $routeData['duration'],
-                'price' => $routeData['price'],
-                'status' => 'active',
-            ]);
+        $routes = Route::all();
+        if ($routes->isEmpty()) {
+            $routes = [];
+            foreach ($routesData as $routeData) {
+                $routes[] = Route::firstOrCreate(
+                    [
+                        'from_city_id' => $cities[$routeData['from']]->id,
+                        'to_city_id' => $cities[$routeData['to']]->id,
+                    ],
+                    [
+                        'distance_km' => $routeData['distance'],
+                        'estimated_duration_min' => $routeData['duration'],
+                        'price' => $routeData['price'],
+                        'status' => 'active',
+                    ]
+                );
+            }
         }
 
         // Create Vehicles for agencies
         $vehicleTypes = ['bus', 'coaster', 'minibus'];
         $seatCounts = [70, 30, 15];
         
-        foreach ($agencies as $index => $agency) {
+        if (Vehicle::count() === 0 && !empty($agencies)) {
+            $agenciesCollection = collect($agencies)->values();
             // Create 2-3 vehicles per agency
-            $vehicleCount = rand(2, 3);
-            for ($i = 0; $i < $vehicleCount; $i++) {
-                $typeIndex = $i % 3;
-                $vehicle = Vehicle::create([
-                    'company_id' => $agency->company_id,
-                    'plate_number' => 'LT-' . str_pad($index, 3, '0', STR_PAD_LEFT) . '-' . chr(65 + $i),
-                    'model' => 'Mercedes ' . ['70-Seater', '50-Seater', '30-Seater'][$typeIndex],
-                    'seat_count' => $seatCounts[$typeIndex],
-                    'type' => $vehicleTypes[$typeIndex],
-                    'status' => 'active',
-                ]);
-
-                // Create seats for vehicle
-                $totalSeats = $vehicle->seat_count;
-                $vipSeats = (int)($totalSeats * 0.3); // 30% VIP seats
-                
-                for ($s = 1; $s <= $totalSeats; $s++) {
-                    Seat::create([
-                        'vehicle_id' => $vehicle->id,
-                        'seat_number' => 'S' . str_pad($s, 2, '0', STR_PAD_LEFT),
-                        'class' => $s <= $vipSeats ? 'VIP' : 'Normal',
+            foreach ($agenciesCollection as $index => $agency) {
+                $vehicleCount = rand(2, 3);
+                for ($i = 0; $i < $vehicleCount; $i++) {
+                    $typeIndex = $i % 3;
+                    $vehicle = Vehicle::create([
+                        'company_id' => $agency->company_id,
+                        'plate_number' => 'LT-' . str_pad($index, 3, '0', STR_PAD_LEFT) . '-' . chr(65 + $i),
+                        'model' => 'Mercedes ' . ['70-Seater', '50-Seater', '30-Seater'][$typeIndex],
+                        'seat_count' => $seatCounts[$typeIndex],
+                        'type' => $vehicleTypes[$typeIndex],
+                        'status' => 'active',
                     ]);
+
+                    // Create seats for vehicle
+                    $totalSeats = $vehicle->seat_count;
+                    $vipSeats = (int)($totalSeats * 0.3); // 30% VIP seats
+                    
+                    for ($s = 1; $s <= $totalSeats; $s++) {
+                        Seat::create([
+                            'vehicle_id' => $vehicle->id,
+                            'seat_number' => 'S' . str_pad($s, 2, '0', STR_PAD_LEFT),
+                            'class' => $s <= $vipSeats ? 'VIP' : 'Normal',
+                        ]);
+                    }
                 }
             }
         }
@@ -286,78 +322,81 @@ class DatabaseSeeder extends Seeder
         $serviceTypes = ['Normal', 'Express', 'VIP'];
         $today = now();
         
-        foreach ($routes as $route) {
+        if (Trip::count() === 0 && !empty($routes)) {
+            $routesCollection = collect($routes)->values();
+            foreach ($routesCollection as $route) {
             // Find agencies in the from_city
-            $cityAgencies = Agency::where('city_id', $route->from_city_id)
-                ->where('approval_status', 'approved')
-                ->get();
-            
-            if ($cityAgencies->isEmpty()) continue;
-            
-            // Create trips for next 7 days
-            for ($day = 0; $day < 7; $day++) {
-                $travelDate = $today->copy()->addDays($day);
+                $cityAgencies = Agency::where('city_id', $route->from_city_id)
+                    ->where('approval_status', 'approved')
+                    ->get();
                 
-                // Each agency creates 2-3 trips per day on this route
-                foreach ($cityAgencies as $agency) {
-                    $tripCount = rand(1, 3);
+                if ($cityAgencies->isEmpty()) continue;
+                
+                // Create trips for next 7 days
+                for ($day = 0; $day < 7; $day++) {
+                    $travelDate = $today->copy()->addDays($day);
                     
-                    for ($t = 0; $t < $tripCount; $t++) {
-                        $serviceType = $serviceTypes[array_rand($serviceTypes)];
+                    // Each agency creates 2-3 trips per day on this route
+                    foreach ($cityAgencies as $agency) {
+                        $tripCount = rand(1, 3);
                         
-                        // Get a vehicle from the company
-                        $vehicle = Vehicle::where('company_id', $agency->company_id)
-                            ->where('status', 'active')
-                            ->inRandomOrder()
-                            ->first();
-                        
-                        if (!$vehicle) continue;
-                        
-                        // Different departure times
-                        $departureHour = 6 + ($t * 4); // 6am, 10am, 2pm
-                        $departureTime = sprintf('%02d:00:00', $departureHour);
-                        
-                        // Calculate arrival time based on route duration
-                        $arrivalTime = now()
-                            ->setTime($departureHour, 0, 0)
-                            ->addMinutes($route->estimated_duration_min)
-                            ->format('H:i:s');
-                        
-                        // Calculate price multiplier based on service type
-                        $priceMultiplier = match($serviceType) {
-                            'VIP' => 1.5,
-                            'Express' => 1.2,
-                            default => 1.0
-                        };
-                        
-                        $basePrice = (int)($route->price * $priceMultiplier);
-                        
-                        $trip = Trip::create([
-                            'company_id' => $agency->company_id,
-                            'agency_id' => $agency->id,
-                            'route_id' => $route->id,
-                            'vehicle_id' => $vehicle->id,
-                            'travel_date' => $travelDate->format('Y-m-d'),
-                            'departure_time' => $departureTime,
-                            'arrival_time' => $arrivalTime,
-                            'service_type' => $serviceType,
-                            'base_price' => $basePrice,
-                            'available_seats' => $vehicle->seat_count,
-                            'status' => 'scheduled',
-                        ]);
-                        
-                        // Create trip prices
-                        TripPrice::create([
-                            'trip_id' => $trip->id,
-                            'class' => 'Normal',
-                            'price' => $basePrice,
-                        ]);
-                        
-                        TripPrice::create([
-                            'trip_id' => $trip->id,
-                            'class' => 'VIP',
-                            'price' => (int)($basePrice * 1.3),
-                        ]);
+                        for ($t = 0; $t < $tripCount; $t++) {
+                            $serviceType = $serviceTypes[array_rand($serviceTypes)];
+                            
+                            // Get a vehicle from the company
+                            $vehicle = Vehicle::where('company_id', $agency->company_id)
+                                ->where('status', 'active')
+                                ->inRandomOrder()
+                                ->first();
+                            
+                            if (!$vehicle) continue;
+                            
+                            // Different departure times
+                            $departureHour = 6 + ($t * 4); // 6am, 10am, 2pm
+                            $departureTime = sprintf('%02d:00:00', $departureHour);
+                            
+                            // Calculate arrival time based on route duration
+                            $arrivalTime = now()
+                                ->setTime($departureHour, 0, 0)
+                                ->addMinutes($route->estimated_duration_min)
+                                ->format('H:i:s');
+                            
+                            // Calculate price multiplier based on service type
+                            $priceMultiplier = match($serviceType) {
+                                'VIP' => 1.5,
+                                'Express' => 1.2,
+                                default => 1.0
+                            };
+                            
+                            $basePrice = (int)($route->price * $priceMultiplier);
+                            
+                            $trip = Trip::create([
+                                'company_id' => $agency->company_id,
+                                'agency_id' => $agency->id,
+                                'route_id' => $route->id,
+                                'vehicle_id' => $vehicle->id,
+                                'travel_date' => $travelDate->format('Y-m-d'),
+                                'departure_time' => $departureTime,
+                                'arrival_time' => $arrivalTime,
+                                'service_type' => $serviceType,
+                                'base_price' => $basePrice,
+                                'available_seats' => $vehicle->seat_count,
+                                'status' => 'scheduled',
+                            ]);
+                            
+                            // Create trip prices
+                            TripPrice::create([
+                                'trip_id' => $trip->id,
+                                'class' => 'Normal',
+                                'price' => $basePrice,
+                            ]);
+                            
+                            TripPrice::create([
+                                'trip_id' => $trip->id,
+                                'class' => 'VIP',
+                                'price' => (int)($basePrice * 1.3),
+                            ]);
+                        }
                     }
                 }
             }
@@ -370,5 +409,174 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Routes: ' . Route::count());
         $this->command->info('Vehicles: ' . Vehicle::count());
         $this->command->info('Trips: ' . Trip::count());
+
+        // ============================================
+        // Demo accounts for each dashboard
+        // ============================================
+
+        $customerRole = Role::where('slug', 'customer')->first();
+        $accountantRole = Role::where('slug', 'accountant')->first();
+        $counterClerkRole = Role::where('slug', 'counter_clerk')->first();
+        $driverRole = Role::where('slug', 'driver')->first();
+        $agencyManagerRole = Role::where('slug', 'agency_manager')->first();
+
+        $demoAgency = $agencies[0] ?? Agency::first();
+
+        if ($customerRole) {
+            $demoCustomer = User::firstOrCreate(
+                ['email' => 'customer.demo@gmail.com'],
+                [
+                    'full_name' => 'Demo Customer',
+                    'phone' => '690000101',
+                    'password' => bcrypt('password'),
+                    'user_type' => 'customer',
+                    'role_id' => $customerRole->id,
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            Client::firstOrCreate(
+                ['user_id' => $demoCustomer->id],
+                [
+                    'full_name' => $demoCustomer->full_name,
+                    'email' => $demoCustomer->email,
+                    'phone' => $demoCustomer->phone,
+                    'status' => 'active',
+                ]
+            );
+        }
+
+        if ($agencyManagerRole && $demoAgency) {
+            $demoManager = User::firstOrCreate(
+                ['email' => 'manager.demo@gmail.com'],
+                [
+                    'full_name' => 'Demo Agency Manager',
+                    'phone' => '690000102',
+                    'password' => bcrypt('password'),
+                    'user_type' => 'staff',
+                    'role_id' => $agencyManagerRole->id,
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            $demoAgency->manager_id = $demoManager->id;
+            $demoAgency->save();
+        }
+
+        if ($accountantRole && $demoAgency) {
+            $demoAccountant = User::firstOrCreate(
+                ['email' => 'accountant.demo@gmail.com'],
+                [
+                    'full_name' => 'Demo Accountant',
+                    'phone' => '690000103',
+                    'password' => bcrypt('password'),
+                    'user_type' => 'staff',
+                    'role_id' => $accountantRole->id,
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            if (Schema::hasColumn('users', 'agency_id')) {
+                $demoAccountant->agency_id = $demoAgency->id;
+                $demoAccountant->save();
+            }
+
+            Employee::firstOrCreate(
+                ['user_id' => $demoAccountant->id],
+                [
+                    'agency_id' => $demoAgency->id,
+                    'first_name' => 'Demo',
+                    'last_name' => 'Accountant',
+                    'position' => 'Accountant',
+                    'employee_number' => 'EMP' . str_pad($demoAgency->id, 3, '0', STR_PAD_LEFT) . '-A001',
+                    'hire_date' => now()->toDateString(),
+                    'base_salary' => 250000,
+                    'id_card_number' => 'ID-ACCT-0001',
+                ]
+            );
+        }
+
+        if ($counterClerkRole && $demoAgency) {
+            $demoClerk = User::firstOrCreate(
+                ['email' => 'clerk.demo@gmail.com'],
+                [
+                    'full_name' => 'Demo Counter Clerk',
+                    'phone' => '690000104',
+                    'password' => bcrypt('password'),
+                    'user_type' => 'staff',
+                    'role_id' => $counterClerkRole->id,
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            if (Schema::hasColumn('users', 'agency_id')) {
+                $demoClerk->agency_id = $demoAgency->id;
+                $demoClerk->save();
+            }
+
+            Employee::firstOrCreate(
+                ['user_id' => $demoClerk->id],
+                [
+                    'agency_id' => $demoAgency->id,
+                    'first_name' => 'Demo',
+                    'last_name' => 'Clerk',
+                    'position' => 'Counter Clerk',
+                    'employee_number' => 'EMP' . str_pad($demoAgency->id, 3, '0', STR_PAD_LEFT) . '-C001',
+                    'hire_date' => now()->toDateString(),
+                    'base_salary' => 180000,
+                    'id_card_number' => 'ID-CLERK-0001',
+                ]
+            );
+        }
+
+        if ($driverRole && $demoAgency) {
+            $demoDriverUser = User::firstOrCreate(
+                ['email' => 'driver.demo@gmail.com'],
+                [
+                    'full_name' => 'Demo Driver',
+                    'phone' => '690000105',
+                    'password' => bcrypt('password'),
+                    'user_type' => 'staff',
+                    'role_id' => $driverRole->id,
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            if (Schema::hasColumn('users', 'agency_id')) {
+                $demoDriverUser->agency_id = $demoAgency->id;
+                $demoDriverUser->save();
+            }
+
+            $driverEmployee = Employee::firstOrCreate(
+                ['user_id' => $demoDriverUser->id],
+                [
+                    'agency_id' => $demoAgency->id,
+                    'first_name' => 'Demo',
+                    'last_name' => 'Driver',
+                    'position' => 'Driver',
+                    'employee_number' => 'EMP' . str_pad($demoAgency->id, 3, '0', STR_PAD_LEFT) . '-D001',
+                    'hire_date' => now()->toDateString(),
+                    'base_salary' => 200000,
+                    'id_card_number' => 'ID-DRIVER-0001',
+                ]
+            );
+
+            Driver::firstOrCreate(
+                ['employee_id' => $driverEmployee->id],
+                [
+                    'license_number' => 'LIC-DRIVER-0001',
+                    'license_category' => 'D',
+                    'license_issue_date' => now()->subYears(3)->toDateString(),
+                    'license_expiry_date' => now()->addYears(2)->toDateString(),
+                    'years_experience' => 3,
+                    'status' => 'available',
+                ]
+            );
+        }
     }
 }
