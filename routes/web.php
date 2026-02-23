@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\Auth\SignInController;
 use App\Http\Controllers\Auth\SignUpController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\SuperAdminController;
 use App\Http\Controllers\Admin\DirectorController;  
@@ -43,6 +44,11 @@ Route::middleware('guest')->group(function () {
     
     Route::get('/sign-up', [SignUpController::class, 'showSignUpForm'])->name('sign_up');
     Route::post('/sign-up', [SignUpController::class, 'signUp']);
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 });
 
 Route::post('/logout', [SignInController::class, 'logout'])->name('logout')->middleware('auth');

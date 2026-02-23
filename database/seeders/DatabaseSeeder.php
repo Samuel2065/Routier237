@@ -410,6 +410,9 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Vehicles: ' . Vehicle::count());
         $this->command->info('Trips: ' . Trip::count());
 
+        // Seed presentation-focused schedules/fares for agency profile pages
+        $this->call(PresentationAgencyProfileSeeder::class);
+
         // ============================================
         // Demo accounts for each dashboard
         // ============================================

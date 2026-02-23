@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Routier+237 - Your Road Travel Platform in Cameroon</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/typography.css') }}">
     <link rel="icon" sizes="64x64" href="{{ asset('logo_routier.ico') }}">
@@ -234,14 +235,14 @@
 
                     <!-- Social icons -->
                     <div class="d-flex gap-2">
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
-                            <i class="fas fa-facebook"></i>
+                        <a href="https://www.facebook.com/Samy%20Evans" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-circle" aria-label="Facebook">
+                            <i class="fa-brands fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
-                            <i class="fas fa-whatsapp"></i>
+                        <a href="https://www.instagram.com/aesn.music" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-circle" aria-label="Instagram">
+                            <i class="fa-brands fa-instagram"></i>
                         </a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
-                            <i class="fas fa-telegram"></i>
+                        <a href="https://wa.me/237691432764" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-circle" aria-label="WhatsApp">
+                            <i class="fa-brands fa-whatsapp"></i>
                         </a>
                     </div>
                 </div>

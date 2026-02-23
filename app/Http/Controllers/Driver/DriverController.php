@@ -58,7 +58,7 @@ class DriverController extends Controller
             ->orderBy('departure_time')
             ->first();
 
-        return view('driver.dasboard', compact('stats', 'driver', 'nextTrip'));
+        return view('driver.dashboard', compact('stats', 'driver', 'nextTrip'));
     }
 
     public function trips()
@@ -113,7 +113,7 @@ class DriverController extends Controller
         // Get current or most recent vehicle assigned to this driver
         $currentTrip = Trip::where('agency_id', $agencyId)
             ->whereIn('status', ['scheduled', 'boarding', 'departed'])
-            ->with(['vehicle.vehicleType', 'vehicle.maintenances' => function($query) {
+            ->with(['vehicle.maintenances' => function($query) {
                 $query->latest('maintenance_date')->limit(5);
             }])
             ->orderBy('travel_date')

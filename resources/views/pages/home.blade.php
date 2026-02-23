@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Home')
 
@@ -204,6 +204,67 @@
     .stats-section {
         padding: 80px 0;
         background: #f8f9fa;
+    }
+
+    .stats-showcase {
+        background: #f3f4f6;
+        padding: 70px 0;
+    }
+
+    .stats-panel {
+        background: #ffffff;
+        border-radius: 36px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        padding: 2.2rem 1.2rem;
+    }
+
+    .stats-item {
+        text-align: center;
+        padding: 0.8rem 0.6rem;
+    }
+
+    .stats-icon-badge {
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f7fb;
+        color: #9ca3af;
+        font-size: 1.55rem;
+    }
+
+    .stats-item .stat-value {
+        font-size: 2.15rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+        line-height: 1.1;
+    }
+
+    .stats-item .stat-label {
+        font-size: 1.05rem;
+        color: #6b7280;
+        margin-bottom: 0;
+        letter-spacing: 0.01em;
+    }
+
+    .stats-item .stats-icon-badge.rating {
+        color: #f5b301;
+    }
+
+    .meta-separator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        margin: 0 8px;
+        color: #f5b301;
+        font-size: 0.75rem;
+        vertical-align: middle;
     }
 
     #mypara{
@@ -482,7 +543,7 @@
                                 @foreach($popularRoutes->take(3) as $route)
                                     <span class="route-tag" style="cursor: pointer;" 
                                         onclick="fillSearchForm('{{ $route->fromCity->name }}', '{{ $route->toCity->name }}')">
-                                        {{ $route->fromCity->name }} ? {{ $route->toCity->name }}
+                                        {{ $route->fromCity->name }} <i class="fas fa-arrow-right-long mx-1"></i> {{ $route->toCity->name }}
                                     </span>
                                 @endforeach
                             @else
@@ -516,46 +577,52 @@
         </script>
         
         {{-- Stats Section --}}
-        <section class="py-5" style="background-color: #f4faff; height=: 500px;">
+        <section class="stats-showcase">
             <div class="container">
-                <div class="row text-center gy-4">
+                <div class="stats-panel">
+                    <div class="row gy-4">
 
-                    <!-- Partner Agencies -->
-                    <div class="col-6 col-md-3">
-                        <div class="mb-5">
-                            <i class="fas fa-bus fa-2x text-primary"></i>
+                    <div class="col-6 col-lg-3">
+                        <div class="stats-item">
+                            <span class="stats-icon-badge">
+                                <i class="fas fa-bus"></i>
+                            </span>
+                            <h3 class="stat-value">45+</h3>
+                            <p class="stat-label">Partner Agencies</p>
                         </div>
-                        <h3 class="fw-bold mb-0">45+</h3>
-                        <p class="text-muted mb-0">Partner Agencies</p>
                     </div>
 
-                    <!-- Active Routes -->
-                    <div class="col-6 col-md-3">
-                        <div class="mb-5">
-                            <i class="fas fa-route fa-2x text-primary"></i>
+                    <div class="col-6 col-lg-3">
+                        <div class="stats-item">
+                            <span class="stats-icon-badge">
+                                <i class="fas fa-route"></i>
+                            </span>
+                            <h3 class="stat-value">200+</h3>
+                            <p class="stat-label">Active Routes</p>
                         </div>
-                        <h3 class="fw-bold mb-0">200+</h3>
-                        <p class="text-muted mb-0">Active Routes</p>
                     </div>
 
-                    <!-- Happy Travelers -->
-                    <div class="col-6 col-md-3">
-                        <div class="mb-5">
-                            <i class="fas fa-users fa-2x text-primary"></i>
+                    <div class="col-6 col-lg-3">
+                        <div class="stats-item">
+                            <span class="stats-icon-badge">
+                                <i class="fas fa-users"></i>
+                            </span>
+                            <h3 class="stat-value">50K+</h3>
+                            <p class="stat-label">Happy Travelers</p>
                         </div>
-                        <h3 class="fw-bold mb-0">50K+</h3>
-                        <p class="text-muted mb-0">Happy Travelers</p>
                     </div>
 
-                    <!-- Average Rating -->
-                    <div class="col-6 col-md-3">
-                        <div class="mb-5">
-                            <i class="fas fa-star fa-2x text-warning"></i>
+                    <div class="col-6 col-lg-3">
+                        <div class="stats-item">
+                            <span class="stats-icon-badge rating">
+                                <i class="fas fa-star"></i>
+                            </span>
+                            <h3 class="stat-value">4.8/5</h3>
+                            <p class="stat-label">Average Rating</p>
                         </div>
-                        <h3 class="fw-bold mb-0">4.8/5</h3>
-                        <p class="text-muted mb-0">Average Rating</p>
                     </div>
 
+                    </div>
                 </div>
             </div>
         </section>
@@ -591,7 +658,7 @@
                                     </div>
                                     <div class="position-relative text-white" style="z-index: 1;">
                                         <h5 class="fw-bold mb-1">
-                                            {{ $route->fromCity->name }} ? {{ $route->toCity->name }}
+                                            {{ $route->fromCity->name }} <i class="fas fa-arrow-right-long mx-1"></i> {{ $route->toCity->name }}
                                         </h5>
                                         <p class="mb-0 text-white-50">
                                             {{ $route->travelers_per_month }}+ travelers/month
@@ -619,7 +686,7 @@
                                         </div>
 
                                         <div class="text-warning fw-bold">
-                                            ? 4.{{ rand(2, 8) }}
+                                            <i class="fas fa-star"></i> 4.{{ rand(2, 8) }}
                                         </div>
                                     </div>
                                 </div>
@@ -632,7 +699,7 @@
                                     style="height: 180px; background-image: url('{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}'); background-size: cover; background-position: center;">
                                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
                                     <div class="position-relative text-white" style="z-index: 1;">
-                                        <h5 class="fw-bold mb-1">Yaound� ? Douala</h5>
+                                        <h5 class="fw-bold mb-1">Yaounde <i class="fas fa-arrow-right-long mx-1"></i> Douala</h5>
                                         <p class="mb-0 text-white-50">980+ travelers/month</p>
                                     </div>
                                 </div>
@@ -640,7 +707,7 @@
                                     <div class="d-flex justify-content-between">
                                         <div><small class="text-muted">Starting from</small><h6 class="fw-bold mb-0">4,500 XAF</h6></div>
                                         <div class="text-end"><small class="text-muted">Duration</small><h6 class="fw-bold mb-0">4h 15min</h6></div>
-                                        <div class="text-warning fw-bold">? 4.2</div>
+                                        <div class="text-warning fw-bold"><i class="fas fa-star"></i> 4.2</div>
                                     </div>
                                 </div>
                             </div>
@@ -700,7 +767,7 @@
                                     >
                                     <!-- Rating badge -->
                                     <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">
-                                        ? {{ number_format($company->rating, 1) }}
+                                        <i class="fas fa-star text-warning"></i> {{ number_format($company->rating, 1) }}
                                     </span>
                                 </div>
 
@@ -756,7 +823,7 @@
                             <div class="card shadow-sm rounded-4 overflow-hidden" style="width: 100%;">
                                 <div class="position-relative">
                                     <img src="{{ asset('assets/images/freepik__the-style-is-candid-image-photography-with-natural__90269.png') }}" class="card-img-top" alt="Agency" style="height: 200px; object-fit: cover;">
-                                    <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill">? 4.9</span>
+                                    <span class="badge bg-light text-dark position-absolute top-0 end-0 m-2 px-3 py-2 rounded-pill"><i class="fas fa-star text-warning"></i> 4.9</span>
                                 </div>
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold mb-1">Transport Agency</h5>
@@ -828,7 +895,7 @@
                                             <!-- Infos -->
                                             <div class="text-muted">
                                                 <i class="bi bi-building"></i> {{ $destination->agencies_count }} agencies
-                                                <span class="mx-2">�</span>
+                                                <span class="meta-separator"><i class="bi bi-diamond-fill"></i></span>
                                                 <i class="bi bi-signpost-2"></i> {{ $destination->routes_count }} routes
                                             </div>
 
@@ -852,7 +919,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <div class="text-muted"><i class="bi bi-building"></i> 45 agencies <span class="mx-2">�</span> <i class="bi bi-signpost-2"></i> 28 routes</div>
+                                            <div class="text-muted"><i class="bi bi-building"></i> 45 agencies <span class="meta-separator"><i class="bi bi-diamond-fill"></i></span> <i class="bi bi-signpost-2"></i> 28 routes</div>
                                             <a href="{{ route('destinations') }}" class="text-decoration-none fw-semibold">Explore</a>
                                         </div>
                                     </div>

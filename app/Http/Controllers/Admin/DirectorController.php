@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
+use App\Models\City;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\Role;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class DirectorController extends Controller
 {
@@ -76,7 +78,7 @@ class DirectorController extends Controller
         }
 
         $agencies = Agency::where('company_id', $company->id)
-            ->with('manager')
+            ->with(['manager', 'city'])
             ->latest()
             ->paginate(15);
 
@@ -106,14 +108,24 @@ class DirectorController extends Controller
         ->whereDoesntHave('managedAgency')
         ->get();
 
-        return view('director.agencies.create', compact('company', 'availableManagers'));
+        $cities = City::query()
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        if ($cities->isEmpty()) {
+            return redirect()->route('director.agencies')
+                ->with('error', 'No active cities found. Please add at least one active city first.');
+        }
+
+        return view('director.agencies.create', compact('company', 'availableManagers', 'cities'));
     }
 
     public function storeAgency(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
+            'city_id' => 'required|exists:cities,id',
             'district' => 'nullable|string|max:255',
             'full_address' => 'required|string|max:500',
             'phone' => 'required|string|max:20',
@@ -170,9 +182,10 @@ class DirectorController extends Controller
                 'company_id' => $company->id,
                 'manager_id' => $managerId,
                 'name' => $validated['name'],
-                'city' => $validated['city'],
+                'city_id' => $validated['city_id'],
                 'district' => $validated['district'],
                 'full_address' => $validated['full_address'],
+                'slug' => $this->generateUniqueAgencySlug($validated['name']),
                 'phone' => $validated['phone'],
                 'email' => $validated['email'],
                 'agency_code' => $agencyCode,
@@ -244,5 +257,20 @@ class DirectorController extends Controller
         }
 
         return view('director.reports', compact('company'));
+    }
+
+    private function generateUniqueAgencySlug(string $name): string
+    {
+        $baseSlug = Str::slug($name);
+        $baseSlug = $baseSlug !== '' ? $baseSlug : 'agency';
+        $slug = $baseSlug;
+        $suffix = 1;
+
+        while (DB::table('agencies')->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
     }
 }

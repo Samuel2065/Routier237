@@ -332,7 +332,7 @@ class HomeController extends Controller
     /**
      * Display agency details page with schedules and fares
      */
-    public function agency_details(Company $company)
+    public function agency_details(Request $request, Company $company)
     {
         // Check if company is approved and active
         if ($company->approval_status !== 'approved' || $company->status !== 'active') {
@@ -400,6 +400,10 @@ class HomeController extends Controller
                 'date' => '2 weeks ago',
             ],
         ];
+
+        if ($request->boolean('price_alert')) {
+            session()->flash('success', 'Price alert set successfully (demo mode).');
+        }
 
         return view('pages.agency_details', compact(
             'company',

@@ -397,9 +397,16 @@
                         }
 
                         $fareRows = collect();
-                        foreach ($routeTrips as $trip) {
+                        $earliestClassicTripId = null;
+                        $earliestVipTripId = null;
+
+                        $sortedRouteTrips = $routeTrips->sortBy(function ($trip) {
+                            return ($trip->travel_date ? $trip->travel_date->format('Y-m-d') : '9999-12-31') . ' ' . ($trip->departure_time ?? '23:59:59');
+                        })->values();
+                        foreach ($sortedRouteTrips as $trip) {
                             $normal = $trip->tripPrices->firstWhere('class', 'Normal');
                             $vip = $trip->tripPrices->firstWhere('class', 'VIP');
+                            $hasSeats = (int) ($trip->available_seats ?? 0) > 0;
 
                             if ($normal || strtoupper($trip->service_type ?? '') === 'NORMAL' || strtoupper($trip->service_type ?? '') === 'EXPRESS') {
                                 $fareRows->push([
@@ -407,6 +414,10 @@
                                     'meta' => ($trip->agency->name ?? $company->name),
                                     'price' => $normal ? $normal->price : $trip->base_price,
                                 ]);
+
+                                if ($hasSeats && !$earliestClassicTripId) {
+                                    $earliestClassicTripId = $trip->id;
+                                }
                             }
 
                             if ($vip || strtoupper($trip->service_type ?? '') === 'VIP') {
@@ -415,6 +426,10 @@
                                     'meta' => ($trip->agency->name ?? $company->name),
                                     'price' => $vip ? $vip->price : $trip->base_price,
                                 ]);
+
+                                if ($hasSeats && !$earliestVipTripId) {
+                                    $earliestVipTripId = $trip->id;
+                                }
                             }
                         }
 
@@ -452,7 +467,7 @@
                             </div>
 
                             <div>
-                                <div class="column-title">Service Classs & Fares (XAF)</div>
+                                <div class="column-title">Service Classes & Fares (XAF)</div>
                                 @foreach($fareRows as $row)
                                     <div class="fare-row">
                                         <div>
@@ -481,18 +496,54 @@
                                     @endif
 
                                     @if($hasClassic)
-                                        <a class="quick-btn quick-classic" href="{{ route('sign_in') }}">
-                                            <i class="fas fa-ticket-alt"></i> Book Classic
-                                        </a>
+                                        @if(auth()->check() && auth()->user()->role && auth()->user()->role->slug === 'customer')
+                                            @if($earliestClassicTripId)
+                                                <form method="POST" action="{{ route('customer.book.store') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="trip_id" value="{{ $earliestClassicTripId }}">
+                                                    <input type="hidden" name="passenger_type" value="adult">
+                                                    <input type="hidden" name="service_class" value="classic">
+                                                    <button type="submit" class="quick-btn quick-classic w-100">
+                                                        <i class="fas fa-ticket-alt"></i> Book Classic
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button type="button" class="quick-btn quick-classic w-100" disabled>
+                                                    <i class="fas fa-ticket-alt"></i> Classic Unavailable
+                                                </button>
+                                            @endif
+                                        @else
+                                            <a class="quick-btn quick-classic" href="{{ route('sign_in', ['redirect' => url()->current() . '#schedules']) }}">
+                                                <i class="fas fa-ticket-alt"></i> Book Classic
+                                            </a>
+                                        @endif
                                     @endif
 
                                     @if($hasVip)
-                                        <a class="quick-btn quick-vip" href="{{ route('sign_in') }}">
-                                            <i class="fas fa-gem"></i> Book VIP
-                                        </a>
+                                        @if(auth()->check() && auth()->user()->role && auth()->user()->role->slug === 'customer')
+                                            @if($earliestVipTripId)
+                                                <form method="POST" action="{{ route('customer.book.store') }}">
+                                                    @csrf
+                                                    <input type="hidden" name="trip_id" value="{{ $earliestVipTripId }}">
+                                                    <input type="hidden" name="passenger_type" value="adult">
+                                                    <input type="hidden" name="service_class" value="vip">
+                                                    <button type="submit" class="quick-btn quick-vip w-100">
+                                                        <i class="fas fa-gem"></i> Book VIP
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <button type="button" class="quick-btn quick-vip w-100" disabled>
+                                                    <i class="fas fa-gem"></i> VIP Unavailable
+                                                </button>
+                                            @endif
+                                        @else
+                                            <a class="quick-btn quick-vip" href="{{ route('sign_in', ['redirect' => url()->current() . '#schedules']) }}">
+                                                <i class="fas fa-gem"></i> Book VIP
+                                            </a>
+                                        @endif
                                     @endif
 
-                                    <a class="quick-btn quick-alert" href="{{ route('sign_in') }}">
+                                    <a class="quick-btn quick-alert" href="{{ route('agency_details', ['company' => $company->slug, 'price_alert' => 1]) }}#schedules">
                                         <i class="far fa-bell"></i> Set Price Alert
                                     </a>
                                 </div>

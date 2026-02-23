@@ -14,6 +14,11 @@ class SignInController extends Controller
 {
     public function showSignInForm()
     {
+        $redirect = request()->query('redirect');
+        if (!empty($redirect)) {
+            session()->put('url.intended', $redirect);
+        }
+
         return view('pages.sign_in');
     }
 

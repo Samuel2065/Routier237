@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Clients;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Reservation;
+use App\Models\Seat;
 use App\Models\Trip;
-use App\Models\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CustomerController extends Controller
 {
@@ -21,7 +23,7 @@ class CustomerController extends Controller
                 ->where('status', 'used')
                 ->count(),
             'upcoming_trips' => Reservation::where('client_id', $user->client->id)
-                ->where('status', 'confirmed')
+                ->whereIn('status', ['confirmed', 'valid', 'pending'])
                 ->whereHas('trip', function($q) {
                     $q->where('travel_date', '>=', today());
                 })
@@ -31,8 +33,8 @@ class CustomerController extends Controller
         ];
 
         $recentBookings = Reservation::where('client_id', $user->client->id)
-            ->with(['trip.route.departureCity', 'trip.route.arrivalCity'])
-            ->latest()
+            ->with(['trip.route.fromCity', 'trip.route.toCity'])
+            ->orderByDesc('id')
             ->take(5)
             ->get();
 
@@ -44,8 +46,8 @@ class CustomerController extends Controller
         $user = Auth::user();
         
         $reservations = Reservation::where('client_id', $user->client->id)
-            ->with(['trip.route.departureCity', 'trip.route.arrivalCity', 'trip.vehicle', 'salesAgency'])
-            ->latest()
+            ->with(['trip.route.fromCity', 'trip.route.toCity', 'trip.vehicle', 'salesAgency'])
+            ->orderByDesc('id')
             ->paginate(20);
 
         return view('customer.reservations', compact('reservations'));
@@ -64,8 +66,10 @@ class CustomerController extends Controller
             ->get();
 
         // Get available trips from approved agencies only
+        $tripDateColumn = Schema::hasColumn('trips', 'departure_date') ? 'departure_date' : 'travel_date';
+
         $availableTrips = Trip::where('status', 'scheduled')
-            ->where('departure_date', '>=', today())
+            ->whereDate($tripDateColumn, '>=', today())
             ->where('available_seats', '>', 0)
             ->whereHas('departureAgency', function($q) {
                 $q->where('approval_status', 'approved')
@@ -75,8 +79,8 @@ class CustomerController extends Controller
                          ->where('status', 'active');
                   });
             })
-            ->with(['route.departureCity', 'route.arrivalCity', 'vehicle', 'departureAgency.company'])
-            ->latest('departure_date')
+            ->with(['route.fromCity', 'route.toCity', 'vehicle', 'tripPrices', 'departureAgency.company'])
+            ->orderBy($tripDateColumn, 'desc')
             ->paginate(20);
 
         return view('customer.book', compact('approvedAgencies', 'availableTrips'));
@@ -86,8 +90,9 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'trip_id' => 'required|exists:trips,id',
-            'passenger_type' => 'required|in:adult,child',
-            'seat_number' => 'required|string',
+            'passenger_type' => 'nullable|in:adult,child',
+            'service_class' => 'nullable|in:classic,vip',
+            'seat_number' => 'nullable|string',
             'baggage_fees' => 'nullable|numeric|min:0',
         ]);
 
@@ -106,8 +111,22 @@ class CustomerController extends Controller
         }
 
         try {
+            $serviceClass = strtolower($validated['service_class'] ?? 'classic');
+            $selectedPrice = $this->resolveTripPriceByClass($trip, $serviceClass);
+
+            if ($selectedPrice === null) {
+                return back()->with('error', 'Selected service class is not available for this trip.');
+            }
+
+            $passengerType = $validated['passenger_type'] ?? 'adult';
+            $seatNumber = $validated['seat_number'] ?? $this->autoAssignSeat($trip, $serviceClass);
+
+            if (!$seatNumber) {
+                return back()->with('error', 'No seat available for this service class.');
+            }
+
             // Calculate price
-            $price = $trip->unit_price;
+            $price = $selectedPrice;
             $baggageFees = $validated['baggage_fees'] ?? 0;
             $totalAmount = $price + $baggageFees;
 
@@ -116,23 +135,57 @@ class CustomerController extends Controller
             $confirmationCode = strtoupper(substr(md5(uniqid() . time()), 0, 8));
 
             // Create reservation
-            $reservation = Reservation::create([
+            $reservationData = [
                 'trip_id' => $trip->id,
                 'client_id' => $user->client->id,
-                'ticket_number' => $ticketNumber,
-                'seat_number' => $validated['seat_number'],
-                'passenger_type' => $validated['passenger_type'],
-                'price' => $price,
-                'baggage_fees' => $baggageFees,
-                'total_amount' => $totalAmount,
-                'payment_method' => 'cash', // Default, can be updated
-                'payment_status' => 'pending',
-                'reservation_date' => now(),
-                'reserved_by' => $user->id,
-                'sales_agency_id' => $trip->departure_agency_id,
-                'confirmation_code' => $confirmationCode,
-                'status' => 'confirmed',
-            ]);
+            ];
+
+            if (Schema::hasColumn('reservations', 'departure_date')) {
+                $reservationData['departure_date'] = $trip->travel_date ?? now()->toDateString();
+            }
+
+            if (Schema::hasColumn('reservations', 'status')) {
+                $reservationData['status'] = $this->resolveReservationStatusValue();
+            }
+
+            if (Schema::hasColumn('reservations', 'ticket_number')) {
+                $reservationData['ticket_number'] = $ticketNumber;
+            }
+            if (Schema::hasColumn('reservations', 'seat_number')) {
+                $reservationData['seat_number'] = $seatNumber;
+            }
+            if (Schema::hasColumn('reservations', 'passenger_type')) {
+                $reservationData['passenger_type'] = $passengerType;
+            }
+            if (Schema::hasColumn('reservations', 'price')) {
+                $reservationData['price'] = $price;
+            }
+            if (Schema::hasColumn('reservations', 'baggage_fees')) {
+                $reservationData['baggage_fees'] = $baggageFees;
+            }
+            if (Schema::hasColumn('reservations', 'total_amount')) {
+                $reservationData['total_amount'] = $totalAmount;
+            }
+            if (Schema::hasColumn('reservations', 'payment_method')) {
+                $reservationData['payment_method'] = 'cash';
+            }
+            if (Schema::hasColumn('reservations', 'payment_status')) {
+                $reservationData['payment_status'] = 'pending';
+            }
+            if (Schema::hasColumn('reservations', 'reservation_date')) {
+                $reservationData['reservation_date'] = now();
+            }
+            if (Schema::hasColumn('reservations', 'reserved_by')) {
+                $reservationData['reserved_by'] = $user->id;
+            }
+            if (Schema::hasColumn('reservations', 'sales_agency_id')) {
+                $reservationData['sales_agency_id'] = $trip->agency_id;
+            }
+            if (Schema::hasColumn('reservations', 'confirmation_code')) {
+                $reservationData['confirmation_code'] = $confirmationCode;
+            }
+
+            $reservation = Reservation::create($reservationData);
 
             // Update available seats
             $trip->decrement('available_seats');
@@ -149,5 +202,108 @@ class CustomerController extends Controller
     {
         $user = Auth::user();
         return view('customer.profile', compact('user'));
+    }
+
+    private function resolveTripPriceByClass(Trip $trip, string $serviceClass): ?float
+    {
+        $trip->loadMissing('tripPrices');
+
+        if ($serviceClass === 'vip') {
+            $vipPrice = optional($trip->tripPrices->firstWhere('class', 'VIP'))->price;
+            return $vipPrice !== null ? (float) $vipPrice : null;
+        }
+
+        $normalPrice = optional($trip->tripPrices->firstWhere('class', 'Normal'))->price;
+        if ($normalPrice !== null) {
+            return (float) $normalPrice;
+        }
+
+        return isset($trip->base_price) ? (float) $trip->base_price : null;
+    }
+
+    private function autoAssignSeat(Trip $trip, string $serviceClass): ?string
+    {
+        $trip->loadMissing('vehicle');
+
+        $seatClass = $serviceClass === 'vip' ? 'VIP' : 'Normal';
+        $vehicleId = optional($trip->vehicle)->id;
+
+        if ($vehicleId && Schema::hasTable('seats')) {
+            $candidateSeats = Seat::where('vehicle_id', $vehicleId)
+                ->where('class', $seatClass)
+                ->orderBy('seat_number')
+                ->pluck('seat_number');
+
+            if ($candidateSeats->isNotEmpty() && Schema::hasColumn('reservations', 'seat_number')) {
+                $usedSeats = Reservation::where('trip_id', $trip->id)
+                    ->whereNotNull('seat_number')
+                    ->pluck('seat_number')
+                    ->map(fn ($v) => strtoupper((string) $v))
+                    ->toArray();
+
+                foreach ($candidateSeats as $seatNumber) {
+                    if (!in_array(strtoupper((string) $seatNumber), $usedSeats, true)) {
+                        return (string) $seatNumber;
+                    }
+                }
+            }
+        }
+
+        $capacity = (int) ($trip->available_seats ?? 0);
+        if ($capacity <= 0) {
+            return null;
+        }
+
+        if (!Schema::hasColumn('reservations', 'seat_number')) {
+            return 'AUTO';
+        }
+
+        $usedSeats = Reservation::where('trip_id', $trip->id)
+            ->whereNotNull('seat_number')
+            ->pluck('seat_number')
+            ->map(function ($seat) {
+                if (preg_match('/(\d+)$/', (string) $seat, $matches)) {
+                    return (int) $matches[1];
+                }
+                return null;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        for ($i = 1; $i <= $capacity; $i++) {
+            if (!in_array($i, $usedSeats, true)) {
+                return 'S' . str_pad((string) $i, 2, '0', STR_PAD_LEFT);
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveReservationStatusValue(): string
+    {
+        try {
+            $column = DB::selectOne("SHOW COLUMNS FROM reservations LIKE 'status'");
+            $type = strtolower((string) ($column->Type ?? ''));
+
+            if (str_starts_with($type, 'enum(')) {
+                preg_match_all("/'([^']+)'/", $type, $matches);
+                $allowed = $matches[1] ?? [];
+
+                foreach (['confirmed', 'valid', 'pending', 'booked'] as $preferred) {
+                    if (in_array($preferred, $allowed, true)) {
+                        return $preferred;
+                    }
+                }
+
+                if (!empty($allowed)) {
+                    return $allowed[0];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback below
+        }
+
+        return 'pending';
     }
 }

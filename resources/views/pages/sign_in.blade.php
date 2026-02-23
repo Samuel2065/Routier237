@@ -244,7 +244,7 @@
                             Remember me
                         </label>
                     </div>
-                    <a href="#" style="font-size: 0.9rem; color: #2563eb; text-decoration: none; margin-left: 125px;">Forgot password?</a>
+                    <a href="{{ route('password.request') }}" style="font-size: 0.9rem; color: #2563eb; text-decoration: none; margin-left: 125px;">Forgot password?</a>
                 </div>
                 
                 <button class="btn btn-primary w-100" type="submit" id="submitBtn" style="height: 48px; font-weight: 600; font-size: 1.05rem; border-radius: 8px; justify-content: center; background: #2563eb; color: white !important;" >
