@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BookingConfirmationMail;
+use App\Mail\BookingVerificationCodeMail;
 use App\Models\Agency;
 use App\Models\Reservation;
 use App\Models\Seat;
@@ -10,6 +12,8 @@ use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 
 class CustomerController extends Controller
@@ -145,7 +149,7 @@ class CustomerController extends Controller
             }
 
             if (Schema::hasColumn('reservations', 'status')) {
-                $reservationData['status'] = $this->resolveReservationStatusValue();
+                $reservationData['status'] = $this->resolvePendingReservationStatusValue();
             }
 
             if (Schema::hasColumn('reservations', 'ticket_number')) {
@@ -190,12 +194,136 @@ class CustomerController extends Controller
             // Update available seats
             $trip->decrement('available_seats');
 
-            return redirect()->route('customer.reservations')
-                ->with('success', 'Booking confirmed! Your confirmation code is: ' . $confirmationCode);
+            $trip->loadMissing(['route.fromCity', 'route.toCity', 'departureAgency.company']);
+            $mailFailed = false;
+
+            if (!empty($user->email)) {
+                $bookingMailData = [
+                    'customer_name' => $user->full_name ?? 'Customer',
+                    'confirmation_code' => $confirmationCode,
+                    'ticket_number' => $ticketNumber,
+                    'agency_name' => data_get($trip, 'departureAgency.company.name')
+                        ?? data_get($trip, 'departureAgency.name')
+                        ?? 'N/A',
+                    'route' => trim((data_get($trip, 'route.fromCity.name', '') . ' - ' . data_get($trip, 'route.toCity.name', '')), ' -'),
+                    'travel_date' => optional($trip->travel_date)->format('d/m/Y')
+                        ?? ($trip->departure_date ?? '-'),
+                    'departure_time' => $trip->departure_time
+                        ? \Carbon\Carbon::createFromFormat('H:i:s', $trip->departure_time)->format('H:i')
+                        : '-',
+                    'seat_number' => $seatNumber ?: '-',
+                    'service_class' => ucfirst($serviceClass),
+                    'total_amount' => number_format((float) $totalAmount, 0, ',', ' ') . ' XAF',
+                ];
+
+                try {
+                    Mail::to($user->email)->send(new BookingVerificationCodeMail($bookingMailData));
+                } catch (\Throwable $mailException) {
+                    $mailFailed = true;
+                    Log::warning('Booking verification email failed.', [
+                        'reservation_id' => $reservation->id ?? null,
+                        'user_id' => $user->id ?? null,
+                        'email' => $user->email,
+                        'message' => $mailException->getMessage(),
+                    ]);
+                }
+            }
+
+            $successMessage = 'Booking created. Enter the verification code sent to your email to confirm it.';
+            if ($mailFailed) {
+                $successMessage .= ' (Booking saved, but verification email could not be sent.)';
+            } else {
+                $successMessage .= ' Verification code sent to your inbox.';
+            }
+
+            return redirect()->route('customer.book.confirmation', ['reservation' => $reservation->id])
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             return back()->with('error', 'Booking failed: ' . $e->getMessage());
         }
+    }
+
+    public function bookingConfirmation(Reservation $reservation)
+    {
+        $user = Auth::user();
+
+        if ((int) $reservation->client_id !== (int) optional($user->client)->id) {
+            abort(403);
+        }
+
+        $reservation->load([
+            'trip.route.fromCity',
+            'trip.route.toCity',
+            'trip.departureAgency.company',
+        ]);
+
+        return view('customer.booking_confirmation', compact('reservation'));
+    }
+
+    public function verifyBookingConfirmation(Request $request, Reservation $reservation)
+    {
+        $user = Auth::user();
+
+        if ((int) $reservation->client_id !== (int) optional($user->client)->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'confirmation_code' => 'required|string|min:4|max:20',
+        ]);
+
+        $providedCode = strtoupper(trim((string) $validated['confirmation_code']));
+        $storedCode = strtoupper(trim((string) ($reservation->confirmation_code ?? '')));
+
+        if ($storedCode === '' || $providedCode !== $storedCode) {
+            return back()->with('error', 'Invalid confirmation code. Please check your email and try again.');
+        }
+
+        if (Schema::hasColumn('reservations', 'status')) {
+            $reservation->status = $this->resolveVerifiedReservationStatusValue();
+            $reservation->save();
+        }
+
+        $reservation->loadMissing(['trip.route.fromCity', 'trip.route.toCity', 'trip.departureAgency.company']);
+
+        if (!empty($user->email)) {
+            $trip = $reservation->trip;
+
+            $bookingMailData = [
+                'customer_name' => $user->full_name ?? 'Customer',
+                'confirmation_code' => $reservation->confirmation_code ?? null,
+                'ticket_number' => $reservation->ticket_number ?? null,
+                'agency_name' => data_get($trip, 'departureAgency.company.name')
+                    ?? data_get($trip, 'departureAgency.name')
+                    ?? 'N/A',
+                'route' => trim((data_get($trip, 'route.fromCity.name', '') . ' - ' . data_get($trip, 'route.toCity.name', '')), ' -'),
+                'travel_date' => optional($trip->travel_date)->format('d/m/Y')
+                    ?? ($trip->departure_date ?? '-'),
+                'departure_time' => $trip && $trip->departure_time
+                    ? \Carbon\Carbon::createFromFormat('H:i:s', $trip->departure_time)->format('H:i')
+                    : '-',
+                'seat_number' => $reservation->seat_number ?: '-',
+                'service_class' => ucfirst((string) ($reservation->service_class ?? 'classic')),
+                'total_amount' => isset($reservation->total_amount)
+                    ? number_format((float) $reservation->total_amount, 0, ',', ' ') . ' XAF'
+                    : '-',
+            ];
+
+            try {
+                Mail::to($user->email)->send(new BookingConfirmationMail($bookingMailData));
+            } catch (\Throwable $mailException) {
+                Log::warning('Booking success email failed after verification.', [
+                    'reservation_id' => $reservation->id ?? null,
+                    'user_id' => $user->id ?? null,
+                    'email' => $user->email,
+                    'message' => $mailException->getMessage(),
+                ]);
+            }
+        }
+
+        return redirect()->route('customer.reservations')
+            ->with('success', 'Booking verified successfully. A confirmation email has been sent.');
     }
 
     public function profile()
@@ -280,7 +408,7 @@ class CustomerController extends Controller
         return null;
     }
 
-    private function resolveReservationStatusValue(): string
+    private function resolvePendingReservationStatusValue(): string
     {
         try {
             $column = DB::selectOne("SHOW COLUMNS FROM reservations LIKE 'status'");
@@ -290,7 +418,7 @@ class CustomerController extends Controller
                 preg_match_all("/'([^']+)'/", $type, $matches);
                 $allowed = $matches[1] ?? [];
 
-                foreach (['confirmed', 'valid', 'pending', 'booked'] as $preferred) {
+                foreach (['pending', 'booked', 'valid', 'confirmed'] as $preferred) {
                     if (in_array($preferred, $allowed, true)) {
                         return $preferred;
                     }
@@ -305,5 +433,32 @@ class CustomerController extends Controller
         }
 
         return 'pending';
+    }
+
+    private function resolveVerifiedReservationStatusValue(): string
+    {
+        try {
+            $column = DB::selectOne("SHOW COLUMNS FROM reservations LIKE 'status'");
+            $type = strtolower((string) ($column->Type ?? ''));
+
+            if (str_starts_with($type, 'enum(')) {
+                preg_match_all("/'([^']+)'/", $type, $matches);
+                $allowed = $matches[1] ?? [];
+
+                foreach (['confirmed', 'valid', 'booked', 'pending'] as $preferred) {
+                    if (in_array($preferred, $allowed, true)) {
+                        return $preferred;
+                    }
+                }
+
+                if (!empty($allowed)) {
+                    return $allowed[0];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback below
+        }
+
+        return 'confirmed';
     }
 }

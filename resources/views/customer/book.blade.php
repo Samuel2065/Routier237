@@ -11,6 +11,7 @@
             <thead>
                 <tr>
                     <th>Route</th>
+                    <th>Agency</th>
                     <th>Date</th>
                     <th>Departure</th>
                     <th>Seats</th>
@@ -26,6 +27,9 @@
                     @endphp
                     <tr>
                         <td>{{ data_get($trip, 'route.fromCity.name', '-') }} - {{ data_get($trip, 'route.toCity.name', '-') }}</td>
+                        <td>
+                            {{ data_get($trip, 'departureAgency.company.name') ?? data_get($trip, 'departureAgency.name', '-') }}
+                        </td>
                         <td>{{ optional($trip->travel_date)->format('Y-m-d') ?? ($trip->departure_date ?? '-') }}</td>
                         <td>{{ $trip->departure_time ? \Carbon\Carbon::createFromFormat('H:i:s', $trip->departure_time)->format('H:i') : '-' }}</td>
                         <td>{{ $trip->available_seats }}</td>
@@ -57,7 +61,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center text-muted py-4">No trips available.</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted py-4">No trips available.</td></tr>
                 @endforelse
             </tbody>
         </table>

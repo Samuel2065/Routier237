@@ -59,6 +59,14 @@ class Agency extends Model
     }
 
     /**
+     * Alias for trips departing from this agency (used by manager screens).
+     */
+    public function departureTrips()
+    {
+        return $this->hasMany(Trip::class, 'agency_id');
+    }
+
+    /**
      * Reservations sold for trips operated by this agency
      */
     public function reservations()

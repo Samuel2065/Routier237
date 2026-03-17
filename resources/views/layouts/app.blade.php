@@ -19,6 +19,32 @@
 
 <style>
 
+        /* Chrome, Edge, Safari */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #eaf1ff;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+        border-radius: 999px;
+        border: 2px solid #eaf1ff;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #2563eb, #1e40af);
+    }
+
+    /* Firefox */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #2563eb #eaf1ff;
+    }
+
     /* ===== MEGA DROPDOWN ===== */
 
     .mega-dropdown {
@@ -112,7 +138,8 @@
         }
 
         .nav-item.dropdown:hover .dropdown-menu,
-        .nav-item.dropdown .dropdown-menu:hover {
+        .nav-item.dropdown .dropdown-menu:hover,
+        .nav-item.dropdown .dropdown-menu.show {
             display: block !important;
             opacity: 1;
             visibility: visible;
@@ -131,19 +158,65 @@
             flex-wrap: nowrap;
         }
 
-        @media (max-width: 720px;) {
-            .navbar-expand .navbar-brand .navbar-nav .nav-link .nav-item{
-                justify-content: left;
-                margin-left: 0;
-                text-align: left;
-                align-items: left;
+        @media (max-width: 991.98px) {
+            .navbar .navbar-nav.mx-auto {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                align-items: flex-start;
+                width: 100%;
             }
+
+            .navbar .nav-item {
+                width: 100%;
+            }
+
+            .navbar .nav-link {
+                justify-content: flex-start;
+                text-align: left;
+                width: 100%;
+            }
+
+            .navbar .d-flex.align-items-center {
+                width: 100%;
+                align-items: stretch !important;
+            }
+
+            .navbar .nav-item.dropdown {
+                position: relative;
+            }
+
+            .navbar .mega-menu {
+                position: static;
+                top: auto;
+                left: auto;
+                transform: none;
+                width: 100%;
+                max-width: 320px;
+                margin-top: 0.4rem;
+                padding: 0.75rem !important;
+            }
+
+            .navbar .mega-menu .row {
+                row-gap: 0.25rem;
+            }
+
+            .navbar .mega-menu .col-md-6 {
+                width: 100%;
+            }
+
         }
 
         
 </style>
 
 <body>
+    @php
+        $navbarCities = \App\Models\City::where('status', 'active')
+            ->orderBy('name')
+            ->get(['name', 'slug']);
+        $cityColumns = $navbarCities->chunk((int) ceil(max($navbarCities->count(), 1) / 2));
+    @endphp
+
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <!-- <img src="" alt="logo"> -->
@@ -182,7 +255,7 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" aria-expanded="false" aria-haspopup="true">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                             <i class="fas fa-map"></i>
                             Cities
                         </a>
@@ -190,19 +263,17 @@
                             <h6 class="mega-title mb-3">Major Cities</h6>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Douala</a>
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Yaoundé</a>
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Bafoussam</a>
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Garoua</a>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Bamenda</a>
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Maroua</a>
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Ngaoundéré</a>
-                                    <a href="{{ route('marketplace') }}" class="mega-item">Buea</a>
-                                </div>
+                                @forelse($cityColumns as $column)
+                                    <div class="col-md-6">
+                                        @foreach($column as $city)
+                                            <a href="{{ route('marketplace.city', ['city' => $city->slug]) }}" class="mega-item">{{ $city->name }}</a>
+                                        @endforeach
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <a href="{{ route('marketplace') }}" class="mega-item">View Marketplace</a>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
                     </li>
@@ -226,7 +297,7 @@
             <div class="row gy-4">
 
                 <!-- Logo + description -->
-                <div class="col-md-3">
+                <div class="col-md-3 text-center text-md-start">
                     <h4 class="fw-bold text-white">Routier+237</h4>
                     <p class="small">
                         Cameroon's road transport platform. 
@@ -234,7 +305,7 @@
                     </p>
 
                     <!-- Social icons -->
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 justify-content-center justify-content-md-start">
                         <a href="https://www.facebook.com/Samy%20Evans" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-sm rounded-circle" aria-label="Facebook">
                             <i class="fa-brands fa-facebook-f"></i>
                         </a>
@@ -248,7 +319,7 @@
                 </div>
 
                 <!-- Services -->
-                <div class="col-md-3">
+                <div class="col-md-3 text-center text-md-start">
                     <h6 class="fw-bold text-uppercase mb-3">Services</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="#" class="text-light text-decoration-none">Bus schedules</a></li>
@@ -259,7 +330,7 @@
                 </div>
 
                 <!-- Popular cities -->
-                <div class="col-md-3">
+                <div class="col-md-3 text-center text-md-start">
                     <h6 class="fw-bold text-uppercase mb-3">Popular cities</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2">Douala</li>
@@ -270,14 +341,14 @@
                 </div>
 
                 <!-- Contact -->
-                <div class="col-md-3">
+                <div class="col-md-3 text-center text-md-start">
                     <h6 class="fw-bold text-uppercase mb-3">Contact</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2">
-                            <i class="bi bi-telephone me-2"></i> +237 699 999 999
+                            <i class="bi bi-telephone me-2"></i> +237 691 432 764
                         </li>
                         <li class="mb-2">
-                            <i class="bi bi-telephone me-2"></i> +237 675 555 555
+                            <i class="bi bi-telephone me-2"></i> +237 6XX XXX XXX
                         </li>
                         <li class="mb-2">
                             <i class="bi bi-envelope me-2"></i> contact@routier.cm
@@ -293,9 +364,9 @@
             <!-- Bottom bar -->
             <hr class="border-secondary my-4">
 
-            <div class="d-flex flex-column flex-md-row justify-content-between small">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-center text-md-start">
                 <span style="color: white;"> &copy;2026 Routier+237 - All rights reserved.</span>
-                <div class="d-flex gap-3">
+                <div class="d-flex gap-3 justify-content-center">
                     <a href="#" class="text-light text-decoration-none">Privacy</a>
                     <a href="#" class="text-light text-decoration-none">Terms of Use</a>
                     <a href="#" class="text-light text-decoration-none">Support</a>

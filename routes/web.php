@@ -41,6 +41,8 @@ Route::get('/search', [HomeController::class, 'homeSearch'])->name('home.search'
 Route::middleware('guest')->group(function () {
     Route::get('/sign-in', [SignInController::class, 'showSignInForm'])->name('sign_in');
     Route::post('/sign-in', [SignInController::class, 'signIn']);
+    Route::get('/auth/google/redirect', [SignInController::class, 'redirectToGoogle'])->name('auth.google.redirect');
+    Route::get('/auth/google/callback', [SignInController::class, 'handleGoogleCallback'])->name('auth.google.callback');
     
     Route::get('/sign-up', [SignUpController::class, 'showSignUpForm'])->name('sign_up');
     Route::post('/sign-up', [SignUpController::class, 'signUp']);
@@ -146,6 +148,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reservations', [CustomerController::class, 'reservations'])->name('reservations');
         Route::get('/book', [CustomerController::class, 'book'])->name('book');
         Route::post('/book', [CustomerController::class, 'storeBooking'])->name('book.store');
+        Route::get('/book/confirmation/{reservation}', [CustomerController::class, 'bookingConfirmation'])->name('book.confirmation');
+        Route::post('/book/confirmation/{reservation}', [CustomerController::class, 'verifyBookingConfirmation'])->name('book.confirmation.verify');
         Route::get('/profile', [CustomerController::class, 'profile'])->name('profile');
     });
 });
+

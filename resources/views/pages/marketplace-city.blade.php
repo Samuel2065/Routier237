@@ -514,7 +514,13 @@
                                 <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $agency->phone) }}" target="_blank" class="btn-contact-icon" title="WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
-                                <a href="{{ route('agency_details', $agency->company->slug ?? 'agency-' . $agency->id) }}" class="btn-view-details">
+                                <a href="{{ route('agency_details', array_filter([
+                                    'company' => ($agency->company->slug ?? 'agency-' . $agency->id),
+                                    'from' => $from,
+                                    'to' => $to,
+                                    'date' => $date,
+                                    'service_type' => $serviceType,
+                                ], fn($value) => !is_null($value) && $value !== '')) }}" class="btn-view-details">
                                     View details & schedules
                                     <i class="fas fa-arrow-right"></i>
                                 </a>

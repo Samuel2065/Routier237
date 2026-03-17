@@ -15,12 +15,33 @@
         <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" name="phone" value="{{ old('phone') }}" required></div>
         <div class="col-md-3"><label class="form-label">Password</label><input class="form-control" type="password" name="password" required></div>
         <div class="col-md-3"><label class="form-label">Confirm Password</label><input class="form-control" type="password" name="password_confirmation" required></div>
-        <div class="col-md-4"><label class="form-label">Role</label><select class="form-select" name="role" required><option value="counter_clerk">Counter Clerk</option><option value="accountant">Accountant</option><option value="driver">Driver</option></select></div>
+        <div class="col-md-4"><label class="form-label">Role</label><select class="form-select" name="role" id="staffRole" required><option value="counter_clerk">Cashier (Counter Clerk)</option><option value="accountant">Accountant</option><option value="driver">Driver</option></select></div>
         <div class="col-md-4"><label class="form-label">Position</label><input class="form-control" name="position" value="{{ old('position') }}" required></div>
         <div class="col-md-4"><label class="form-label">Hire Date</label><input class="form-control" type="date" name="hire_date" value="{{ old('hire_date') }}" required></div>
         <div class="col-md-4"><label class="form-label">Base Salary</label><input class="form-control" type="number" step="0.01" name="base_salary" value="{{ old('base_salary') }}" required></div>
         <div class="col-md-4"><label class="form-label">ID Card Number</label><input class="form-control" name="id_card_number" value="{{ old('id_card_number') }}" required></div>
+        <div class="col-12 d-none" id="driverFields">
+            <div class="row g-3">
+                <div class="col-md-4"><label class="form-label">License Number</label><input class="form-control" name="license_number" value="{{ old('license_number') }}"></div>
+                <div class="col-md-4"><label class="form-label">License Category</label><input class="form-control" name="license_category" value="{{ old('license_category') }}"></div>
+                <div class="col-md-4"><label class="form-label">Years Experience</label><input class="form-control" type="number" min="0" name="years_experience" value="{{ old('years_experience') }}"></div>
+                <div class="col-md-6"><label class="form-label">License Issue Date</label><input class="form-control" type="date" name="license_issue_date" value="{{ old('license_issue_date') }}"></div>
+                <div class="col-md-6"><label class="form-label">License Expiry Date</label><input class="form-control" type="date" name="license_expiry_date" value="{{ old('license_expiry_date') }}"></div>
+            </div>
+        </div>
         <div class="col-12"><button class="btn btn-primary" type="submit">Create Staff</button></div>
     </form>
 </div>
+<script>
+    const roleSelect = document.getElementById('staffRole');
+    const driverFields = document.getElementById('driverFields');
+    const toggleDriverFields = () => {
+        if (!roleSelect || !driverFields) return;
+        driverFields.classList.toggle('d-none', roleSelect.value !== 'driver');
+    };
+    if (roleSelect) {
+        roleSelect.addEventListener('change', toggleDriverFields);
+        toggleDriverFields();
+    }
+</script>
 @endsection

@@ -258,6 +258,36 @@
     margin: 0;
 }
 
+.branch-map-wrap {
+    margin-top: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dbeafe;
+    background: #f8fbff;
+}
+
+.branch-map {
+    width: 100%;
+    height: 220px;
+    border: 0;
+    display: block;
+}
+
+.branch-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    color: #1d4ed8;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.branch-map-link:hover {
+    color: #1e40af;
+    text-decoration: underline;
+}
+
 .empty-box {
     border: 1px dashed #cbd5e1;
     border-radius: 14px;
@@ -293,7 +323,18 @@
 @php
     $phoneRaw = $company->phone ?? optional($company->agencies->first())->phone;
     $phoneDigits = $phoneRaw ? preg_replace('/\D+/', '', $phoneRaw) : null;
-    $waLink = $phoneDigits ? 'https://wa.me/' . $phoneDigits : null;
+    $waNumber = $phoneDigits;
+    if ($waNumber && strlen($waNumber) === 9) {
+        $waNumber = '237' . $waNumber;
+    }
+    $waLink = $waNumber ? 'https://wa.me/' . $waNumber : null;
+    $selectedFromTown = $selectedFrom ?? null;
+    $selectedToTown = $selectedTo ?? null;
+    $selectedRouteText = ($selectedFromTown && $selectedToTown)
+        ? (' from ' . $selectedFromTown . ' to ' . $selectedToTown)
+        : '';
+    $waGeneralMessage = 'Hello, I want to book a trip' . $selectedRouteText . ' with ' . ($company->name ?? 'your agency') . '.';
+    $waGeneralLink = $waNumber ? ($waLink . '?text=' . rawurlencode($waGeneralMessage)) : null;
 
     $safeReviewsCount = is_countable($reviews) ? count($reviews) : 0;
 @endphp
@@ -333,8 +374,8 @@
                             </a>
                         @endif
 
-                        @if($waLink)
-                            <a href="{{ $waLink }}" target="_blank" rel="noopener" class="hero-btn hero-btn-wa">
+                        @if($waGeneralLink)
+                            <a href="{{ $waGeneralLink }}" target="_blank" rel="noopener" class="hero-btn hero-btn-wa">
                                 <i class="fab fa-whatsapp"></i>
                                 WhatsApp
                             </a>
@@ -382,6 +423,26 @@
                         $routeName = ($firstTrip && $firstTrip->route && $firstTrip->route->fromCity && $firstTrip->route->toCity)
                             ? ($firstTrip->route->fromCity->name . ' - ' . $firstTrip->route->toCity->name)
                             : $routeLabel;
+                        $routeFromName = ($firstTrip && $firstTrip->route && $firstTrip->route->fromCity)
+                            ? $firstTrip->route->fromCity->name
+                            : null;
+                        $routeToName = ($firstTrip && $firstTrip->route && $firstTrip->route->toCity)
+                            ? $firstTrip->route->toCity->name
+                            : null;
+                        $messageFromTown = $routeFromName ?: $selectedFromTown;
+                        $messageToTown = $routeToName ?: $selectedToTown;
+                        $waRouteMessage = ($messageFromTown && $messageToTown)
+                            ? ('Hello, I want to book a trip from ' . $messageFromTown . ' to ' . $messageToTown . '.')
+                            : $waGeneralMessage;
+
+                        if (!empty($selectedServiceType)) {
+                            $waRouteMessage .= ' Service: ' . $selectedServiceType . '.';
+                        }
+
+                        if (!empty($selectedDate)) {
+                            $waRouteMessage .= ' Date: ' . \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') . '.';
+                        }
+                        $waRouteLink = $waNumber ? ('https://wa.me/' . $waNumber . '?text=' . rawurlencode($waRouteMessage)) : null;
 
                         $times = $routeTrips->pluck('departure_time')->filter()->unique()->sort()->values();
 
@@ -489,8 +550,8 @@
                             <div>
                                 <div class="column-title">Quick Actions</div>
                                 <div class="quick-actions">
-                                    @if($waLink)
-                                        <a class="quick-btn quick-wa" href="{{ $waLink }}" target="_blank" rel="noopener">
+                                    @if($waRouteLink)
+                                        <a class="quick-btn quick-wa" href="{{ $waRouteLink }}" target="_blank" rel="noopener">
                                             <i class="fab fa-whatsapp"></i> Book via WhatsApp
                                         </a>
                                     @endif
@@ -558,11 +619,35 @@
             <div class="tab-pane fade" id="branches" role="tabpanel" aria-labelledby="branches-tab">
                 <h2 class="section-title">Our Branches</h2>
                 @forelse($company->agencies as $agency)
+                    @php
+                        $branchLocation = $agency->full_address
+                            ?: (($agency->district ? $agency->district . ', ' : '') . ($agency->city->name ?? 'Cameroon'));
+                        $mapQuery = trim($agency->name . ', ' . $branchLocation);
+                        $mapQueryEncoded = urlencode($mapQuery);
+                        $embedMapUrl = 'https://www.google.com/maps?q=' . $mapQueryEncoded . '&output=embed';
+                        $openMapUrl = 'https://www.google.com/maps/search/?api=1&query=' . $mapQueryEncoded;
+                    @endphp
                     <div class="branch-card">
                         <div class="branch-title">{{ $agency->name }}</div>
                         <p class="branch-meta"><i class="fas fa-map-marker-alt"></i> {{ $agency->full_address ?: (($agency->city->name ?? 'Unknown city') . ($agency->district ? ' - ' . $agency->district : '')) }}</p>
                         <p class="branch-meta"><i class="fas fa-phone"></i> {{ $agency->phone ?: ($company->phone ?: 'Not provided') }}</p>
                         <p class="branch-meta"><i class="fas fa-envelope"></i> {{ $agency->email ?: ($company->email ?: 'Not provided') }}</p>
+
+                        <div class="branch-map-wrap">
+                            <iframe
+                                class="branch-map"
+                                src="{{ $embedMapUrl }}"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                allowfullscreen
+                                title="Google map location for {{ $agency->name }}">
+                            </iframe>
+                        </div>
+
+                        <a class="branch-map-link" href="{{ $openMapUrl }}" target="_blank" rel="noopener">
+                            <i class="fas fa-map-marked-alt"></i>
+                            Open in Google Maps
+                        </a>
                     </div>
                 @empty
                     <div class="empty-box">No branch data available.</div>

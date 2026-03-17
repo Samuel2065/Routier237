@@ -5,11 +5,13 @@
 <style>
 .marketplace-hero {
     height: 100vh;
+    min-height: 760px;
     background-color: #1f6eff;
     display: flex;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     padding-top: 90px;
+    padding-bottom: 48px;
     margin-bottom: 40px;
 }
 
@@ -39,11 +41,12 @@
 .city-hover {
     transition: all .35s ease;
     cursor: pointer;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
 }
 
 .city-hover:hover {
     transform: translateY(-6px);
-    box-shadow: 0 14px 30px rgba(0,0,0,.15);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
 }
 
 .city-image-wrapper {
@@ -84,6 +87,90 @@
 
 h6{
     font-size: 20px;
+}
+
+.city-cta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.city-cta,
+.city-cta:hover,
+.city-cta:visited,
+.city-cta:active {
+    color: #0d6efd !important;
+}
+
+.city-link,
+.city-link:hover,
+.city-link:visited,
+.city-link:active {
+    color: #0d6efd !important;
+}
+
+.city-link .city-cta,
+.city-link .city-cta:hover,
+.city-link .city-cta:visited,
+.city-link .city-cta:active {
+    color: #0d6efd !important;
+}
+
+.city-cta-arrow {
+    margin-left: 14px;
+    flex-shrink: 0;
+}
+
+.city-cta-label {
+    color: #0d6efd !important;
+}
+
+@media (max-width: 991.98px) {
+    .marketplace-hero {
+        height: auto;
+        min-height: 0;
+        align-items: flex-start;
+        padding-top: 96px;
+        padding-bottom: 24px;
+        overflow: visible;
+    }
+
+    .marketplace-hero .container,
+    .marketplace-hero .row {
+        height: auto !important;
+    }
+
+    .marketplace-hero .text-center {
+        margin-bottom: 1.5rem !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .marketplace-hero {
+        padding-top: 90px;
+        padding-bottom: 20px;
+    }
+
+    .marketplace-hero .card {
+        border-radius: 18px !important;
+    }
+
+    .marketplace-hero .card-body {
+        padding: 1rem !important;
+    }
+
+    .marketplace-hero .lead {
+        font-size: 1.15rem;
+    }
+
+    .popular-box {
+        height: 58px;
+        font-size: 14px;
+        padding: 10px;
+    }
 }
 </style>
 
@@ -207,7 +294,7 @@ h6{
         <div class="row g-4">
             @forelse($citiesWithStats as $cityItem)
                 <div class="col-lg-3 col-md-4 col-sm-6">
-                    <a href="{{ route('marketplace.city', ['city' => $cityItem->slug]) }}" class="text-decoration-none">
+                    <a href="{{ route('marketplace.city', ['city' => $cityItem->slug]) }}" class="text-decoration-none city-link">
                         <div class="card border-0 rounded-4 overflow-hidden h-100 city-hover">
 
                             <div class="city-image-wrapper">
@@ -234,9 +321,9 @@ h6{
                                 </div>
 
                                 <div class="fw-semibold text-primary text-decoration-none d-flex justify-content-between align-items-center">
-                                    <span style="color: #0d6efd;">
-                                        View agencies 
-                                        <i class="fas fa-arrow-right" style="margin-left: 80px;"></i>
+                                    <span class="city-cta">
+                                        <span class="city-cta-label">View agencies</span>
+                                        <i class="fas fa-arrow-right city-cta-arrow"></i>
                                     </span>
                                 </div>
                             </div>
@@ -265,6 +352,7 @@ h6{
         if (fromSelect && toSelect) {
             fromSelect.value = from;
             toSelect.value = to;
+            fromSelect.dispatchEvent(new Event('change'));
             
             // Scroll to form
             document.getElementById('searchForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -272,9 +360,9 @@ h6{
     }
 
     // Update form action based on selected departure city
-    document.getElementById('fromCity').addEventListener('change', function() {
+    function updateSearchFormAction() {
         const form = document.getElementById('searchForm');
-        const selectedCity = this.value;
+        const selectedCity = document.getElementById('fromCity').value;
         
         if (selectedCity) {
             // Convert city name to slug format
@@ -284,8 +372,13 @@ h6{
                 .replace(/\s+/g, '-');
             
             form.action = '{{ url("marketplace") }}/' + citySlug;
+        } else {
+            form.action = '{{ route("marketplace") }}';
         }
-    });
+    }
+
+    document.getElementById('fromCity').addEventListener('change', updateSearchFormAction);
+    document.getElementById('searchForm').addEventListener('submit', updateSearchFormAction);
 </script>
 
 @endsection

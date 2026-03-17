@@ -8,7 +8,30 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root { --sidebar-width: 260px; --panel-primary: #2563eb; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; color: #111827; }
+                /* Dashboard scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #eaf1ff;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+            border-radius: 999px;
+            border: 2px solid #eaf1ff;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb, #1e40af);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #2563eb #eaf1ff;
+        }
         .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar-width); background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%); color: #fff; display: flex; flex-direction: column; z-index: 1000; overflow-y: auto; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.12); }
         .nav-menu { padding: 1rem 0; flex: 1; }
@@ -35,7 +58,21 @@
         .profile-menu .menu-header { padding: 0.5rem 0.4rem 0.7rem; border-bottom: 1px solid #e5e7eb; margin-bottom: 0.45rem; }
         .profile-menu .menu-label { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.03em; color: #9ca3af; text-transform: uppercase; }
         .profile-menu .menu-email { color: #111827; font-weight: 600; }
-        @media (max-width: 991.98px) { .sidebar { position: relative; width: 100%; height: auto; } .main-content { margin-left: 0; padding: 1rem; } }
+        .mobile-menu-toggle { display: none; border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 10px; width: 42px; height: 42px; align-items: center; justify-content: center; }
+        .mobile-menu-toggle:focus { box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25); }
+        .sidebar-backdrop { display: none; }
+        @media (max-width: 991.98px) {
+            .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar-width); transform: translateX(-100%); transition: transform 0.25s ease; z-index: 1055; }
+            .main-content { margin-left: 0; padding: 1rem; }
+            .mobile-menu-toggle { display: inline-flex; }
+            .sidebar-backdrop { display: block; position: fixed; inset: 0; background: rgba(9, 14, 26, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease; z-index: 1040; }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            body.sidebar-open .sidebar-backdrop { opacity: 1; visibility: visible; }
+            body.sidebar-open { overflow: hidden; }
+        }
+        @media (min-width: 992px) {
+            .sidebar { transform: none !important; }
+        }
     </style>
     @yield('page_css')
 </head>
@@ -60,14 +97,20 @@
     @endphp
 
     @yield('sidebar')
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <div class="main-content">
         <div class="top-bar d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h2 class="mb-0">@yield('page_title', 'Dashboard')</h2>
-                @hasSection('page_subtitle')
-                    <small class="text-muted">@yield('page_subtitle')</small>
-                @endif
+            <div class="d-flex align-items-center gap-2">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open menu" aria-expanded="false">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <div>
+                    <h2 class="mb-0">@yield('page_title', 'Dashboard')</h2>
+                    @hasSection('page_subtitle')
+                        <small class="text-muted">@yield('page_subtitle')</small>
+                    @endif
+                </div>
             </div>
             <div class="d-flex align-items-center gap-3">
                 <div>@yield('page_actions')</div>
@@ -120,6 +163,49 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const body = document.body;
+
+            if (!toggleBtn || !backdrop) return;
+
+            const closeSidebar = () => {
+                body.classList.remove('sidebar-open');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            };
+
+            const openSidebar = () => {
+                body.classList.add('sidebar-open');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            };
+
+            toggleBtn.addEventListener('click', () => {
+                if (body.classList.contains('sidebar-open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            backdrop.addEventListener('click', closeSidebar);
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeSidebar();
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 992) closeSidebar();
+            });
+
+            document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992) closeSidebar();
+                });
+            });
+        })();
+    </script>
     @yield('page_js')
 </body>
 </html>

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class SignInController extends Controller
 {
@@ -105,6 +109,115 @@ class SignInController extends Controller
         
     }
 
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback(Request $request)
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            if (empty($googleUser->getEmail())) {
+                return redirect()->route('sign_in')->withErrors([
+                    'sign_in' => 'Google account did not return an email address.',
+                ]);
+            }
+
+            $customerRole = Role::where('slug', 'customer')->first();
+            if (!$customerRole) {
+                Log::error('Google login failed: customer role not found.');
+
+                return redirect()->route('sign_in')->withErrors([
+                    'sign_in' => 'Authentication is not configured correctly. Please contact support.',
+                ]);
+            }
+
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user && !$user->isActive()) {
+                return redirect()->route('sign_in')->withErrors([
+                    'sign_in' => 'Your account has been suspended. Please contact support.',
+                ]);
+            }
+
+            if (!$user) {
+                $displayName = trim((string) $googleUser->getName());
+                if ($displayName === '') {
+                    $displayName = Str::before($googleUser->getEmail(), '@');
+                }
+
+                $phone = $this->generateUniqueCameroonPhone();
+
+                $user = User::create([
+                    'full_name' => $displayName,
+                    'email' => $googleUser->getEmail(),
+                    'phone' => $phone,
+                    'password' => Hash::make(Str::random(32)),
+                    'user_type' => 'customer',
+                    'role_id' => $customerRole->id,
+                    'status' => 'active',
+                    'email_verified_at' => now(),
+                    'google_id' => $googleUser->getId(),
+                ]);
+
+                Client::create([
+                    'user_id' => $user->id,
+                    'full_name' => $displayName,
+                    'email' => $user->email,
+                    'phone' => $phone,
+                    'status' => 'active',
+                ]);
+            } else {
+                $updateData = [
+                    'google_id' => $googleUser->getId(),
+                ];
+
+                if (!$user->email_verified_at) {
+                    $updateData['email_verified_at'] = now();
+                }
+
+                $user->update($updateData);
+
+                if ($user->user_type === 'customer') {
+                    Client::firstOrCreate(
+                        ['user_id' => $user->id],
+                        [
+                            'full_name' => $user->full_name,
+                            'email' => $user->email,
+                            'phone' => $user->phone,
+                            'status' => 'active',
+                        ]
+                    );
+                }
+            }
+
+            Auth::login($user, true);
+            $request->session()->regenerate();
+            $user->update(['last_login_at' => now()]);
+
+            return redirect()->intended($user->getDashboardRoute())
+                ->with('success', 'Signed in with Google successfully.');
+        } catch (\Throwable $e) {
+            Log::error('Google OAuth callback failed', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('sign_in')->withErrors([
+                'sign_in' => 'Google sign-in failed. Please try again.',
+            ]);
+        }
+    }
+
+    private function generateUniqueCameroonPhone(): string
+    {
+        do {
+            $phone = '6' . (string) random_int(5, 9) . str_pad((string) random_int(0, 9999999), 7, '0', STR_PAD_LEFT);
+        } while (User::where('phone', $phone)->exists());
+
+        return $phone;
+    }
     public function logout(Request $request)
     {
         $user = Auth::user();
@@ -126,3 +239,4 @@ class SignInController extends Controller
         return redirect()->route('/')->with('success', 'You have been logged out successfully.');
     }
 }
+

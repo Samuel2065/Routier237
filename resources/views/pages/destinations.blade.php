@@ -111,6 +111,49 @@
             box-shadow: 0 20px 45px rgba(0,0,0,0.25);
         }
 
+        .destination-cta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            color: #0d6efd !important;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .destination-cta,
+        .destination-cta:hover,
+        .destination-cta:visited,
+        .destination-cta:active {
+            color: #0d6efd !important;
+        }
+
+        .destination-cta span,
+        .destination-cta i,
+        .destination-cta:hover span,
+        .destination-cta:hover i,
+        .destination-cta:visited span,
+        .destination-cta:visited i,
+        .destination-cta:active span,
+        .destination-cta:active i {
+            color: #0d6efd !important;
+        }
+
+        .city-card a.destination-cta,
+        .city-card a.destination-cta * {
+            color: #0d6efd !important;
+        }
+
+        .destination-cta-arrow {
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .destinations-summary,
+        .destinations-summary span {
+            color: #6b7280 !important;
+        }
+
         /* IMAGE */
         .city-image-wrapper {
             position: relative;
@@ -204,6 +247,10 @@
                 overflow-x: auto;
                 padding-bottom: 0.5rem;
             }
+
+            .destination-cta {
+                width: 100%;
+            }
         }
 </style>   
 
@@ -243,23 +290,25 @@
             <h2 class="section-title">Our Destinations</h2>
             
             <!-- Filters -->
-            <div class="filters">
-                <a href="{{ route('destinations') }}" 
-                   class="filter-btn {{ !$regionFilter || $regionFilter == 'all' ? 'active' : '' }}">
+            <div class="filters" id="regionFilters">
+                <button type="button"
+                   class="filter-btn {{ !$regionFilter || $regionFilter == 'all' ? 'active' : '' }}"
+                   data-region="all">
                     All regions
-                </a>
+                </button>
                 @foreach($regions as $region)
-                    <a href="{{ route('destinations', ['region' => $region]) }}" 
-                       class="filter-btn {{ $regionFilter == $region ? 'active' : '' }}">
+                    <button type="button"
+                       class="filter-btn {{ $regionFilter == $region ? 'active' : '' }}"
+                       data-region="{{ $region }}">
                         {{ $region }}
-                    </a>
+                    </button>
                 @endforeach
             </div>
             
             <!-- Cities Grid -->
-            <div class="row g-3 py-1">
+            <div class="row g-3 py-1" id="destinationsGrid">
                 @forelse($cities as $city)
-                    <div class="col-md-6 col-lg-4">
+                    <div class="col-md-6 col-lg-4 destination-item" data-region="{{ $city->region }}">
                         <div class="city-card">
                             <!-- IMAGE -->
                             <div class="city-image-wrapper">
@@ -298,8 +347,9 @@
                                 </div>
 
                                 <a href="{{ route('marketplace.city', $city->slug) }}" 
-                                   class="mt-3 text-decoration-none fw-semibold d-inline-block text-primary">
-                                    View trips <i class="fas fa-arrow-right ms-1"></i>
+                                   class="mt-3 destination-cta">
+                                    <span>View trips</span>
+                                    <i class="fas fa-arrow-right destination-cta-arrow"></i>
                                 </a>
                             </div>
                         </div>
@@ -324,14 +374,25 @@
                 @endforelse
             </div>
 
+            <div id="destinationsNoResult" class="text-center py-5 d-none">
+                <i class="fas fa-city" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
+                <h4 class="fw-bold mb-2">No destinations found</h4>
+                <p class="text-muted">No destinations available in this region.</p>
+                <button type="button" class="btn btn-primary mt-3" id="resetRegionFilter">
+                    <i class="fas fa-refresh"></i> View all destinations
+                </button>
+            </div>
+
             @if($cities->count() > 0)
                 <div class="text-center mt-5">
-                    <p class="text-muted">
-                        Showing {{ $cities->count() }} 
-                        {{ $cities->count() > 1 ? 'destinations' : 'destination' }}
-                        @if($regionFilter && $regionFilter != 'all')
-                            in the region {{ $regionFilter }}
-                        @endif
+                    <p class="text-muted destinations-summary">
+                        Showing <span id="visibleDestinationsCount">{{ $cities->count() }}</span>
+                        <span id="visibleDestinationsLabel">{{ $cities->count() > 1 ? 'destinations' : 'destination' }}</span>
+                        <span id="visibleRegionText">
+                            @if($regionFilter && $regionFilter != 'all')
+                                in the region {{ $regionFilter }}
+                            @endif
+                        </span>
                     </p>
                 </div>
             @endif
@@ -348,13 +409,74 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
-        });
 
-        // Smooth scroll when clicking filter
-        document.querySelectorAll('.filter-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            const normalize = (value) => (value || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+
+            const filterButtons = document.querySelectorAll('#regionFilters .filter-btn');
+            const destinationItems = document.querySelectorAll('.destination-item');
+            const noResultBox = document.getElementById('destinationsNoResult');
+            const visibleCountEl = document.getElementById('visibleDestinationsCount');
+            const visibleLabelEl = document.getElementById('visibleDestinationsLabel');
+            const visibleRegionTextEl = document.getElementById('visibleRegionText');
+            const resetFilterBtn = document.getElementById('resetRegionFilter');
+
+            const applyRegionFilter = (region) => {
+                const normalizedRegion = normalize(region);
+                let visibleCount = 0;
+
+                destinationItems.forEach((item) => {
+                    const itemRegion = normalize(item.dataset.region);
+                    const show = normalizedRegion === 'all' || itemRegion === normalizedRegion;
+                    item.style.display = show ? '' : 'none';
+                    if (show) {
+                        visibleCount++;
+                    }
+                });
+
+                if (noResultBox) {
+                    noResultBox.classList.toggle('d-none', visibleCount > 0);
+                }
+
+                if (visibleCountEl) {
+                    visibleCountEl.textContent = String(visibleCount);
+                }
+
+                if (visibleLabelEl) {
+                    visibleLabelEl.textContent = visibleCount === 1 ? 'destination' : 'destinations';
+                }
+
+                if (visibleRegionTextEl) {
+                    visibleRegionTextEl.textContent = normalizedRegion !== 'all'
+                        ? (' in the region ' + region)
+                        : '';
+                }
+            };
+
+            filterButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach((btn) => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    applyRegionFilter(this.dataset.region || 'all');
+                });
             });
+
+            if (resetFilterBtn) {
+                resetFilterBtn.addEventListener('click', function() {
+                    const allBtn = document.querySelector('#regionFilters .filter-btn[data-region="all"]');
+                    if (allBtn) {
+                        allBtn.click();
+                    } else {
+                        applyRegionFilter('all');
+                    }
+                });
+            }
+
+            const initialActive = document.querySelector('#regionFilters .filter-btn.active');
+            applyRegionFilter(initialActive ? (initialActive.dataset.region || 'all') : 'all');
         });
     </script>
 

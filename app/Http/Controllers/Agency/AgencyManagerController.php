@@ -243,9 +243,11 @@ class AgencyManagerController extends Controller
                 ->with('error', 'No agency found for your account.');
         }
 
+        $tripDateColumn = Schema::hasColumn('trips', 'departure_date') ? 'departure_date' : 'travel_date';
+
         $trips = $agency->departureTrips()
             ->with(['route', 'vehicle', 'driver'])
-            ->latest('departure_date')
+            ->latest($tripDateColumn)
             ->paginate(20);
 
         return view('agency_manager.trips', compact('agency', 'trips'));

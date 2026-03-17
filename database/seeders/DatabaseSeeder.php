@@ -412,6 +412,7 @@ class DatabaseSeeder extends Seeder
 
         // Seed presentation-focused schedules/fares for agency profile pages
         $this->call(PresentationAgencyProfileSeeder::class);
+        $this->call(AgencyDemoTripsSeeder::class);
 
         // ============================================
         // Demo accounts for each dashboard

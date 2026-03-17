@@ -250,7 +250,15 @@
                 <button class="btn btn-primary w-100" type="submit" id="submitBtn" style="height: 48px; font-weight: 600; font-size: 1.05rem; border-radius: 8px; justify-content: center; background: #2563eb; color: white !important;" >
                     <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true" id="loadingSpinner"></span>
                     <span id="btnText" style="color: white !important;">Sign In</span>
-                </button>
+                                </button>
+
+                <div class="text-center my-3" style="color: #6c757d; font-size: 0.9rem;">or</div>
+
+                <a href="{{ route('auth.google.redirect') }}"
+                   class="btn w-100"
+                   style="height: 48px; border: 1px solid #d1d5db; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: #111827; font-weight: 600; text-decoration: none;">
+                    <i class="fab fa-google me-2" style="color: #dc3545;"></i>Continue with Google
+                </a>
             </form>
             
             <div class="text-center" style="font-size: 0.98rem; margin-bottom: 15px;">
@@ -372,3 +380,4 @@
     </script>
 
 @endsection
+

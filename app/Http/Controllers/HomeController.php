@@ -9,6 +9,7 @@ use App\Models\Route;
 use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {   
@@ -180,11 +181,6 @@ class HomeController extends Controller
                       ->where('status', 'active');
                 }
             ]);
-
-        // Filter by region if specified
-        if ($regionFilter && $regionFilter != 'all') {
-            $query->where('region', $regionFilter);
-        }
 
         $cities = $query->get()->map(function ($city) {
             // Count routes from this city
@@ -401,6 +397,11 @@ class HomeController extends Controller
             ],
         ];
 
+        $selectedFrom = $request->filled('from') ? trim($request->input('from')) : null;
+        $selectedTo = $request->filled('to') ? trim($request->input('to')) : null;
+        $selectedDate = $request->filled('date') ? $request->input('date') : null;
+        $selectedServiceType = $request->filled('service_type') ? trim($request->input('service_type')) : null;
+
         if ($request->boolean('price_alert')) {
             session()->flash('success', 'Price alert set successfully (demo mode).');
         }
@@ -411,7 +412,11 @@ class HomeController extends Controller
             'rating',
             'totalRoutes',
             'totalTrips',
-            'reviews'
+            'reviews',
+            'selectedFrom',
+            'selectedTo',
+            'selectedDate',
+            'selectedServiceType'
         ));
     }
 
@@ -459,10 +464,31 @@ class HomeController extends Controller
      */
     public function marketplaceCity(Request $request, City $city)
     {
-        $from = $request->from;
-        $to = $request->to;
+        $from = $request->filled('from') ? trim($request->from) : null;
+        $to = $request->filled('to') ? trim($request->to) : null;
         $date = $request->date;
         $serviceType = $request->service_type;
+
+        $fromCity = null;
+        $toCity = null;
+
+        if ($from && $to) {
+            $activeCities = City::where('status', 'active')->get(['id', 'name', 'slug']);
+
+            $citiesByName = $activeCities->keyBy(function (City $candidate) {
+                return $this->normalizeCitySearchValue($candidate->name);
+            });
+
+            $citiesBySlug = $activeCities->keyBy(function (City $candidate) {
+                return $this->normalizeCitySearchValue($candidate->slug);
+            });
+
+            $fromKey = $this->normalizeCitySearchValue($from);
+            $toKey = $this->normalizeCitySearchValue($to);
+
+            $fromCity = $citiesByName->get($fromKey) ?? $citiesBySlug->get($fromKey);
+            $toCity = $citiesByName->get($toKey) ?? $citiesBySlug->get($toKey);
+        }
 
         // Build the query for agencies
         $query = Agency::where('city_id', $city->id)
@@ -471,14 +497,21 @@ class HomeController extends Controller
 
         // If search parameters are provided, filter agencies that have matching trips
         if ($from && $to) {
-            $query->whereHas('trips', function ($q) use ($from, $to, $serviceType, $date) {
-                $q->whereHas('route', function ($routeQuery) use ($from, $to) {
+            $query->whereHas('trips', function ($q) use ($from, $to, $serviceType, $date, $fromCity, $toCity) {
+                $q->whereHas('route', function ($routeQuery) use ($from, $to, $fromCity, $toCity) {
+                    if ($fromCity && $toCity) {
+                        $routeQuery->where('from_city_id', $fromCity->id)
+                            ->where('to_city_id', $toCity->id);
+
+                        return;
+                    }
+
                     $routeQuery->whereHas('fromCity', function ($cityQuery) use ($from) {
                         $cityQuery->where('name', $from);
                     })
-                    ->whereHas('toCity', function ($cityQuery) use ($to) {
-                        $cityQuery->where('name', $to);
-                    });
+                        ->whereHas('toCity', function ($cityQuery) use ($to) {
+                            $cityQuery->where('name', $to);
+                        });
                 });
 
                 if ($date) {
@@ -496,7 +529,7 @@ class HomeController extends Controller
         // Get agencies with their matching trips
         $agencies = $query->with([
             'company',
-            'trips' => function ($q) use ($from, $to, $serviceType, $date) {
+            'trips' => function ($q) use ($from, $to, $serviceType, $date, $fromCity, $toCity) {
                 // Load trips with route information
                 $q->with([
                     'route.fromCity',
@@ -507,13 +540,20 @@ class HomeController extends Controller
 
                 // Apply filters if search was performed
                 if ($from && $to) {
-                    $q->whereHas('route', function ($routeQuery) use ($from, $to) {
+                    $q->whereHas('route', function ($routeQuery) use ($from, $to, $fromCity, $toCity) {
+                        if ($fromCity && $toCity) {
+                            $routeQuery->where('from_city_id', $fromCity->id)
+                                ->where('to_city_id', $toCity->id);
+
+                            return;
+                        }
+
                         $routeQuery->whereHas('fromCity', function ($cityQuery) use ($from) {
                             $cityQuery->where('name', $from);
                         })
-                        ->whereHas('toCity', function ($cityQuery) use ($to) {
-                            $cityQuery->where('name', $to);
-                        });
+                            ->whereHas('toCity', function ($cityQuery) use ($to) {
+                                $cityQuery->where('name', $to);
+                            });
                     });
                 }
 
@@ -532,15 +572,22 @@ class HomeController extends Controller
             }
         ])
         ->withCount([
-            'trips' => function ($q) use ($from, $to, $serviceType, $date) {
+            'trips' => function ($q) use ($from, $to, $serviceType, $date, $fromCity, $toCity) {
                 if ($from && $to) {
-                    $q->whereHas('route', function ($routeQuery) use ($from, $to) {
+                    $q->whereHas('route', function ($routeQuery) use ($from, $to, $fromCity, $toCity) {
+                        if ($fromCity && $toCity) {
+                            $routeQuery->where('from_city_id', $fromCity->id)
+                                ->where('to_city_id', $toCity->id);
+
+                            return;
+                        }
+
                         $routeQuery->whereHas('fromCity', function ($cityQuery) use ($from) {
                             $cityQuery->where('name', $from);
                         })
-                        ->whereHas('toCity', function ($cityQuery) use ($to) {
-                            $cityQuery->where('name', $to);
-                        });
+                            ->whereHas('toCity', function ($cityQuery) use ($to) {
+                                $cityQuery->where('name', $to);
+                            });
                     });
                 }
 
@@ -571,5 +618,19 @@ class HomeController extends Controller
             'serviceType',
             'cities'
         ));
+    }
+
+    private function normalizeCitySearchValue(?string $value): string
+    {
+        if (!$value) {
+            return '';
+        }
+
+        return Str::of($value)
+            ->ascii()
+            ->lower()
+            ->squish()
+            ->replace('-', ' ')
+            ->value();
     }
 }

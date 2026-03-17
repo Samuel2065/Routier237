@@ -6,6 +6,14 @@
 @section('page_title', 'Companies')
 @section('page_subtitle', 'Dynamic company list and approval workflow')
 
+@section('page_css')
+    <style>
+        .modal.modal-top .modal-dialog {
+            margin-top: 1rem;
+        }
+    </style>
+@endsection
+
 @section('page_actions')
     <a href="{{ route('super_admin.companies.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-circle"></i> Create Company
@@ -43,10 +51,17 @@
                             </td>
                             <td>
                                 @if($company->approval_status === 'pending')
-                                    <form method="POST" action="{{ route('super_admin.companies.approve', $company->id) }}" class="d-inline">
-                                        @csrf
-                                        <button class="btn btn-sm btn-success" onclick="return confirm('Approve this company?')"><i class="bi bi-check-circle"></i></button>
-                                    </form>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#approveModal"
+                                        data-approve-action="{{ route('super_admin.companies.approve', $company->id) }}"
+                                        data-approve-name="{{ $company->name }}"
+                                        data-approve-type="company"
+                                    >
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectCompanyModal{{ $company->id }}">
                                         <i class="bi bi-x-circle"></i>
                                     </button>
@@ -85,4 +100,51 @@
         </div>
         <div class="mt-3">{{ $companies->links() }}</div>
     </div>
+
+    <div class="modal fade modal-top" id="approveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <form method="POST" action="#">
+                    @csrf
+                    <div class="modal-header">
+                        <h6 class="modal-title">Approve <span data-approve-type>item</span>?</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0 small text-muted">
+                            You are about to approve <strong data-approve-entity>this item</strong>. Continue?
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const approveModal = document.getElementById('approveModal');
+            if (!approveModal) return;
+
+            approveModal.addEventListener('show.bs.modal', function (event) {
+                const trigger = event.relatedTarget;
+                if (!trigger) return;
+
+                const action = trigger.getAttribute('data-approve-action') || '#';
+                const name = trigger.getAttribute('data-approve-name') || 'this item';
+                const type = trigger.getAttribute('data-approve-type') || 'item';
+
+                const form = approveModal.querySelector('form');
+                const nameEl = approveModal.querySelector('[data-approve-entity]');
+                const typeEl = approveModal.querySelector('[data-approve-type]');
+
+                if (form) form.setAttribute('action', action);
+                if (nameEl) nameEl.textContent = name;
+                if (typeEl) typeEl.textContent = type;
+            });
+        });
+    </script>
 @endsection
