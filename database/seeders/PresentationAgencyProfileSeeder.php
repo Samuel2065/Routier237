@@ -56,9 +56,14 @@ class PresentationAgencyProfileSeeder extends Seeder
             $routeIndex = 0;
             foreach ($routes as $route) {
                 $times = $this->timesForRouteIndex($routeIndex);
+                $startDate = Carbon::tomorrow();
+                $endDate = Carbon::create($startDate->year, 4, 12);
+                if ($endDate->lt($startDate)) {
+                    $endDate->addYear();
+                }
 
-                for ($dayOffset = 0; $dayOffset < 4; $dayOffset++) {
-                    $travelDate = Carbon::today()->addDays($dayOffset);
+                for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                    $travelDate = $date->copy();
 
                     foreach ($times as $timeIndex => $time) {
                         $routeBasePrice = max((int) ($route->price ?? 2500), 1500);

@@ -36,6 +36,11 @@ class AgencyDemoTripsSeeder extends Seeder
 
         $defaultDestinationSlugs = ['douala', 'yaounde', 'bafoussam', 'garoua', 'bertoua', 'bamenda', 'buea'];
         $departureTimes = ['06:30:00', '08:00:00', '12:00:00', '15:10:00'];
+        $startDate = Carbon::tomorrow();
+        $endDate = Carbon::create($startDate->year, 4, 12);
+        if ($endDate->lt($startDate)) {
+            $endDate->addYear();
+        }
 
         foreach ($agencies as $agency) {
             if (!$agency->city_id || !$agency->company_id) {
@@ -64,8 +69,8 @@ class AgencyDemoTripsSeeder extends Seeder
             }
 
             foreach ($routes as $routeIndex => $route) {
-                foreach (range(0, 6) as $dayOffset) {
-                    $travelDate = Carbon::today()->addDays($dayOffset)->toDateString();
+                for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                    $travelDate = $date->toDateString();
 
                     foreach ($departureTimes as $timeIndex => $departureTime) {
                         $isVipTrip = ($timeIndex % 2) === 1;

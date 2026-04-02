@@ -490,8 +490,13 @@ class HomeController extends Controller
             $toCity = $citiesByName->get($toKey) ?? $citiesBySlug->get($toKey);
         }
 
+        $departureCityId = $fromCity?->id ?? $city->id;
+        if ($fromCity) {
+            $city = $fromCity;
+        }
+
         // Build the query for agencies
-        $query = Agency::where('city_id', $city->id)
+        $query = Agency::where('city_id', $departureCityId)
             ->where('approval_status', 'approved')
             ->where('status', 'active');
 
