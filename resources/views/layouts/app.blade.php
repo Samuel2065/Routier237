@@ -158,7 +158,7 @@
             flex-wrap: nowrap;
         }
 
-        @media (max-width: 991.98px) {
+    @media (max-width: 991.98px) {
             .navbar .navbar-nav.mx-auto {
                 margin-left: 0 !important;
                 margin-right: 0 !important;

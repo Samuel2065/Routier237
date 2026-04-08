@@ -73,6 +73,7 @@
         @media (min-width: 992px) {
             .sidebar { transform: none !important; }
         }
+
     </style>
     @yield('page_css')
 </head>

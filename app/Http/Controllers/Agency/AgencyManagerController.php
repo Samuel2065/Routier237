@@ -246,7 +246,7 @@ class AgencyManagerController extends Controller
         $tripDateColumn = Schema::hasColumn('trips', 'departure_date') ? 'departure_date' : 'travel_date';
 
         $trips = $agency->departureTrips()
-            ->with(['route', 'vehicle', 'driver'])
+            ->with(['route', 'vehicle'])
             ->latest($tripDateColumn)
             ->paginate(20);
 

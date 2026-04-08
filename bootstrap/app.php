@@ -22,6 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 ? auth()->user()->getDashboardRoute()
                 : '/';
         });
+
+        // Redirect unauthenticated users to the custom sign-in page.
+        $middleware->redirectGuestsTo(function () {
+            return route('sign_in');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

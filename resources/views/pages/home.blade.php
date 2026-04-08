@@ -3,6 +3,54 @@
 @section('title', 'Home')
 
 <style>
+    .app-loader {
+        position: fixed;
+        inset: 0;
+        background: #ffffff;
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .app-loader.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .app-loader-inner {
+        width: min(420px, 90vw);
+        text-align: center;
+    }
+
+    .app-loader-title {
+        font-size: 1.35rem;
+        letter-spacing: 0.02em;
+        margin-bottom: 1rem;
+        color: #0d6efd;
+        font-weight: 700;
+    }
+
+    .app-loader-spinner {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        border: 8px solid transparent;
+        border-top-color: #22c55e;
+        border-right-color: #ef4444;
+        border-bottom-color: #facc15;
+        animation: appLoaderSpin 0.9s linear infinite;
+    }
+
+    @keyframes appLoaderSpin {
+        to { transform: rotate(360deg); }
+    }
+
+    body.loading { overflow: hidden; }
+
     /* Navbar adjustments */
     .navbar {
         position: fixed;
@@ -470,6 +518,13 @@
 
 
 @section('content')
+    <div id="appLoader" class="app-loader" aria-live="polite" aria-busy="true">
+        <div class="app-loader-inner">
+            <div class="app-loader-spinner" role="status" aria-label="Loading"></div>
+            <div class="app-loader-title">Routier+237</div>
+        </div>
+    </div>
+
     <!-- Hero Section -->
     <section class="hero" id="home" style="background-image: url('{{ asset('assets/images/home.png') }}');">
         <div class="hero-content" id="hero-content">
@@ -1060,4 +1115,29 @@
         </section>
 
     </main>
+
+    <script>
+        (function () {
+            const loader = document.getElementById('appLoader');
+            if (!loader) return;
+
+            document.body.classList.add('loading');
+
+            const finish = () => {
+                loader.setAttribute('aria-busy', 'false');
+                setTimeout(() => {
+                    loader.classList.add('is-hidden');
+                    document.body.classList.remove('loading');
+                }, 200);
+                setTimeout(() => {
+                    loader.remove();
+                }, 800);
+            };
+
+            window.addEventListener('load', finish);
+            setTimeout(() => {
+                if (document.readyState === 'complete') finish();
+            }, 3500);
+        })();
+    </script>
 @endsection

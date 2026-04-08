@@ -288,6 +288,7 @@
                 transform: none !important;
             }
         }
+
     </style>
     @yield('page_css')
 </head>
