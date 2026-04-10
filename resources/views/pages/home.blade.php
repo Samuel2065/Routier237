@@ -514,6 +514,32 @@
             max-width: 25%;
         }
     }
+
+    @media (max-width: 576px) {
+        .welcome-section {
+            margin: 24px 12px;
+        }
+        .welcome-section .container {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .search-section {
+            width: 100%;
+        }
+        .search-section .card {
+            width: 100%;
+            margin: 0;
+        }
+        .search-section .row {
+            padding: 1.25rem !important;
+        }
+        .popular-routes {
+            margin-left: 0;
+        }
+        .search-section h6 {
+            margin-left: 0 !important;
+        }
+    }
 </style> 
 
 

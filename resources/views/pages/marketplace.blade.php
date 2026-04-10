@@ -291,15 +291,32 @@ h6{
             </p>
         </div>
 
+        <!-- 'Vue a?rienne de Yaound? en journ?e.png',
+                'Vue a?rienne de Bertoua, Cameroun.png',
+                'Vue a?rienne de Douala anim?e.png',
+                'Vue a?rienne de Bamenda lumineuse.png', -->
+
+        @php
+            $marketplaceCityImages = [
+                'newimages1.png',
+                'newimages2.png',
+                'newimages3.png',
+                'newimages4.png',
+            ];
+        @endphp
+
         <div class="row g-4">
             @forelse($citiesWithStats as $cityItem)
+                @php
+                    $cityImage = $marketplaceCityImages[$loop->index % count($marketplaceCityImages)];
+                @endphp
                 <div class="col-lg-3 col-md-4 col-sm-6">
                     <a href="{{ route('marketplace.city', ['city' => $cityItem->slug]) }}" class="text-decoration-none city-link">
                         <div class="card border-0 rounded-4 overflow-hidden h-100 city-hover">
 
                             <div class="city-image-wrapper">
                                 <div class="city-image"
-                                     style="background-image:url('{{ asset('assets/images/yaounde.png') }}');">
+                                     style="background-image:url('{{ asset('assets/images/' . rawurlencode($cityImage)) }}');">
                                 </div>
 
                                 <div class="city-overlay p-3 d-flex text-start" style="margin-top: 110px;">

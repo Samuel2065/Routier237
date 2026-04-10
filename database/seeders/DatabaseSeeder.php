@@ -440,15 +440,38 @@ class DatabaseSeeder extends Seeder
                 ]
             );
 
-            Client::firstOrCreate(
-                ['user_id' => $demoCustomer->id],
-                [
+            $clientPhone = $demoCustomer->phone;
+            if (Schema::hasColumn('clients', 'phone')) {
+                $basePhone = preg_replace('/\D+/', '', (string) $clientPhone) ?: '690000101';
+                $counter = 0;
+                while (Client::withTrashed()
+                    ->where('phone', $clientPhone)
+                    ->exists()) {
+                    $counter++;
+                    $clientPhone = substr($basePhone . $counter, 0, 9);
+                }
+            }
+
+            $existingClient = Client::withTrashed()->where('user_id', $demoCustomer->id)->first();
+            if ($existingClient) {
+                if (method_exists($existingClient, 'restore') && $existingClient->trashed()) {
+                    $existingClient->restore();
+                }
+                $existingClient->fill([
                     'full_name' => $demoCustomer->full_name,
                     'email' => $demoCustomer->email,
-                    'phone' => $demoCustomer->phone,
+                    'phone' => $clientPhone,
                     'status' => 'active',
-                ]
-            );
+                ])->save();
+            } else {
+                Client::create([
+                    'user_id' => $demoCustomer->id,
+                    'full_name' => $demoCustomer->full_name,
+                    'email' => $demoCustomer->email,
+                    'phone' => $clientPhone,
+                    'status' => 'active',
+                ]);
+            }
         }
 
         if ($agencyManagerRole && $demoAgency) {
@@ -581,6 +604,96 @@ class DatabaseSeeder extends Seeder
                     'status' => 'available',
                 ]
             );
+        }
+
+        // ============================================
+        // Overline Voyage Yaounde & Bertoua managers
+        // ============================================
+        if ($agencyManagerRole) {
+            $overlineCompany = Company::where('name', 'Overline Voyage')->first();
+            $yaoundeAgency = Agency::where('name', 'Overline Voyage YaoundÃ©')->first()
+                ?? Agency::where('name', 'Overline Voyage Yaounde')->first();
+            $bertouaAgency = Agency::where('name', 'Overline Voyage Bertoua')->first();
+
+            if (!$yaoundeAgency && $overlineCompany) {
+                $yaoundeCity = City::where('name', 'YaoundÃ©')->first() ?? City::where('name', 'Yaounde')->first();
+                if ($yaoundeCity) {
+                    $yaoundeAgency = Agency::firstOrCreate(
+                        ['name' => 'Overline Voyage YaoundÃ©'],
+                        [
+                            'company_id' => $overlineCompany->id,
+                            'city_id' => $yaoundeCity->id,
+                            'agency_code' => 'AG-OV-YAO',
+                            'district' => 'Messa',
+                            'full_address' => 'Messa, YaoundÃ©',
+                            'slug' => Str::slug('Overline Voyage Yaounde'),
+                            'rating' => 4.5,
+                            'phone' => '678001111',
+                            'email' => 'overline.yaounde@gmail.com',
+                            'type' => 'main',
+                            'status' => 'active',
+                            'approval_status' => 'approved',
+                        ]
+                    );
+                }
+            }
+
+            if (!$bertouaAgency && $overlineCompany) {
+                $bertouaCity = City::where('name', 'Bertoua')->first();
+                if ($bertouaCity) {
+                    $bertouaAgency = Agency::firstOrCreate(
+                        ['name' => 'Overline Voyage Bertoua'],
+                        [
+                            'company_id' => $overlineCompany->id,
+                            'city_id' => $bertouaCity->id,
+                            'agency_code' => 'AG-OV-BER',
+                            'district' => 'Nkolbisson',
+                            'full_address' => 'Nkolbisson, Bertoua',
+                            'slug' => Str::slug('Overline Voyage Bertoua'),
+                            'rating' => 4.5,
+                            'phone' => '678001112',
+                            'email' => 'overline.bertoua@gmail.com',
+                            'type' => 'secondary',
+                            'status' => 'active',
+                            'approval_status' => 'approved',
+                        ]
+                    );
+                }
+            }
+
+            if ($yaoundeAgency) {
+                $yaoundeManager = User::firstOrCreate(
+                    ['email' => 'overline.yaounde.manager@gmail.com'],
+                    [
+                        'full_name' => 'Overline Yaounde Manager',
+                        'phone' => '690100201',
+                        'password' => bcrypt('password'),
+                        'user_type' => 'staff',
+                        'role_id' => $agencyManagerRole->id,
+                        'status' => 'active',
+                        'email_verified_at' => now(),
+                    ]
+                );
+                $yaoundeAgency->manager_id = $yaoundeManager->id;
+                $yaoundeAgency->save();
+            }
+
+            if ($bertouaAgency) {
+                $bertouaManager = User::firstOrCreate(
+                    ['email' => 'overline.bertoua.manager@gmail.com'],
+                    [
+                        'full_name' => 'Overline Bertoua Manager',
+                        'phone' => '690100202',
+                        'password' => bcrypt('password'),
+                        'user_type' => 'staff',
+                        'role_id' => $agencyManagerRole->id,
+                        'status' => 'active',
+                        'email_verified_at' => now(),
+                    ]
+                );
+                $bertouaAgency->manager_id = $bertouaManager->id;
+                $bertouaAgency->save();
+            }
         }
     }
 }

@@ -29,6 +29,9 @@
                         <td>{{ data_get($trip, 'route.fromCity.name', '-') }} - {{ data_get($trip, 'route.toCity.name', '-') }}</td>
                         <td>
                             {{ data_get($trip, 'departureAgency.company.name') ?? data_get($trip, 'departureAgency.name', '-') }}
+                            <div class="text-muted small">
+                                {{ data_get($trip, 'departureAgency.city.name') ?? data_get($trip, 'departureAgency.city', 'Town N/A') }}
+                            </div>
                         </td>
                         <td>{{ optional($trip->travel_date)->format('Y-m-d') ?? ($trip->departure_date ?? '-') }}</td>
                         <td>{{ $trip->departure_time ? \Carbon\Carbon::createFromFormat('H:i:s', $trip->departure_time)->format('H:i') : '-' }}</td>

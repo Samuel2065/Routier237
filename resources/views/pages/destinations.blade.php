@@ -305,15 +305,27 @@
                 @endforeach
             </div>
             
+            @php
+                $destinationCardImages = [
+                    'newimages1.png',
+                    'newimages2.png',
+                    'newimages3.png',
+                    'newimages4.png',
+                ];
+            @endphp
+
             <!-- Cities Grid -->
             <div class="row g-3 py-1" id="destinationsGrid">
                 @forelse($cities as $city)
+                    @php
+                        $destinationImage = $destinationCardImages[$loop->index % count($destinationCardImages)];
+                    @endphp
                     <div class="col-md-6 col-lg-4 destination-item" data-region="{{ $city->region }}">
                         <div class="city-card">
                             <!-- IMAGE -->
                             <div class="city-image-wrapper">
                                 <div class="position-relative image-bg" 
-                                     style="height: 220px; background-image: url('{{ asset('assets/images/douala.png') }}'); background-size: cover; background-position: center;">
+                                     style="height: 220px; background-image: url('{{ asset('assets/images/' . rawurlencode($destinationImage)) }}'); background-size: cover; background-position: center;">
                                     <div class="overlay-veil"></div>
                                     
                                     <!-- Region badge -->

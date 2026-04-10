@@ -253,6 +253,7 @@ class CustomerController extends Controller
         }
 
         $reservation->load([
+            'client',
             'trip.route.fromCity',
             'trip.route.toCity',
             'trip.departureAgency.company',
@@ -269,19 +270,49 @@ class CustomerController extends Controller
             abort(403);
         }
 
-        $validated = $request->validate([
-            'confirmation_code' => 'required|string|min:4|max:20',
-        ]);
+        $isPaymentStep = $request->filled('payment_method') || $request->filled('payment_confirmed');
+        $sessionKey = 'reservation_verified_' . $reservation->id;
 
-        $providedCode = strtoupper(trim((string) $validated['confirmation_code']));
-        $storedCode = strtoupper(trim((string) ($reservation->confirmation_code ?? '')));
+        if ($isPaymentStep) {
+            $validated = $request->validate([
+                'payment_method' => 'required|in:om,momo',
+                'payment_confirmed' => 'accepted',
+            ]);
+        } else {
+            $validated = $request->validate([
+                'confirmation_code' => 'required|string|min:4|max:20',
+            ]);
+        }
 
-        if ($storedCode === '' || $providedCode !== $storedCode) {
-            return back()->with('error', 'Invalid confirmation code. Please check your email and try again.');
+        if (!$isPaymentStep) {
+            $providedCode = strtoupper(trim((string) $validated['confirmation_code']));
+            $storedCode = strtoupper(trim((string) ($reservation->confirmation_code ?? '')));
+
+            if ($storedCode === '' || $providedCode !== $storedCode) {
+                return back()->with('error', 'Invalid confirmation code. Please check your email and try again.');
+            }
+
+            $request->session()->put($sessionKey, true);
+
+            return redirect()->route('customer.book.confirmation', ['reservation' => $reservation->id])
+                ->with('success', 'Verification successful. Please choose your payment method to complete the booking.');
+        }
+
+        if (!$request->session()->get($sessionKey, false) && strtolower((string) ($reservation->payment_status ?? '')) !== 'paid') {
+            return redirect()->route('customer.book.confirmation', ['reservation' => $reservation->id])
+                ->with('error', 'Please verify your booking code before proceeding to payment.');
         }
 
         if (Schema::hasColumn('reservations', 'status')) {
             $reservation->status = $this->resolveVerifiedReservationStatusValue();
+        }
+        if (Schema::hasColumn('reservations', 'payment_method')) {
+            $reservation->payment_method = $validated['payment_method'];
+        }
+        if (Schema::hasColumn('reservations', 'payment_status')) {
+            $reservation->payment_status = 'paid';
+        }
+        if ($reservation->isDirty()) {
             $reservation->save();
         }
 
@@ -322,8 +353,9 @@ class CustomerController extends Controller
             }
         }
 
-        return redirect()->route('customer.reservations')
-            ->with('success', 'Booking verified successfully. A confirmation email has been sent.');
+        return redirect()->route('customer.book.confirmation', ['reservation' => $reservation->id])
+            ->with('success', 'Payment completed. Your booking is now confirmed and the confirmation email has been sent.')
+            ->with('last_payment_method', $validated['payment_method']);
     }
 
     public function profile()

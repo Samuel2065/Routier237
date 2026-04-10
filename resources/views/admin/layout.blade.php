@@ -288,6 +288,20 @@
                 transform: none !important;
             }
         }
+        @media (max-width: 575.98px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            .topbar-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .topbar-actions .dropdown {
+                margin-left: auto;
+            }
+        }
 
     </style>
     @yield('page_css')
@@ -379,7 +393,7 @@
                     @endif
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 topbar-actions">
                 <div>
                     @yield('page_actions')
                 </div>
